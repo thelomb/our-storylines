@@ -5,7 +5,7 @@ from application.main import bp
 from application.main.forms import (EditProfileForm,
                                     PostForm)
 from flask_login import current_user, login_required
-from application.models import User, Story #  ,  Storyline
+from application.models import User, Story, Storyline
 from datetime import datetime
 from application import images
 
@@ -29,6 +29,7 @@ def index():
             if request.files['post_images']:
                 filename = images.save(request.files['post_images'])
                 url = images.url(filename)
+        print(f"filename is: {filename}")
         story = Story(content=form.post.data, author=current_user,
                       image_filename=filename, image_url=url)
         db.session.add(story)

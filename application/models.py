@@ -172,10 +172,12 @@ class Story(db.Model):
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
+        print("on changed content")
+        print(markdown(value, output_format='html'))
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
                         'h1', 'h2', 'h3', 'p', 'img']
-        bleach.sanitizer.ALLOWED_ATTRIBUTES['img'] = ['alt', 'src']
+        bleach.sanitizer.ALLOWED_ATTRIBUTES['img'] = ['alt', 'src', 'class']
         target.html_content = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))

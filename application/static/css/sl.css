@@ -1,0 +1,10 @@
+blockquote { padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: 18px;
+    border-left: 5px solid #ccc; color: #d37fb0; }
+
+blockquote.alignright { max-width: 50%; float:right;  color: #d37fb0; text-align:right;border-right: 5px solid #d37fb0; border-left:transparent; }
+
+blockquote.alignleft { max-width: 50%;float:left;}
+
+

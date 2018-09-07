@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField,
-                     SubmitField, TextAreaField)
+                     SubmitField, TextAreaField, MultipleFileField)
 from wtforms.validators import (DataRequired, ValidationError,
                                 Length)
 from application.models import User
@@ -30,6 +30,6 @@ class PostForm(FlaskForm):
     #     DataRequired(), Length(min=1, max=140)])
     post = PageDownField('Say something', validators=[
                          DataRequired()])
-    post_images = FileField('An illustration',
+    post_images = MultipleFileField('An illustration',
                             validators=[FileAllowed(images, 'Image Only!')])
     submit = SubmitField('Submit')

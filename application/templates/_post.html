@@ -11,12 +11,16 @@
                 </a>
                 said {{ moment(post.timestamp).fromNow() }}:
                 <br>
+                <div class="post-title">
+                    <a href="{{ url_for('main.edit_story', story_id=post.id) }}">{{ post.title }}</a>
+                </div>
                 <div class="post-body">
                     {% if post.html_content %}
                         {{ post.html_content | safe}}
                     {% else%}
                         {{ post.content }}
                     {% endif %}
+                </div>
                 <br>
                 {% if post.image_url %}
                     <img class="w-50 float-left img-fluid img-thumbnail rounded" src="{{ post.image_url }}" alt={{ post.image_filname}}>

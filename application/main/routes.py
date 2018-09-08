@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 from application.models import User, Story, Storyline
 from datetime import datetime
 from application import images
+from sqlalchemy import update
 
 
 @bp.before_request
@@ -21,21 +22,6 @@ def before_request():
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    form = PostForm()
-    if form.validate_on_submit():
-        filename = None
-        url = None
-        if request.files:
-            if request.files['post_images']:
-                filename = images.save(request.files['post_images'])
-                url = images.url(filename)
-        print(f"filename is: {filename}")
-        story = Story(content=form.post.data, author=current_user,
-                      image_filename=filename, image_url=url)
-        db.session.add(story)
-        db.session.commit()
-        flash('Your story is now published')
-        return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
     stories = current_user.stories.order_by(Story.timestamp.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
@@ -43,7 +29,7 @@ def index():
         if stories.has_next else None
     prev_url = url_for('main.index', page=stories.prev_num) \
         if stories.has_prev else None
-    return render_template('index.html', title='Home', form=form,
+    return render_template('index.html', title='Home',
                            posts=stories.items, next_url=next_url,
                            prev_url=prev_url, pages=stories.pages)
 
@@ -96,3 +82,45 @@ def explore():
                            posts=stories.items,
                            next_url=next_url, prev_url=prev_url,
                            pages=stories.pages)
+
+
+@bp.route('/story', methods=['GET', 'POST'])
+@login_required
+def story():
+    form = PostForm()
+    if form.validate_on_submit():
+        filename = None
+        url = None
+        if request.files:
+            if request.files['post_images']:
+                filename = images.save(request.files['post_images'])
+                url = images.url(filename)
+        print(f"filename is: {filename}")
+        story = Story(title=form.title.data, content=form.post.data,
+                      author=current_user,
+                      image_filename=filename, image_url=url)
+        db.session.add(story)
+        db.session.commit()
+        flash('Your story is now published')
+        return redirect(url_for('main.index'))
+    return render_template('story.html', form=form)
+
+
+@bp.route('/story/<int:story_id>', methods=['GET', 'POST'])
+@login_required
+def edit_story(story_id):
+    form = PostForm()
+    story = Story.query.get(story_id)
+    if form.validate_on_submit():
+        story.title = form.title.data
+        story.content = form.post.data
+        story.author = current_user
+        db.session.add(story)
+        db.session.commit()
+        flash('Your story is now updated')
+        return redirect(url_for('main.index'))
+    elif request.method == 'GET':
+
+        form.title.data = story.title
+        form.post.data = story.content
+        return render_template('story.html', title="What's new?", form=form)

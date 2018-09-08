@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+ <div>
+    <form class="form" method="post" role="form" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_errors(form, hiddens="only") }}
+        {{ wtf.form_field(form.title) }}
+        {{ wtf.form_field(form.post, **{'data-provide':'markdown', 'data-iconlibrary':'fa', 'class_': 'btn-light', 'rows':25, 'placeholder': 'Tell your story'}) }}
+        <div class="form-group custom-file">
+          <label class="custom-file-label control-label" for="post_images">Choose file</label>
+          <input type="file" class="custom-file-input" id="post_images" name="post_images">
+
+        </div>
+        {# wtf.form_field(form.post_images) #}
+        {{ wtf.form_field(form.submit, **{'class': 'btn btn-primary'}) }}
+    </form>
+</div>
+
+<!--
+    <div class="row">
+      <div class="col-md-12">
+        <textarea id="comment-md" name="comment" placeholder="Say something..."></textarea>
+        <br />
+        <div id="comment-md-preview-container">
+          <div class="well well-sm well-light md-preview margin-top-10" id="comment-md-preview"></div>
+        </div>
+      </div>
+    </div>
+-->
+{% endblock %}

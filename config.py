@@ -11,3 +11,5 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOADED_IMAGES_DEST = os.path.join(basedir, 'static', 'images')
     STORIES_PER_PAGE = 3
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = os.environ.get('MAI_PORT') or 25

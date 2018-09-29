@@ -4,17 +4,25 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
-from sqlalchemy import text
 from time import time
 import jwt
 from markdown import markdown
 import bleach
+import re
+from slugify import slugify
 
 
 storyline_members = db.Table(
     'storyline_members',
     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
     db.Column('storyline_id', db.Integer, db.ForeignKey('storyline.id'))
+)
+
+
+story_tags = db.Table(
+    'story_tags',
+    db.Column('story_id', db.Integer, db.ForeignKey('story.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
 )
 
 
@@ -32,6 +40,7 @@ class Storyline(db.Model):
         lazy='dynamic')
 
     def add_member(self, user):
+        print('add member')
         if not self.is_member(user):
             self.members.append(user)
             if not user.current_line_id:
@@ -45,8 +54,10 @@ class Storyline(db.Model):
             # TO DO deal with user stories
 
     def set_administrator(self, user):
+        print('set admin')
         if not self.administrator_id:
             self.administrator_id = user.id
+
             # admin becomes member automatically
             self.add_member(user)
 
@@ -141,7 +152,8 @@ class User(UserMixin, db.Model):
     def get_reset_password_token(self, expires_in=600):
         token = jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+            current_app.config['SECRET_KEY'], algorithm='HS256').decode(
+            'utf-8')
         print(token)
         return token
 
@@ -164,16 +176,20 @@ class Story(db.Model):
     # date_for = db.Column(db.Date, index=True, default=timestamp)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
-    image_filename = db.Column(db.String)
-    image_url = db.Column(db.String)
+    # image_filename = db.Column(db.String)
+    # image_url = db.Column(db.String)
+    tags = db.relationship(
+        'Tag',
+        secondary=story_tags,
+        back_populates="stories",
+        lazy='dynamic')
+    media = db.relationship('Media', backref='story', lazy='dynamic')
 
     def __repr__(self):
-        return '<Story {}>'.format(self.body)
+        return '<Story id: {}, title {}>'.format(self.id, self.title)
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
-        print("on changed content")
-        print(markdown(value, output_format='html'))
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
                         'h1', 'h2', 'h3', 'p', 'img']
@@ -186,6 +202,52 @@ class Story(db.Model):
 db.event.listen(Story.content, 'set', Story.on_changed_content)
 
 
+class Media(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(20), index=True)
+    name = db.Column(db.String(64))
+    filename = db.Column(db.String)
+    url = db.Column(db.String)
+    story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
+    related_story = db.relationship('Story')
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), index=True, nullable=False)
+    slug = db.Column(db.String(20), index=True, nullable=False)
+    stories = db.relationship(
+        'Story',
+        secondary=story_tags,
+        back_populates='tags',
+        lazy='dynamic')
+
+    @staticmethod
+    def on_changed_name(target, value, oldvalue, initiator):
+        target.slug = slugify(value)
+
+
+class Itinary(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
+    planning_description = db.Column(db.String(1000))
+    actual_description = db.Column(db.String(1000))
+    day = db.Column(db.Date, index=True)
+    done = db.Column(db.Boolean, default=False)
+    planned_start_point = db.Column(db.String(50))
+    planned_end_point = db.Column(db.String(50))
+    planned_distance = db.Column(db.Integer)
+    planned_stay = db.Column(db.String(100))
+    actual_start_point = db.Column(db.String(50))
+    actual_end_point = db.Column(db.String(50))
+    actual_distance = db.Column(db.Integer)
+    actual_stay = db.Column(db.String(100))
+
+
+db.event.listen(Tag.name, 'set', Tag.on_changed_name)
+
+
+# Mixin flask login
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))

@@ -1,29 +1,22 @@
 {% extends "base.html" %}
 
 {% block app_content %}
+  <div class="grid">
     {% for post in posts %}
-        {% include '_post.html' %}
+      <div class="grid-item">
+        {% include '_intro_card.html' %}
+      </div>
     {% endfor %}
+  </div>
+<!--  <div class="scroller-status">
+    <div class="infinite-scroll-request loader-ellips">
+      ...
+    </div>
+    <p class="infinite-scroll-last">End of content</p>
+    <p class="infinite-scroll-error">No more pages to load</p>
+  </div>-->
+  <div class="infinite-pagination">
+    <a class="pagination__next" href="{{ url_for('main.index', page=page + 1) }}">Next page</a>
+  </div>
 
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item {% if not prev_url %} disabled{% endif %}">
-          <a class="page-link disabled" href="{{ prev_url or '#' }}" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-            <span class="sr-only">Previous</span>
-          </a>
-        </li>
-        {% for n in range(pages) %}
-            <li class="page-item">
-                <a class="page-link" href=" {{ url_for('main.index', page=n+1) }}">{{ n + 1 }}</a>
-            </li>
-        {% endfor %}
-        <li class="page-item {% if not next_url %} disabled{% endif %}">
-          <a class="page-link" href="{{ next_url or '#' }}" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-            <span class="sr-only">Next</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
 {% endblock %}

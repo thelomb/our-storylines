@@ -10,7 +10,6 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
-from flask_moment import Moment
 from flask_uploads import UploadSet, IMAGES, configure_uploads
 from flask_pagedown import PageDown
 
@@ -26,7 +25,6 @@ login.login_message = 'Please log in'
 login.login_message_category = 'info'
 mail = Mail()
 bootstrap = Bootstrap()
-moment = Moment()
 images = UploadSet('images', IMAGES)
 pagedown = PageDown()
 
@@ -39,7 +37,6 @@ def create_app(config_class=Config):
     login.init_app(app)
     mail.init_app(app)
     bootstrap.init_app(app)
-    moment.init_app(app)
     configure_uploads(app, images)
     pagedown.init_app(app)
 

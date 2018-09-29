@@ -1,11 +1,11 @@
 from flask import (render_template, flash, redirect, url_for, request,
-                   current_app)
+                   current_app, jsonify)
 from application import db
 from application.main import bp
 from application.main.forms import (EditProfileForm,
                                     PostForm)
 from flask_login import current_user, login_required
-from application.models import User, Story, Storyline
+from application.models import User, Story, Storyline, Media, Tag, Itinary
 from datetime import datetime
 from application import images
 from sqlalchemy import update
@@ -18,20 +18,14 @@ def before_request():
         db.session.commit()
 
 
-@bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
+@bp.route('/')
+@bp.route('/index/<int:page>')
 @login_required
-def index():
-    page = request.args.get('page', 1, type=int)
+def index(page=1):
     stories = current_user.stories.order_by(Story.timestamp.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
-    next_url = url_for('main.index', page=stories.next_num) \
-        if stories.has_next else None
-    prev_url = url_for('main.index', page=stories.prev_num) \
-        if stories.has_prev else None
     return render_template('index.html', title='Home',
-                           posts=stories.items, next_url=next_url,
-                           prev_url=prev_url, pages=stories.pages)
+                           posts=stories.items, page=page)
 
 
 @bp.route('/user/<username>')
@@ -84,21 +78,56 @@ def explore():
                            pages=stories.pages)
 
 
+def media_request(media_request):
+        photos = []
+        # audios = []
+        # videos = []
+        media = {
+            'photo': [],
+            # 'video': [],
+            # 'audio': []
+        }
+        if media_request:
+            for image in media_request.getlist('post_images'):
+                filename = images.save(image)
+                url = images.url(filename)
+                photos.append({'filename': filename, 'url': url})
+                media['photo'] = photos
+        return media
+
+
+def tag_request(tag_request):
+    post_tags = []
+    if tag_request:
+        existing_tags = [name for name, in Tag.query.with_entities(
+            Tag.name)]
+        form_tags = tag_request.split(', ')
+        for tag in form_tags:
+            if tag not in existing_tags:
+                t = Tag(name=tag)
+                db.session.add(t)
+                post_tags.append(t)
+            else:
+                post_tags.append(Tag.query.filter(Tag.name == tag).first())
+    return post_tags
+
+
 @bp.route('/story', methods=['GET', 'POST'])
 @login_required
 def story():
     form = PostForm()
     if form.validate_on_submit():
-        filename = None
-        url = None
-        if request.files:
-            if request.files['post_images']:
-                filename = images.save(request.files['post_images'])
-                url = images.url(filename)
-        print(f"filename is: {filename}")
+        media = media_request(request.files)
+        tags = tag_request(request.form['tags'])
+
         story = Story(title=form.title.data, content=form.post.data,
-                      author=current_user,
-                      image_filename=filename, image_url=url)
+                      author=current_user, tags=tags)
+        for medium in media['photo']:
+            img = Media(type='Image', name=medium['filename'],
+                        filename=medium['filename'], url=medium['url'],
+                        related_story=story)
+            db.session.add(img)
+
         db.session.add(story)
         db.session.commit()
         flash('Your story is now published')
@@ -106,7 +135,16 @@ def story():
     return render_template('story.html', form=form)
 
 
-@bp.route('/story/<int:story_id>', methods=['GET', 'POST'])
+@bp.route('/story/<int:story_id>', methods=['GET'])
+@login_required
+def view_story(story_id):
+    story = Story.query.get(story_id)
+    return render_template('view_story.html',
+                           title="What's new?",
+                           story=story)
+
+
+@bp.route('/story/edit_<int:story_id>', methods=['GET', 'POST'])
 @login_required
 def edit_story(story_id):
     form = PostForm()
@@ -115,12 +153,34 @@ def edit_story(story_id):
         story.title = form.title.data
         story.content = form.post.data
         story.author = current_user
+        story.tags = tag_request(request.form['tags'])
+        media = media_request(request.files)
+        for medium in media['photo']:
+            img = Media(type='Image', name=medium['filename'],
+                        filename=medium['filename'], url=medium['url'],
+                        related_story=story)
+            db.session.add(img)
+
         db.session.add(story)
         db.session.commit()
         flash('Your story is now updated')
         return redirect(url_for('main.index'))
     elif request.method == 'GET':
-
         form.title.data = story.title
-        form.post.data = story.content
-        return render_template('story.html', title="What's new?", form=form)
+        form.post.data = story.html_content
+        tag_placeholders = ', '.join([t.name for t in story.tags])
+        return render_template('story.html',
+                               title="What's new?",
+                               form=form,
+                               story=story,
+                               tags=tag_placeholders)
+
+
+@bp.route('/story/<int:story_id>/delete_picture/<int:picture_id>')
+@login_required
+def delete_picture(story_id, picture_id):
+    print(picture_id)
+    image = Media.query.get(picture_id)
+    db.session.delete(image)
+    db.session.commit()
+    return redirect(url_for('main.edit_story', story_id=story_id))

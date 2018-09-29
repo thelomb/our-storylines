@@ -28,10 +28,12 @@ class EditProfileForm(FlaskForm):
 class PostForm(FlaskForm):
     # post = TextAreaField('Say something', validators=[
     #     DataRequired(), Length(min=1, max=140)])
-    title = StringField('Your Story', validators=[
+    title = StringField('Story Title', validators=[
                         DataRequired()])
-    post = PageDownField('', validators=[
-                         DataRequired()])
+    tags = StringField('Tags')
+    post = TextAreaField('Your Story', validators=[
+                       DataRequired()])
     post_images = MultipleFileField('An illustration',
-        validators=[FileAllowed(images, 'Image Only!')])
-    submit = SubmitField('Submit')
+                                    validators=[FileAllowed(images,
+                                                            'Image Only!')])
+    submit = SubmitField('Validez')

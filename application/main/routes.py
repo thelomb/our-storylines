@@ -5,7 +5,7 @@ from application.main import bp
 from application.main.forms import (EditProfileForm,
                                     PostForm)
 from flask_login import current_user, login_required
-from application.models import User, Story, Storyline, Media, Tag, Itinary
+from application.models import User, Story, Storyline, Media, Tag, Itinerary
 from datetime import datetime
 from application import images
 from sqlalchemy import update

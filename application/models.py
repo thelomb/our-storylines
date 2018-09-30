@@ -28,8 +28,8 @@ story_tags = db.Table(
 
 class Storyline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32), index=True)
-    description = db.Column(db.String(1000))
+    name = db.Column(db.String(32), index=True, nullable=False)
+    description = db.Column(db.String(140))
     administrator_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                                  nullable=True)
     stories = db.relationship('Story', backref='storyline', lazy='dynamic')
@@ -169,8 +169,8 @@ class User(UserMixin, db.Model):
 
 class Story(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64), index=True)
-    content = db.Column(db.String(140))
+    title = db.Column(db.String(140), index=True)
+    content = db.Column(db.Text)
     html_content = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     # date_for = db.Column(db.Date, index=True, default=timestamp)
@@ -204,18 +204,18 @@ db.event.listen(Story.content, 'set', Story.on_changed_content)
 
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(20), index=True)
-    name = db.Column(db.String(64))
-    filename = db.Column(db.String)
-    url = db.Column(db.String)
+    type = db.Column(db.String(32), index=True)
+    name = db.Column(db.String(140))
+    filename = db.Column(db.String(140))
+    url = db.Column(db.String(1400))
     story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
     related_story = db.relationship('Story')
 
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), index=True, nullable=False)
-    slug = db.Column(db.String(20), index=True, nullable=False)
+    name = db.Column(db.String(32), index=True, nullable=False)
+    slug = db.Column(db.String(32), index=True, nullable=False)
     stories = db.relationship(
         'Story',
         secondary=story_tags,
@@ -227,21 +227,21 @@ class Tag(db.Model):
         target.slug = slugify(value)
 
 
-class Itinary(db.Model):
+class Itinerary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
-    planning_description = db.Column(db.String(1000))
-    actual_description = db.Column(db.String(1000))
+    planning_description = db.Column(db.Text)
+    actual_description = db.Column(db.Text)
     day = db.Column(db.Date, index=True)
     done = db.Column(db.Boolean, default=False)
-    planned_start_point = db.Column(db.String(50))
-    planned_end_point = db.Column(db.String(50))
+    planned_start_point = db.Column(db.String(132))
+    planned_end_point = db.Column(db.String(132))
     planned_distance = db.Column(db.Integer)
-    planned_stay = db.Column(db.String(100))
-    actual_start_point = db.Column(db.String(50))
-    actual_end_point = db.Column(db.String(50))
+    planned_stay = db.Column(db.String(132))
+    actual_start_point = db.Column(db.String(132))
+    actual_end_point = db.Column(db.String(132))
     actual_distance = db.Column(db.Integer)
-    actual_stay = db.Column(db.String(100))
+    actual_stay = db.Column(db.String(132))
 
 
 db.event.listen(Tag.name, 'set', Tag.on_changed_name)

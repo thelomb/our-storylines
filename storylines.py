@@ -1,5 +1,5 @@
 from application import db, create_app
-from application.models import User, Story, Storyline, Media, Tag
+from application.models import User, Story, Storyline, Media, Tag, Itinerary
 
 app = create_app()
 

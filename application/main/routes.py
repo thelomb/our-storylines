@@ -22,7 +22,7 @@ def before_request():
 @bp.route('/index/<int:page>')
 @login_required
 def index(page=1):
-    stories = current_user.stories.order_by(Story.timestamp.desc()).paginate(
+    stories = Story.query.order_by(Story.timestamp.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
     return render_template('index.html', title='Home',
                            posts=stories.items, page=page)

@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField,
-                     SubmitField, TextAreaField, MultipleFileField)
+                     SubmitField, TextAreaField, MultipleFileField,
+                     IntegerField)
 from wtforms.validators import (DataRequired, ValidationError,
                                 Length)
 from application.models import User
-from flask_wtf.file import FileField, FileAllowed, FileRequired
+from flask_wtf.file import FileAllowed
 from application import images
-from flask_pagedown.fields import PageDownField
+from wtforms.fields.html5 import DateField
 
 
 class EditProfileForm(FlaskForm):
@@ -31,9 +32,23 @@ class PostForm(FlaskForm):
     title = StringField('Story Title', validators=[
                         DataRequired()])
     tags = StringField('Tags')
-    post = TextAreaField('Your Story', validators=[
-                       DataRequired()])
+    post = TextAreaField('Your Story', validators=[DataRequired()])
     post_images = MultipleFileField('An illustration',
                                     validators=[FileAllowed(images,
                                                             'Image Only!')])
+    submit = SubmitField('Validez')
+
+
+class ItineraryForm(FlaskForm):
+    planning_description = TextAreaField('Le plan de la journée')
+    # actual_description = TextAreaField("Ce que l'on a fait")
+    day = DateField('Date', format='%d/%m/%Y')
+    planned_start_point = StringField('Point de départ')
+    planned_end_point = StringField("Point d'arrivée")
+    planned_distance = IntegerField("Distance prévue")
+    planned_stay = StringField("Logement")
+    # actual_start_point = db.Column(db.String(132))
+    # actual_end_point = db.Column(db.String(132))
+    # actual_distance = db.Column(db.Integer)
+    # actual_stay = db.Column(db.String(132))
     submit = SubmitField('Validez')

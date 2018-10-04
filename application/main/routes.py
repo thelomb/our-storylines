@@ -3,12 +3,12 @@ from flask import (render_template, flash, redirect, url_for, request,
 from application import db
 from application.main import bp
 from application.main.forms import (EditProfileForm,
-                                    PostForm)
+                                    PostForm, ItineraryForm)
 from flask_login import current_user, login_required
-from application.models import User, Story, Storyline, Media, Tag, Itinerary
+from application.models import (User, Story, Media,
+                                Tag, Itinerary)
 from datetime import datetime
 from application import images
-from sqlalchemy import update
 
 
 @bp.before_request
@@ -60,22 +60,6 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html',
                            title='Edit Profile', form=form)
-
-
-@bp.route('/explore')
-@login_required
-def explore():
-    page = request.args.get('page', 1, type=int)
-    stories = Story.query.order_by(Story.timestamp.desc()).paginate(
-        page, current_app.config['STORIES_PER_PAGE'], False)
-    next_url = url_for('main.explore', page=stories.next_num) \
-        if stories.has_next else None
-    prev_url = url_for('main.explore', page=stories.prev_num) \
-        if stories.has_prev else None
-    return render_template('index.html', title='Explore',
-                           posts=stories.items,
-                           next_url=next_url, prev_url=prev_url,
-                           pages=stories.pages)
 
 
 def media_request(media_request):
@@ -184,3 +168,60 @@ def delete_picture(story_id, picture_id):
     db.session.delete(image)
     db.session.commit()
     return redirect(url_for('main.edit_story', story_id=story_id))
+
+
+@bp.route('/itinerary', methods=['GET', 'POST'])
+@login_required
+def new_itinerary():
+    form = ItineraryForm()
+    # story = Story.query.get(story_id)
+    print("hello")
+    print(form.day)
+    print(form.errors)
+    if form.validate_on_submit():
+        print("validate on submiT")
+        itinerary = Itinerary(
+            planning_description=form.planning_description.data,
+            day=form.day.data,
+            planned_start_point=form.planned_start_point.data,
+            planned_end_point=form.planned_end_point.data,
+            planned_distance=form.planned_distance.data,
+            planned_stay=form.planned_stay.data
+        )
+        db.session.add(itinerary)
+        db.session.commit()
+        flash('Itinéraire créé!')
+        return redirect(url_for('main.index'))
+    return render_template('itinerary.html', form=form)
+
+
+@bp.route('/itinerary/edit_<int:itinerary_id>', methods=['GET', 'POST'])
+@login_required
+def edit_itinerary(itinerary_id):
+    form = ItineraryForm()
+    itinerary = Itinerary.query.get(itinerary_id)
+    if form.validate_on_submit():
+        itinerary = Itinerary(
+            planning_description=form.planning_description.data,
+            day=form.day.data,
+            planned_start_point=form.planned_start_point.data,
+            planned_end_point=form.planned_end_point.data,
+            planned_distance=form.planned_distance.data,
+            planned_stay=form.planned_stay.data
+        )
+        db.session.add(itinerary)
+        db.session.commit()
+        flash('Your story is now updated')
+        return redirect(url_for('main.index'))
+    elif request.method == 'GET':
+        form.planning_description.data = itinerary.planning_description
+        form.day.data = itinerary.day
+        form.planned_start_point.data = itinerary.planned_start_point
+        form.planned_end_point.data = itinerary.planned_end_point
+        form.planned_distance.data = itinerary.planned_distance
+        form.planned_stay.data = itinerary.planned_stay
+        return render_template('itinerary.html',
+                               title="What's new?",
+                               form=form,
+                               itinerary=itinerary,
+                               )

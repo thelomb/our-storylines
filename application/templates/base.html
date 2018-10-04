@@ -7,6 +7,8 @@
 {% block styles %}
   <link rel="stylesheet" href="/static/css/milo.css">
   <link rel="stylesheet" href="/static/css/sl.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css" />
+</head>
 {% endblock %}
 
 {% block navbar %}
@@ -24,7 +26,7 @@
               <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ajouter</i> </a>
               <div class="dropdown-menu" aria-labelledby="dropdown02">
                 <a class="dropdown-item" href="{{ url_for('main.story') }}">Contribution</a>
-                <a class="dropdown-item" href="{{ url_for('main.story') }}">Itinéraire</a>
+                <a class="dropdown-item" href="{{ url_for('main.new_itinerary') }}">Itinéraire</a>
               </div>
             </li>
         </div>
@@ -129,5 +131,7 @@
   <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
   <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
   <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.min.js"></script>
+  <script src="/static/js/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/js/tempusdominus-bootstrap-4.min.js"></script>
   <script src="/static/js/sl.js"></script>
 {% endblock %}

@@ -12,6 +12,7 @@ from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_uploads import UploadSet, IMAGES, configure_uploads
 from flask_pagedown import PageDown
+from flask_moment import Moment
 
 # microblog
 from config import Config
@@ -27,6 +28,7 @@ mail = Mail()
 bootstrap = Bootstrap()
 images = UploadSet('images', IMAGES)
 pagedown = PageDown()
+moment = Moment()
 
 
 def create_app(config_class=Config):
@@ -39,6 +41,7 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     configure_uploads(app, images)
     pagedown.init_app(app)
+    moment.init_app(app)
 
     from application.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

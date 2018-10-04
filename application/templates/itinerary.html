@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="text-center">
+                <h2>Tell your story!</h2>
+            </div>
+            <hr />
+        <form class="form" method="post" role="form" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+                    <input type="text" name="day" class="form-control datetimepicker-input" data-target="#datetimepicker1"
+                    {% if itinerary.day %} value="{{ itinerary.day.strftime('%d/%m/%y') }}" {% endif %}
+                    />
+            </div>
+            {{ wtf.form_errors(form, hiddens="only") }}
+            {{ wtf.form_field(form.planning_description, **{'placeholder': 'Entrez un titre', 'class': 'form-control form-control-lg'}) }}
+            {{ wtf.form_field(form.planned_start_point) }}
+            {{ wtf.form_field(form.planned_end_point) }}
+            {{ wtf.form_field(form.planned_distance) }}
+            {{ wtf.form_field(form.planned_stay) }}
+
+            {{ wtf.form_field(form.submit, **{'class': 'btn btn-primary'}) }}
+        </form>
+
+      </div>
+    </div>
+</div>
+{% endblock %}

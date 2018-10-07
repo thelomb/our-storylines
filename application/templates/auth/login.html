@@ -1,16 +1,49 @@
-{% extends 'base.html' %}
+{% extends 'bootstrap/base.html' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-{% block app_content %}
-    <h1>Sign In</h1>
-    <div class="row">
-        <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
-        </div>
-    </div>
-    <br>
-    <p>
-        Forgot Your Password?
-        <a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a>
-    </p>
+{% block title %}
+    {% if title %}{{ title }} - The Boulomb USA 2019{% else %}{{website}}{% endif %}
+{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/static/css/milo.css">
+  <link rel="stylesheet" href="/static/css/sl.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css" />
+</head>
+{% endblock %}
+
+{% block body%}
+<div class="container-fluid grid">
+    <div class="grid-1">
+    {% block navbar %}
+        {% include '_navbar.html' %}
+    {% endblock %}
+
+    {% block content %}
+      <main class="main pt-4" role="main">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm order-md-1 order-sm-2 order-xs-2">
+                </div>
+                <div class="col-sm order-md-2 order-sm-1 order-xs-1">
+                    <h1>Connectez-vous</h1>
+                    <div class="row">
+                        <div class="col-sm">
+                            {{ wtf.quick_form(form) }}
+                        </div>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        <div>
+      </main>
+      <div class="fixed-bottom">
+        {% include '_footer.html' %}
+      </div>
+    {% endblock %}
+
+    {% block scripts %}
+        {% include '_scripts.html' %}
+    {% endblock %}
+</div>
 {% endblock %}

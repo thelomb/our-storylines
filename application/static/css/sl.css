@@ -100,3 +100,14 @@
 .card-body .post {
   font-size: 1.5rem;
 }
+
+.sl-leftcol {
+  background: #ff9e2c;
+  grid-column:1;
+}
+.sl-rightcol {
+  grid-column:2;
+}
+.sl-grid {
+  display: grid;
+}

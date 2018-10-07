@@ -16,7 +16,7 @@
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
                     <input type="text" name="day" class="form-control datetimepicker-input" data-target="#datetimepicker1"
-                    {% if itinerary.day %} value="{{ itinerary.day.strftime('%d/%m/%y') }}" {% endif %}
+                    {% if itinerary %} value="{{ itinerary.day.strftime('%d/%m/%y') }}" {% endif %}
                     />
             </div>
             {{ wtf.form_errors(form, hiddens="only") }}

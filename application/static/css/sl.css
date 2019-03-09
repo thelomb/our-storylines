@@ -111,3 +111,8 @@
 .sl-grid {
   display: grid;
 }
+
+.icon-col {
+  width: 25px;
+  text-align:center;
+}

@@ -13,6 +13,8 @@ from flask_bootstrap import Bootstrap
 from flask_uploads import UploadSet, IMAGES, configure_uploads
 from flask_pagedown import PageDown
 from flask_moment import Moment
+from flask_googlemaps import GoogleMaps
+from googlemaps import Client
 
 # microblog
 from config import Config
@@ -29,6 +31,7 @@ bootstrap = Bootstrap()
 images = UploadSet('images', IMAGES)
 pagedown = PageDown()
 moment = Moment()
+google_map = GoogleMaps()
 
 
 def create_app(config_class=Config):
@@ -42,6 +45,8 @@ def create_app(config_class=Config):
     configure_uploads(app, images)
     pagedown.init_app(app)
     moment.init_app(app)
+    google_map.init_app(app)
+    print(app.config['GOOGLEMAPS_KEY'])
 
     from application.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

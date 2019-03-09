@@ -1,0 +1,70 @@
+<!-- <article class="card"> -->
+    <div class="col-md-2">
+        <div class="card-title">
+            <div class="fa-7x">
+                <span class="fa-layers fa-fw text-center">
+                    <i class="fas fa-calendar"></i>
+                    <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-10 down-1.5" style="font-weight:900">{{ '{d.day}'.format(d=itinerary.day)  }}</span>
+
+                    <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-13 down-6" style="font-weight:900">{{ itinerary.day.strftime('%b') }}</span>
+                </span>
+            </div>
+            <i class="fa fa-plane fa-2x"></i>
+            <i class="fa fa-hotel fa-2x"></i>
+            <i class="fa fa-tree fa-2x" ></i>
+            <i class="fa fa-road fa-2x"></i>
+            <i class="fa fa-cloud"></i>
+            <i class="fa fa-umbrella"></i>
+            <i class="fa fa-car"></i>
+            <i class="fa fa-sun"></i>
+            <i class="fa fa-compass"></i>
+            <i class="fa fa-monument"></i>
+            <i class="fa fa-taxi"></i>
+            <i class="fa fa-subway"></i>
+            <img src="/static/images/PNG/FOREST/Tourism icon (148).png" width="25">
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div class="row">
+            <div class="col">
+                <h2 class="card-title">
+                    {{ itinerary.planning_description }}
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2 fa-lg">
+                <div class="row mb-1">
+                    <div class="icon-col text-center">
+                        <i class="fas fa-dot-circle"></i>
+                    </div>
+                    <div class="col text-left">
+                        <h6 class="card-title">
+                          {{ itinerary.planned_start_point }}
+                        </h6>
+                    </div>
+                </div>
+                <div class="row mb-1">
+                    <div class="icon-col text-center fa-2x">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="icon-col text-center">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="col text-left">
+                        <h6 class="card-title">
+                            {{ itinerary.planned_end_point }}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <img src="https://picsum.photos/700/300/?gravity=east&image={{ itinerary.id *10 }}">
+            </div>
+        </div>
+    </div>
+<!-- </article> -->

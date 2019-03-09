@@ -10,6 +10,8 @@ from markdown import markdown
 import bleach
 import re
 from slugify import slugify
+from application.mixin import CRUDMixin
+
 
 
 storyline_members = db.Table(
@@ -74,7 +76,7 @@ class Storyline(db.Model):
                 .order_by(Story.timestamp.desc()))
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, CRUDMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -99,7 +101,8 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self, size):
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        # digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        digest = md5('toto'.encode('utf-8')).hexdigest()
         return ('http://www.gravatar.com/avatar/{}?d=identicon&s={}'.
                 format(digest, size))
 

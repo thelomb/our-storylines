@@ -10,6 +10,9 @@
             {% if not current_user.is_anonymous %}
             <div class="collapse navbar-collapse order-4 order-md-3" id="navbar">
               <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="{{ url_for('main.itinerary', page=1) }}">Itinéraires</a>
+                </li>
                 <li class="nav-item dropdown active">
                   <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ajouter</i> </a>
                   <div class="dropdown-menu" aria-labelledby="dropdown02">

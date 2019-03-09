@@ -1,5 +1,5 @@
 from flask import (render_template, flash, redirect, url_for, request,
-                   current_app, jsonify)
+                   current_app, jsonify, Markup)
 from application import db
 from application.main import bp
 from application.main.forms import (EditProfileForm,
@@ -8,8 +8,11 @@ from flask_login import current_user, login_required
 from application.models import (User, Story, Media,
                                 Tag, Itinerary)
 from datetime import datetime
+from datetime import date
 from application import images
-
+from random import randint
+from flask_googlemaps import Map
+from googlemaps import Client
 
 @bp.before_request
 def before_request():
@@ -50,9 +53,7 @@ def user(username):
 def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.about_me = form.about_me.data
-        db.session.commit()
+        current_user.update(**form.data)  # save the object with changes
         flash('Your changes have been saved')
         return redirect(url_for('main.edit_profile'))
     elif request.method == 'GET':
@@ -163,23 +164,18 @@ def edit_story(story_id):
 @bp.route('/story/<int:story_id>/delete_picture/<int:picture_id>')
 @login_required
 def delete_picture(story_id, picture_id):
-    print(picture_id)
     image = Media.query.get(picture_id)
     db.session.delete(image)
     db.session.commit()
     return redirect(url_for('main.edit_story', story_id=story_id))
 
 
-@bp.route('/itinerary', methods=['GET', 'POST'])
+@bp.route('/new_itinerary', methods=['GET', 'POST'])
 @login_required
 def new_itinerary():
     form = ItineraryForm()
-    # story = Story.query.get(story_id)
-    print("hello")
-    print(form.day)
-    print(form.errors)
+    print(request.form)
     if form.validate_on_submit():
-        print("validate on submiT")
         itinerary = Itinerary(
             planning_description=form.planning_description.data,
             day=form.day.data,
@@ -225,3 +221,373 @@ def edit_itinerary(itinerary_id):
                                form=form,
                                itinerary=itinerary,
                                )
+
+
+@bp.route('/itinerary/<int:page>')
+@login_required
+def itinerary(page=1):
+    itineraries = Itinerary.query.order_by(Itinerary.day.asc()).paginate(
+        page, current_app.config['ITINERARIES_PER_PAGE'], False)
+    return render_template('itineraries.html', title='Home',
+                           itineraries=itineraries.items, page=page)
+
+
+@bp.route('/story_date/<a_date>', methods=['GET'])
+@login_required
+def view_story_date(a_date):
+    # story = Story.query.get(story_id)
+    entry = {}
+    entry['date'] = date(2019, 5, 24)
+    entry['title'] = 'A Journey Through Utah'
+    entry['html_content'] = '''
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    '''
+    entry['media'] = ['https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)) for _ in range(3)]
+    entry['id'] = 1
+    entry['from'] = 'LA'
+    entry['to'] = 'Joshua National Park'
+    mymap = Map(
+        identifier="view-side",
+        lat=37.4419,
+        lng=-122.1419,
+        markers=[(37.4419, -122.1419)]
+    )
+    geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
+    geocode_result = geolocation.geocode('''LA''')
+    lat = geocode_result[0]['geometry']['location']['lat']
+    lng = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''SF''')
+    lat2 = geocode_result[0]['geometry']['location']['lat']
+    lng2 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''San Jose, CA''')
+    lat3 = geocode_result[0]['geometry']['location']['lat']
+    lng3 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Salinas, CA''')
+    lat4 = geocode_result[0]['geometry']['location']['lat']
+    lng4 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Fresno, CA''')
+    lat5 = geocode_result[0]['geometry']['location']['lat']
+    lng5 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Santa Maria, CA''')
+    lat6 = geocode_result[0]['geometry']['location']['lat']
+    lng6 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Santa Barbara, CA''')
+    lat7 = geocode_result[0]['geometry']['location']['lat']
+    lng7 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Death Valley National Park''')
+    lat8 = geocode_result[0]['geometry']['location']['lat']
+    lng8 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Sequoia National Forest''')
+    lat9 = geocode_result[0]['geometry']['location']['lat']
+    lng9 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Visalia, CA''')
+    lat10 = geocode_result[0]['geometry']['location']['lat']
+    lng10 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Yosemite National Park''')
+    lat11 = geocode_result[0]['geometry']['location']['lat']
+    lng11 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Bakersfield, CA''')
+    lat12 = geocode_result[0]['geometry']['location']['lat']
+    lng12 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Riverside, CA''')
+    lat13 = geocode_result[0]['geometry']['location']['lat']
+    lng13 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Lost Hills, CA''')
+    lat14 = geocode_result[0]['geometry']['location']['lat']
+    lng14 = geocode_result[0]['geometry']['location']['lng']
+    sndmap = Map(
+        identifier="sndmap",
+        style="width:100%;height:100%;margin:0;",
+        # lat=37.4419,
+        # lng=-122.1419,
+        lat=lat,
+        lng=lng,
+        fit_markers_to_bounds=True,
+        markers=[
+          {
+             'icon': Markup('http://localhost:5000/static/images/ic_place_24px.svg'),
+             'lat': lat,
+             'lng': lng,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+             'lat': lat2,
+             'lng': lng2,
+             'infobox': "<b>Hello World from other place</b>",
+             'title':'finish'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-add_circle-24px.svg'),
+             'lat': lat3,
+             'lng': lng3,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-beach_access-24px.svg'),
+             'lat': lat4,
+             'lng': lng4,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-commute-24px.svg'),
+             'lat': lat5,
+             'lng': lng5,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/twotone-room-24px.svg'),
+             'lat': lat6,
+             'lng': lng6,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/twotone-room-arrival.svg'),
+             'lat': lat7,
+             'lng': lng7,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-flight-24px.svg'),
+             'lat': lat8,
+             'lng': lng8,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-flight_land-24px.svg'),
+             'lat': lat9,
+             'lng': lng9,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-flight_takeoff-24px.svg'),
+             'lat': lat10,
+             'lng': lng10,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-hotel-24px.svg'),
+             'lat': lat11,
+             'lng': lng11,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/twotone-flag-24px.svg'),
+             'lat': lat12,
+             'lng': lng12,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-room-24px.svg'),
+             'lat': lat13,
+             'lng': lng13,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-style-24px.svg'),
+             'lat': lat14,
+             'lng': lng14,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          }
+        ]
+    )
+    if geocode_result:
+        print(geocode_result[0]['geometry']['location'])
+    else:
+        print('No match')
+    return render_template('view_story_date.html',
+                           story=entry, map1=mymap, map2=sndmap)
+
+
+@bp.route('/story_date_sandbox', methods=['GET'])
+@login_required
+def story_date_sandbox():
+    # story = Story.query.get(story_id)
+    entry = {}
+    entry['date'] = date(2019, 5, 24)
+    entry['title'] = 'A Journey Through Utah'
+    entry['html_content'] = '''
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    '''
+    entry['media'] = ['https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)) for _ in range(3)]
+    entry['id'] = 1
+    entry['from'] = 'LA'
+    entry['to'] = 'Joshua National Park'
+    mymap = Map(
+        identifier="view-side",
+        lat=37.4419,
+        lng=-122.1419,
+        markers=[(37.4419, -122.1419)]
+    )
+    geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
+    geocode_result = geolocation.geocode('''LA''')
+    lat = geocode_result[0]['geometry']['location']['lat']
+    lng = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''SF''')
+    lat2 = geocode_result[0]['geometry']['location']['lat']
+    lng2 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''San Jose, CA''')
+    lat3 = geocode_result[0]['geometry']['location']['lat']
+    lng3 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Salinas, CA''')
+    lat4 = geocode_result[0]['geometry']['location']['lat']
+    lng4 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Fresno, CA''')
+    lat5 = geocode_result[0]['geometry']['location']['lat']
+    lng5 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Santa Maria, CA''')
+    lat6 = geocode_result[0]['geometry']['location']['lat']
+    lng6 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Santa Barbara, CA''')
+    lat7 = geocode_result[0]['geometry']['location']['lat']
+    lng7 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Death Valley National Park''')
+    lat8 = geocode_result[0]['geometry']['location']['lat']
+    lng8 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Sequoia National Forest''')
+    lat9 = geocode_result[0]['geometry']['location']['lat']
+    lng9 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Visalia, CA''')
+    lat10 = geocode_result[0]['geometry']['location']['lat']
+    lng10 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Yosemite National Park''')
+    lat11 = geocode_result[0]['geometry']['location']['lat']
+    lng11 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Bakersfield, CA''')
+    lat12 = geocode_result[0]['geometry']['location']['lat']
+    lng12 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Riverside, CA''')
+    lat13 = geocode_result[0]['geometry']['location']['lat']
+    lng13 = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''Lost Hills, CA''')
+    lat14 = geocode_result[0]['geometry']['location']['lat']
+    lng14 = geocode_result[0]['geometry']['location']['lng']
+    sndmap = Map(
+        identifier="sndmap",
+        style="width:100%;height:100%;margin:0;",
+        # lat=37.4419,
+        # lng=-122.1419,
+        lat=lat,
+        lng=lng,
+        fit_markers_to_bounds=True,
+        markers=[
+          {
+             'icon': Markup('http://localhost:5000/static/images/ic_place_24px.svg'),
+             'lat': lat,
+             'lng': lng,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+             'lat': lat2,
+             'lng': lng2,
+             'infobox': "<b>Hello World from other place</b>",
+             'title':'finish'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-add_circle-24px.svg'),
+             'lat': lat3,
+             'lng': lng3,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-beach_access-24px.svg'),
+             'lat': lat4,
+             'lng': lng4,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-commute-24px.svg'),
+             'lat': lat5,
+             'lng': lng5,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/twotone-room-24px.svg'),
+             'lat': lat6,
+             'lng': lng6,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/twotone-room-arrival.svg'),
+             'lat': lat7,
+             'lng': lng7,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-flight-24px.svg'),
+             'lat': lat8,
+             'lng': lng8,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-flight_land-24px.svg'),
+             'lat': lat9,
+             'lng': lng9,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-flight_takeoff-24px.svg'),
+             'lat': lat10,
+             'lng': lng10,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-hotel-24px.svg'),
+             'lat': lat11,
+             'lng': lng11,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/twotone-flag-24px.svg'),
+             'lat': lat12,
+             'lng': lng12,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-room-24px.svg'),
+             'lat': lat13,
+             'lng': lng13,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': Markup('http://localhost:5000/static/images/baseline-style-24px.svg'),
+             'lat': lat14,
+             'lng': lng14,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          }
+        ]
+    )
+    if geocode_result:
+        print(geocode_result[0]['geometry']['location'])
+    else:
+        print('No match')
+    return render_template('view_story_date_sandbox.html',
+                           story=entry, map1=mymap, map2=sndmap)
+

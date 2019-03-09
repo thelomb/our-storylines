@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField,
                      SubmitField, TextAreaField, MultipleFileField,
-                     IntegerField)
+                     IntegerField, SelectMultipleField, widgets)
 from wtforms.validators import (DataRequired, ValidationError,
                                 Length)
 from application.models import User
@@ -38,6 +38,10 @@ class PostForm(FlaskForm):
                                                             'Image Only!')])
     submit = SubmitField('Validez')
 
+class ActivityCheckBoxes(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
 
 class ItineraryForm(FlaskForm):
     planning_description = TextAreaField('Le plan de la journée')
@@ -52,3 +56,8 @@ class ItineraryForm(FlaskForm):
     # actual_distance = db.Column(db.Integer)
     # actual_stay = db.Column(db.String(132))
     submit = SubmitField('Validez')
+    activities = ActivityCheckBoxes('Les activités du jour',
+                                     choices=[('plane', 'plane icon'),
+                                              ('camping', 'camping icon')])
+
+

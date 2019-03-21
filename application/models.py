@@ -8,10 +8,11 @@ from time import time
 import jwt
 from markdown import markdown
 import bleach
-import re
+# import re
 from slugify import slugify
 from application.mixin import CRUDMixin
-
+from application.model_enums import DistanceUnit, TravelType
+from sqlalchemy import Enum
 
 
 storyline_members = db.Table(
@@ -170,15 +171,16 @@ class User(UserMixin, CRUDMixin, db.Model):
         return User.query.get(id)
 
 
-class Story(db.Model):
+class Story(db.Model, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
+    date_for = db.Column(db.Date, index=True)
     title = db.Column(db.String(140), index=True)
     content = db.Column(db.Text)
     html_content = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    # date_for = db.Column(db.Date, index=True, default=timestamp)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
+    stay_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
     # image_filename = db.Column(db.String)
     # image_url = db.Column(db.String)
     tags = db.relationship(
@@ -187,9 +189,37 @@ class Story(db.Model):
         back_populates="stories",
         lazy='dynamic')
     media = db.relationship('Media', backref='story', lazy='dynamic')
+    # itinerary = db.relationship('Itinerary', backref='story', lazy='dynamic')
 
     def __repr__(self):
         return '<Story id: {}, title {}>'.format(self.id, self.title)
+
+    # def __init__(self, **kwargs):
+
+    #     print('init story speaking')
+    #     self.date_for = kwargs['form'].day.data
+    #     self.title = kwargs['form'].title.data
+    #     self.content = kwargs['form'].post.data
+    #     self.user_id = kwargs['user'].id
+
+    #     # create file reference
+    #     for medium in kwargs['media']['photo']:
+    #         Media.create(type='Image', name=medium['filename'],
+    #                      filename=medium['filename'], url=medium['url'],
+    #                      related_story=self)
+
+    #     # itinerary
+    #     print('User is: ', kwargs['user'])
+    #     if kwargs['form'].travel_type.data == TravelType.NONE.name:
+    #         stay = GeoPoint.create(place=kwargs['form'].start.data)
+    #         self.stay_id = stay.id
+    #     elif (kwargs['form'].travel_type.data != TravelType.NONE.name and
+    #           kwargs['form'].start.data is not None and
+    #           kwargs['form'].end.data is not None):
+    #         Itinerary.create(start=kwargs['form'].start.data,
+    #                          end=kwargs['form'].end.data,
+    #                          odometer_at=kwargs['form'].odometer_read.data,
+    #                          travel_type=kwargs['form'].travel_type.data)
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
@@ -201,11 +231,18 @@ class Story(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
+    # def update(self, **kwargs):
+    #     print(kwargs)
+    #     for attr, value in kwargs.items():
+    #         setattr(self, attr, value)
+
+    #     return self.save()
+
 
 db.event.listen(Story.content, 'set', Story.on_changed_content)
 
 
-class Media(db.Model):
+class Media(db.Model, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(32), index=True)
     name = db.Column(db.String(140))
@@ -230,24 +267,40 @@ class Tag(db.Model):
         target.slug = slugify(value)
 
 
-class Itinerary(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
-    planning_description = db.Column(db.Text)
-    actual_description = db.Column(db.Text)
-    day = db.Column(db.Date, index=True)
-    done = db.Column(db.Boolean, default=False)
-    planned_start_point = db.Column(db.String(132))
-    planned_end_point = db.Column(db.String(132))
-    planned_distance = db.Column(db.Integer)
-    planned_stay = db.Column(db.String(132))
-    actual_start_point = db.Column(db.String(132))
-    actual_end_point = db.Column(db.String(132))
-    actual_distance = db.Column(db.Integer)
-    actual_stay = db.Column(db.String(132))
-
-
 db.event.listen(Tag.name, 'set', Tag.on_changed_name)
+
+
+class Itinerary(db.Model, CRUDMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    travel_type = db.Column(Enum(TravelType), default='CAR')
+    odometer_at = db.Column(db.Integer)
+    odometer_scale = db.Column(Enum(DistanceUnit), default='MILE')
+    start_point_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
+    end_point_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
+    start = db.relationship('GeoPoint', foreign_keys=[start_point_id])
+    end = db.relationship('GeoPoint', foreign_keys=[end_point_id])
+    # intermediary_points = db.relationship('GeoPoint',
+    #                                       backref='itinerary',
+    #                                       lazy='dynamic')
+    # story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
+    # related_story = db.relationship('Story')
+
+    def __init__(self, start, end, odometer_at, travel_type, **kwargs):
+        startPoint = GeoPoint.create(place=start)
+        endPoint = GeoPoint.create(place=end)
+        self.start_point_id = startPoint.id
+        self.end_point_id = endPoint.id
+        self.odometer_at = odometer_at
+        self.travel_type = TravelType[travel_type]
+
+
+class GeoPoint(db.Model, CRUDMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    place = db.Column(db.String(32))
+    latitude = db.Column(db.Float())
+    longitude = db.Column(db.Float())
+    formatted_address = db.Column(db.String(140))
+    # intermediary_point = db.relationship('Itinerary')
 
 
 # Mixin flask login

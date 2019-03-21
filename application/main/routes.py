@@ -3,16 +3,17 @@ from flask import (render_template, flash, redirect, url_for, request,
 from application import db
 from application.main import bp
 from application.main.forms import (EditProfileForm,
-                                    PostForm, ItineraryForm)
+                                    PostForm, ItineraryForm, FullStory)
 from flask_login import current_user, login_required
 from application.models import (User, Story, Media,
                                 Tag, Itinerary)
 from datetime import datetime
 from datetime import date
-from application import images
 from random import randint
 from flask_googlemaps import Map
 from googlemaps import Client
+from application.model_enums import TravelType
+from application.fullstory_service import media_request, Fullstory
 
 @bp.before_request
 def before_request():
@@ -63,22 +64,6 @@ def edit_profile():
                            title='Edit Profile', form=form)
 
 
-def media_request(media_request):
-        photos = []
-        # audios = []
-        # videos = []
-        media = {
-            'photo': [],
-            # 'video': [],
-            # 'audio': []
-        }
-        if media_request:
-            for image in media_request.getlist('post_images'):
-                filename = images.save(image)
-                url = images.url(filename)
-                photos.append({'filename': filename, 'url': url})
-                media['photo'] = photos
-        return media
 
 
 def tag_request(tag_request):
@@ -95,6 +80,106 @@ def tag_request(tag_request):
             else:
                 post_tags.append(Tag.query.filter(Tag.name == tag).first())
     return post_tags
+
+@bp.route('/fullstory', methods=['GET', 'POST'])
+@login_required
+def fullstory():
+    form = FullStory()
+    if form.validate_on_submit():
+        fullstory_web = {
+                     'date_for': form.day.data,
+                     'title': form.title.data,
+                     'post': form.post.data,
+                     'start': form.start.data,
+                     'end': form.end.data,
+                     'stay': form.stay.data,
+                     'odometer_at': form.odometer_read.data,
+                     'travel_type': form.travel_type.data
+        }
+        # story = Story.create(form=form, user=current_user, media=media)
+        Fullstory.create(fullstory=fullstory_web,
+                         author=current_user,
+                         files=request.files)
+        # db.session.add(story)
+        # db.session.commit()
+        flash('Your story is now published')
+        return redirect(url_for('main.index'))
+    elif request.method == 'GET':
+        form.day.data = date(int(2019), int(3), int(24))
+    return render_template('fullstory.html', form=form)
+
+
+@bp.route('/story_date/<a_date>', methods=['GET'])
+@login_required
+def view_story_date1(a_date):
+    # story = Story.query.get(story_id)
+    story_date_parameter = a_date.split("-")
+    story = Story.query.filter_by(date_for=date(int(story_date_parameter[2]),
+                                                int(story_date_parameter[1]),
+                                                int(story_date_parameter[0])
+                                                )).first_or_404()
+    geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
+    geocode_result = geolocation.geocode('''LA''')
+    lat = geocode_result[0]['geometry']['location']['lat']
+    lng = geocode_result[0]['geometry']['location']['lng']
+    geocode_result = geolocation.geocode('''SF''')
+    lat2 = geocode_result[0]['geometry']['location']['lat']
+    lng2 = geocode_result[0]['geometry']['location']['lng']
+    sndmap = Map(
+        identifier="sndmap",
+        style="width:100%;height:100%;margin:0;",
+        # lat=37.4419,
+        # lng=-122.1419,
+        lat=lat,
+        lng=lng,
+        fit_markers_to_bounds=True,
+        markers=[
+          {
+             'icon': Markup('http://localhost:5000/static/images/ic_place_24px.svg'),
+             'lat': lat,
+             'lng': lng,
+             'infobox': "<b>Hello World</b>",
+             'id': 'start'
+          },
+          {
+             'icon': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+             'lat': lat2,
+             'lng': lng2,
+             'infobox': "<b>Hello World from other place</b>",
+             'title':'finish'
+          },
+        ]
+        )
+    return render_template('view_story_date.html',
+                           story=story, map2=sndmap)
+
+
+@bp.route('/edit_story_date/<a_date>', methods=['GET', 'POST'])
+@login_required
+def edit_story_date1(a_date):
+    # story = Story.query.get(story_id)
+    story_date_parameter = a_date.split("-")
+    story = Story.query.filter_by(date_for=date(int(story_date_parameter[2]),
+                                                int(story_date_parameter[1]),
+                                                int(story_date_parameter[0])
+                                                )).first_or_404()
+    form = FullStory()
+    if form.validate_on_submit():
+        media = media_request(request.files)
+        # story = Story(title=form.title.data, content=form.post.data,
+        #               author=current_user)
+        story.update(title=form.title.data)
+        flash('Your story is now published')
+        return redirect(url_for('main.index'))
+    elif request.method == 'GET':
+        form.day.data = story.date_for
+        form.title.data = story.title
+        form.post.data = story.content
+        form.start.data = 'LA'
+        form.end.data = 'Joshua'
+        form.odometer_read.data = 45
+        form.travel_type.data = TravelType.CAR
+    return render_template('fullstory.html', form=form, story=story)
 
 
 @bp.route('/story', methods=['GET', 'POST'])

@@ -17,10 +17,12 @@ class CRUDMixin(object):
 
     @classmethod
     def create(cls, **kwargs):
+        print('create mixin')
         instance = cls(**kwargs)
         return instance.save()
 
     def update(self, commit=True, **kwargs):
+        print('mixin speaking')
         for attr, value in kwargs.items():
             setattr(self, attr, value)
         return commit and self.save() or self

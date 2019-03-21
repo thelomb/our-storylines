@@ -1,13 +1,15 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField,
                      SubmitField, TextAreaField, MultipleFileField,
-                     IntegerField, SelectMultipleField, widgets)
+                     IntegerField, SelectMultipleField, widgets,
+                     RadioField, SelectField)
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import (DataRequired, ValidationError,
                                 Length)
 from application.models import User
-from flask_wtf.file import FileAllowed
 from application import images
 from wtforms.fields.html5 import DateField
+from application.model_enums import TravelType
 
 
 class EditProfileForm(FlaskForm):
@@ -60,4 +62,23 @@ class ItineraryForm(FlaskForm):
                                      choices=[('plane', 'plane icon'),
                                               ('camping', 'camping icon')])
 
+
+class FullStory(FlaskForm):
+    day = DateField('Nous sommes le: ',
+                    format='%d/%m/%Y',
+                    validators=[DataRequired()], id='datepick')
+    title = StringField('Titre',
+                        validators=[DataRequired()])
+    post = TextAreaField('La journée',
+                         validators=[DataRequired()])
+    post_images = FileField('Les images du jour',
+                            validators=[FileAllowed(images,
+                                        'Image Only!')])
+    start = StringField('Départ')
+    end = StringField('Arrivée')
+    stay = StringField('Lieu de séjour')
+    odometer_read = IntegerField('Le compteur en fin de journée')
+    travel_type = SelectField("Le trajet s'est effectué par:",
+                             choices=TravelType.choices())
+    submit = SubmitField('Validez')
 

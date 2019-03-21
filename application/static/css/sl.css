@@ -116,3 +116,7 @@
   width: 25px;
   text-align:center;
 }
+
+textarea.form-control {
+  height: 100%;
+}

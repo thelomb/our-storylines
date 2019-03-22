@@ -89,7 +89,7 @@ def fullstory():
     if form.validate_on_submit():
         fullstory_web = Fullstory(date_for=form.day.data,
                                   title=form.title.data,
-                                  post=form.post.data,
+                                  content=form.post.data,
                                   start=form.start.data,
                                   end=form.end.data,
                                   stay=form.stay.data,
@@ -98,7 +98,6 @@ def fullstory():
                                   author=current_user,
                                   files=request.files.getlist('post_images')
                                   )
-        print(fullstory_web)
         fullstory_web.store()
         flash('Your story is now published')
         return redirect(url_for('main.index'))
@@ -157,27 +156,34 @@ def view_story_date1(a_date):
 def edit_story_date1(a_date):
     # story = Story.query.get(story_id)
     story_date_parameter = a_date.split("-")
-    story = Story.query.filter_by(date_for=date(int(story_date_parameter[2]),
-                                                int(story_date_parameter[1]),
-                                                int(story_date_parameter[0])
-                                                )).first_or_404()
+    story_date = date(int(story_date_parameter[2]),
+                      int(story_date_parameter[1]),
+                      int(story_date_parameter[0]))
+    fullstory = Fullstory.get_by_date(date_for=story_date)
     form = FullStoryForm()
     if form.validate_on_submit():
-        media = media_request(request.files)
-        # story = Story(title=form.title.data, content=form.post.data,
-        #               author=current_user)
-        story.update(title=form.title.data)
+        fullstory.update(date_for=form.day.data,
+                         title=form.title.data,
+                         content=form.post.data,
+                         start=form.start.data,
+                         end=form.end.data,
+                         stay=form.stay.data,
+                         odometer_at=form.odometer_read.data,
+                         travel_type=form.travel_type.data,
+                         author=current_user,
+                         files=request.files.getlist('post_images')
+                         )
         flash('Your story is now published')
         return redirect(url_for('main.index'))
     elif request.method == 'GET':
-        form.day.data = story.date_for
-        form.title.data = story.title
-        form.post.data = story.content
+        form.day.data = fullstory.date_for
+        form.title.data = fullstory.title
+        form.post.data = fullstory.content
         form.start.data = 'LA'
         form.end.data = 'Joshua'
         form.odometer_read.data = 45
         form.travel_type.data = TravelType.CAR
-    return render_template('fullstory.html', form=form, story=story)
+    return render_template('fullstory.html', form=form, story=fullstory.story)
 
 
 @bp.route('/story', methods=['GET', 'POST'])

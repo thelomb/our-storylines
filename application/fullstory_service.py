@@ -2,35 +2,47 @@ from application import images
 from application.models import Story, Media
 
 
-def media_request(media_request):
-        photos = []
-        # audios = []
-        # videos = []
-        media = {
-            'photo': [],
-            # 'video': [],
-            # 'audio': []
-        }
-        if media_request:
-            for image_info in media_request.getlist('post_images'):
-                filename = images.save(image_info)
-                url = images.url(filename)
-                image = Media(name=filename,
-                              filename=filename,
-                              url=url,
-                              type='Image')
-                photos.append(image)
-                media['photo'] = photos
-        return media
-
-
 class Fullstory():
-    @classmethod
-    def create(cls, fullstory, author, files):
-        Story.create(date_for=fullstory['date_for'],
-                     title=fullstory['title'],
-                     content=fullstory['post'],
-                     user_id=author.id,
-                     media=media_request(files)['photo']
-                     )
+
+    def __init__(self, date_for, title, post, start, end, stay,
+                 odometer_at, travel_type, author, files):
+        self.date_for = date_for
+        self.title = title
+        self.content = post
+        self.start = start
+        self.end = end
+        self.stay = stay
+        self.odometer_at = odometer_at
+        self.travel_type = travel_type
+        self.author = author
+        self.files = files
+        self.media_request()
+
+    def store(self):
+        Story.create(date_for=self.date_for,
+                     title=self.title,
+                     content=self.content,
+                     user_id=self.author.id,
+                     media=self.media['photo'])
         print('story created!')
+
+    def media_request(self):
+            photos = []
+            # audios = []
+            # videos = []
+            media = {
+                'photo': [],
+                # 'video': [],
+                # 'audio': []
+            }
+            if self.files:
+                for image_info in self.files:
+                    filename = images.save(image_info)
+                    url = images.url(filename)
+                    image = Media(name=filename,
+                                  filename=filename,
+                                  url=url,
+                                  type='Image')
+                    photos.append(image)
+                    media['photo'] = photos
+            self.media = media

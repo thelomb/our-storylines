@@ -3,7 +3,7 @@ from flask import (render_template, flash, redirect, url_for, request,
 from application import db
 from application.main import bp
 from application.main.forms import (EditProfileForm,
-                                    PostForm, ItineraryForm, FullStory)
+                                    PostForm, ItineraryForm, FullStoryForm)
 from flask_login import current_user, login_required
 from application.models import (User, Story, Media,
                                 Tag, Itinerary)
@@ -13,7 +13,7 @@ from random import randint
 from flask_googlemaps import Map
 from googlemaps import Client
 from application.model_enums import TravelType
-from application.fullstory_service import media_request, Fullstory
+from application.fullstory_service import Fullstory
 
 @bp.before_request
 def before_request():
@@ -81,31 +81,29 @@ def tag_request(tag_request):
                 post_tags.append(Tag.query.filter(Tag.name == tag).first())
     return post_tags
 
+
 @bp.route('/fullstory', methods=['GET', 'POST'])
 @login_required
 def fullstory():
-    form = FullStory()
+    form = FullStoryForm()
     if form.validate_on_submit():
-        fullstory_web = {
-                     'date_for': form.day.data,
-                     'title': form.title.data,
-                     'post': form.post.data,
-                     'start': form.start.data,
-                     'end': form.end.data,
-                     'stay': form.stay.data,
-                     'odometer_at': form.odometer_read.data,
-                     'travel_type': form.travel_type.data
-        }
-        # story = Story.create(form=form, user=current_user, media=media)
-        Fullstory.create(fullstory=fullstory_web,
-                         author=current_user,
-                         files=request.files)
-        # db.session.add(story)
-        # db.session.commit()
+        fullstory_web = Fullstory(date_for=form.day.data,
+                                  title=form.title.data,
+                                  post=form.post.data,
+                                  start=form.start.data,
+                                  end=form.end.data,
+                                  stay=form.stay.data,
+                                  odometer_at=form.odometer_read.data,
+                                  travel_type=form.travel_type.data,
+                                  author=current_user,
+                                  files=request.files.getlist('post_images')
+                                  )
+        print(fullstory_web)
+        fullstory_web.store()
         flash('Your story is now published')
         return redirect(url_for('main.index'))
     elif request.method == 'GET':
-        form.day.data = date(int(2019), int(3), int(24))
+        form.day.data = date.today()
     return render_template('fullstory.html', form=form)
 
 
@@ -163,7 +161,7 @@ def edit_story_date1(a_date):
                                                 int(story_date_parameter[1]),
                                                 int(story_date_parameter[0])
                                                 )).first_or_404()
-    form = FullStory()
+    form = FullStoryForm()
     if form.validate_on_submit():
         media = media_request(request.files)
         # story = Story(title=form.title.data, content=form.post.data,

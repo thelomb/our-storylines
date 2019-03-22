@@ -46,7 +46,6 @@ def create_app(config_class=Config):
     pagedown.init_app(app)
     moment.init_app(app)
     google_map.init_app(app)
-    print(app.config['GOOGLEMAPS_KEY'])
 
     from application.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

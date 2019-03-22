@@ -63,7 +63,7 @@ class ItineraryForm(FlaskForm):
                                               ('camping', 'camping icon')])
 
 
-class FullStory(FlaskForm):
+class FullStoryForm(FlaskForm):
     day = DateField('Nous sommes le: ',
                     format='%d/%m/%Y',
                     validators=[DataRequired()], id='datepick')

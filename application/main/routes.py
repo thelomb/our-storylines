@@ -179,9 +179,10 @@ def edit_story_date1(a_date):
         form.day.data = fullstory.date_for
         form.title.data = fullstory.title
         form.post.data = fullstory.content
-        form.start.data = 'LA'
-        form.end.data = 'Joshua'
-        form.odometer_read.data = 45
+        form.stay.data = fullstory.stay
+        form.start.data = fullstory.start
+        form.end.data = fullstory.end
+        form.odometer_read.data = fullstory.odometer_at
         form.travel_type.data = TravelType.CAR
     return render_template('fullstory.html', form=form, story=fullstory.story)
 

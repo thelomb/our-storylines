@@ -28,6 +28,7 @@
             </div>
           </div>
           {{ wtf.form_field(form.title, **{'placeholder': 'Entrez un titre', 'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.stay, **{'class': 'form-control form-control-lg'}) }}
           {{ wtf.form_field(form.travel_type, **{'class': 'form-control form-control-lg'}) }}
           {{ wtf.form_field(form.start, **{'class': 'form-control form-control-lg'}) }}
           {{ wtf.form_field(form.end, **{'class': 'form-control form-control-lg'}) }}

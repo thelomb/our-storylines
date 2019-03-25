@@ -180,9 +180,6 @@ class Story(db.Model, CRUDMixin):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
-    stay_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
-    # image_filename = db.Column(db.String)
-    # image_url = db.Column(db.String)
     tags = db.relationship(
         'Tag',
         secondary=story_tags,
@@ -190,6 +187,9 @@ class Story(db.Model, CRUDMixin):
         lazy='dynamic')
     media = db.relationship('Media', backref='story', lazy='dynamic')
     # itinerary = db.relationship('Itinerary', backref='story', lazy='dynamic')
+    stay = db.relationship('GeoPoint',
+                           uselist=False,
+                           backref='story')
 
     def __repr__(self):
         return '<Story id: {}, title {}>'.format(self.id, self.title)
@@ -300,6 +300,7 @@ class GeoPoint(db.Model, CRUDMixin):
     latitude = db.Column(db.Float())
     longitude = db.Column(db.Float())
     formatted_address = db.Column(db.String(140))
+    story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
     # intermediary_point = db.relationship('Itinerary')
 
 

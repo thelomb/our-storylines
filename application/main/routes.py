@@ -92,7 +92,7 @@ def fullstory():
                                   content=form.post.data,
                                   start=form.start.data,
                                   end=form.end.data,
-                                  stay=form.stay.data,
+                                  stay_place=form.stay.data,
                                   odometer_at=form.odometer_read.data,
                                   travel_type=form.travel_type.data,
                                   author=current_user,
@@ -167,7 +167,7 @@ def edit_story_date1(a_date):
                          content=form.post.data,
                          start=form.start.data,
                          end=form.end.data,
-                         stay=form.stay.data,
+                         stay_place=form.stay.data,
                          odometer_at=form.odometer_read.data,
                          travel_type=form.travel_type.data,
                          author=current_user,
@@ -179,7 +179,7 @@ def edit_story_date1(a_date):
         form.day.data = fullstory.date_for
         form.title.data = fullstory.title
         form.post.data = fullstory.content
-        form.stay.data = fullstory.stay
+        form.stay.data = fullstory.stay.place if fullstory.stay else None
         form.start.data = fullstory.start
         form.end.data = fullstory.end
         form.odometer_read.data = fullstory.odometer_at

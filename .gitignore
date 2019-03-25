@@ -113,6 +113,7 @@ status/
 
 #flask
 .flaskenv
+static/
 
 #node by milo
 milo-1-1-0/

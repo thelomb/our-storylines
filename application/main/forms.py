@@ -2,7 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import (StringField,
                      SubmitField, TextAreaField, MultipleFileField,
                      IntegerField, SelectMultipleField, widgets,
-                     RadioField, SelectField)
+                     RadioField, SelectField,
+                     validators)
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import (DataRequired, ValidationError,
                                 Length)
@@ -77,7 +78,8 @@ class FullStoryForm(FlaskForm):
     start = StringField('Départ')
     end = StringField('Arrivée')
     stay = StringField('Lieu de séjour')
-    odometer_read = IntegerField('Le compteur en fin de journée')
+    odometer_read = IntegerField('Le compteur en fin de journée',
+                                 [validators.optional()])
     travel_type = SelectField("Le trajet s'est effectué par:",
                              choices=TravelType.choices())
     submit = SubmitField('Validez')

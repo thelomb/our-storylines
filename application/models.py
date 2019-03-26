@@ -186,27 +186,17 @@ class Story(db.Model, CRUDMixin):
         back_populates="stories",
         lazy='dynamic')
     media = db.relationship('Media', backref='story', lazy='dynamic')
-    # itinerary = db.relationship('Itinerary', backref='story', lazy='dynamic')
     stay = db.relationship('GeoPoint',
                            uselist=False,
-                           backref='story')
+                           backref='story',
+                           cascade="all, delete-orphan")
+    itinerary = db.relationship('Itinerary',
+                                uselist=False,
+                                backref='story',
+                                cascade="all, delete-orphan")
 
     def __repr__(self):
         return '<Story id: {}, title {}>'.format(self.id, self.title)
-
-    # def __init__(self, **kwargs):
-
-    #     print('init story speaking')
-    #     self.date_for = kwargs['form'].day.data
-    #     self.title = kwargs['form'].title.data
-    #     self.content = kwargs['form'].post.data
-    #     self.user_id = kwargs['user'].id
-
-    #     # create file reference
-    #     for medium in kwargs['media']['photo']:
-    #         Media.create(type='Image', name=medium['filename'],
-    #                      filename=medium['filename'], url=medium['url'],
-    #                      related_story=self)
 
     #     # itinerary
     #     print('User is: ', kwargs['user'])
@@ -275,23 +265,20 @@ class Itinerary(db.Model, CRUDMixin):
     travel_type = db.Column(Enum(TravelType), default='CAR')
     odometer_at = db.Column(db.Integer)
     odometer_scale = db.Column(Enum(DistanceUnit), default='MILE')
-    start_point_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
-    end_point_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
-    start = db.relationship('GeoPoint', foreign_keys=[start_point_id])
-    end = db.relationship('GeoPoint', foreign_keys=[end_point_id])
+    story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
+    start_point_id = db.Column(db.Integer, db.ForeignKey("geo_point.id"))
+    end_point_id = db.Column(db.Integer, db.ForeignKey("geo_point.id"))
+    start = db.relationship('GeoPoint',
+                            foreign_keys=[start_point_id],
+                            cascade="all, delete-orphan",
+                            single_parent=True)
+    end = db.relationship('GeoPoint',
+                          foreign_keys=[end_point_id],
+                          cascade="all, delete-orphan",
+                          single_parent=True)
     # intermediary_points = db.relationship('GeoPoint',
     #                                       backref='itinerary',
     #                                       lazy='dynamic')
-    # story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
-    # related_story = db.relationship('Story')
-
-    def __init__(self, start, end, odometer_at, travel_type, **kwargs):
-        startPoint = GeoPoint.create(place=start)
-        endPoint = GeoPoint.create(place=end)
-        self.start_point_id = startPoint.id
-        self.end_point_id = endPoint.id
-        self.odometer_at = odometer_at
-        self.travel_type = TravelType[travel_type]
 
 
 class GeoPoint(db.Model, CRUDMixin):

@@ -13,7 +13,7 @@ from random import randint
 from flask_googlemaps import Map
 from googlemaps import Client
 from application.model_enums import TravelType
-from application.fullstory_service import Fullstory
+from application.fullstory_service import Fullstory, Fullstory2
 
 @bp.before_request
 def before_request():
@@ -87,18 +87,17 @@ def tag_request(tag_request):
 def fullstory():
     form = FullStoryForm()
     if form.validate_on_submit():
-        fullstory_web = Fullstory(date_for=form.day.data,
-                                  title=form.title.data,
-                                  content=form.post.data,
-                                  start=form.start.data,
-                                  end=form.end.data,
-                                  stay_place=form.stay.data,
-                                  odometer_at=form.odometer_read.data,
-                                  travel_type=form.travel_type.data,
-                                  author=current_user,
-                                  files=request.files.getlist('post_images')
-                                  )
-        fullstory_web.store()
+        Fullstory2.from_web_form(date_for=form.day.data,
+                                 title=form.title.data,
+                                 content=form.post.data,
+                                 start_place=form.start.data,
+                                 end_place=form.end.data,
+                                 stay_place=form.stay.data,
+                                 odometer_at=form.odometer_read.data,
+                                 travel_type=form.travel_type.data,
+                                 author=current_user,
+                                 files=request.files.getlist('post_images')
+                                 )
         flash('Your story is now published')
         return redirect(url_for('main.index'))
     elif request.method == 'GET':
@@ -159,14 +158,14 @@ def edit_story_date1(a_date):
     story_date = date(int(story_date_parameter[2]),
                       int(story_date_parameter[1]),
                       int(story_date_parameter[0]))
-    fullstory = Fullstory.get_by_date(date_for=story_date)
+    fullstory = Fullstory2.get_by_date_web(date_for=story_date)
     form = FullStoryForm()
     if form.validate_on_submit():
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
                          content=form.post.data,
-                         start=form.start.data,
-                         end=form.end.data,
+                         start_place=form.start.data,
+                         end_place=form.end.data,
                          stay_place=form.stay.data,
                          odometer_at=form.odometer_read.data,
                          travel_type=form.travel_type.data,
@@ -179,11 +178,11 @@ def edit_story_date1(a_date):
         form.day.data = fullstory.date_for
         form.title.data = fullstory.title
         form.post.data = fullstory.content
-        form.stay.data = fullstory.stay.place if fullstory.stay else None
-        form.start.data = fullstory.start
-        form.end.data = fullstory.end
+        form.stay.data = fullstory.stay_place
+        form.start.data = fullstory.start_place
+        form.end.data = fullstory.end_place
         form.odometer_read.data = fullstory.odometer_at
-        form.travel_type.data = TravelType.CAR
+        form.travel_type.data = fullstory.travel_type
     return render_template('fullstory.html', form=form, story=fullstory.story)
 
 

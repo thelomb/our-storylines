@@ -107,7 +107,7 @@ def fullstory():
 
 @bp.route('/story_date/<a_date>', methods=['GET'])
 @login_required
-def view_story_date1(a_date):
+def view_story_date(a_date):
     # story = Story.query.get(story_id)
     story_date_parameter = a_date.split("-")
     story = Story.query.filter_by(date_for=date(int(story_date_parameter[2]),
@@ -323,7 +323,7 @@ def itinerary(page=1):
 
 @bp.route('/story_date/<a_date>', methods=['GET'])
 @login_required
-def view_story_date(a_date):
+def view_story_date1(a_date):
     # story = Story.query.get(story_id)
     entry = {}
     entry['date'] = date(2019, 5, 24)

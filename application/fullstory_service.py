@@ -3,13 +3,12 @@ from application import images
 from application.models import Story, Media, GeoPoint, Itinerary
 from googlemaps import Client
 from application.model_enums import TravelType
-
+from datetime import timedelta
 
 class Fullstory2(object):
 
     def __init__(self, story=None):
         self.story = story
-        print('init')
 
     @classmethod
     def from_web_form(cls,
@@ -92,13 +91,15 @@ class Fullstory2(object):
 
     @classmethod
     def get_by_date(cls, date_for):
-        story = Story.query.filter_by(date_for=date_for).first_or_404()
+        story = Story.query.filter_by(date_for=date_for).first()
         fullstory = cls(story)
         return fullstory
 
     @classmethod
     def get_by_date_web(cls, date_for):
         fullstory = cls.get_by_date(date_for)
+        if fullstory.story is None:
+            return None
         fullstory.date_for = fullstory.story.date_for
         fullstory.title = fullstory.story.title
         fullstory.content = fullstory.story.content
@@ -113,6 +114,21 @@ class Fullstory2(object):
                                  if fullstory.story.itinerary else None)
         fullstory.travel_type = (fullstory.story.itinerary.travel_type.name
                                  if fullstory.story.itinerary else None)
+        fullstory.media = (fullstory.story.media
+                           if fullstory.story.media else None)
+        prev_story = cls.get_by_date(date_for - timedelta(days=1))
+        if prev_story.story is None:
+            fullstory.prev_date = None
+        else:
+            fullstory.prev_date = prev_story.story.date_for
+            if prev_story.story.itinerary:
+                fullstory.distance = fullstory.odometer_at -\
+                    prev_story.story.itinerary.odomter_at
+        next_story = cls.get_by_date(date_for + timedelta(days=1))
+        if next_story.story is None:
+            fullstory.next_date = None
+        else:
+            fullstory.next_date = next_story.story.date_for
         return fullstory
 
     def process_media_files(self):

@@ -1,6 +1,3 @@
-{% block scripts %}
-  {{ map2.js }}
-{% endblock %}
 {% extends "base.html" %}
 
 {% block app_content %}
@@ -8,16 +5,31 @@
   <div class="row">
     <div class="col-md-3 ml-auto">
         <div class="card-title">
-            <div class="fa-7x">
-                <span class="fa-layers fa-fw text-center">
-                    <i class="fas fa-calendar"></i>
+            <div class="">
+                {% if prev_story_date %}
+                  <span>
+                    <a href=" {{ url_for('main.view_story_date', a_date=prev_story_date.strftime('%d-%m-%Y')) }}">
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                  </span>
+                {% endif %}
+                <span class="fa-7x fa-layers fa-fw text-center">
+                  <a href="{{ url_for('main.edit_story_date1', a_date=story.date_for.strftime('%d-%m-%Y')) }}">
+                    <span><i class="fas fa-calendar"></i></span>
                     <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-10 down-1.5" style="font-weight:900">{{ '{d.day}'.format(d=story.date_for)  }}</span>
 
                     <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-13 down-6" style="font-weight:900">{{ story.date_for.strftime('%b') }}</span>
+                  </a>
                 </span>
+                {% if next_story_date %}
+                  <span>
+                    <a href=" {{ url_for('main.view_story_date', a_date=next_story_date.strftime('%d-%m-%Y')) }}">
+                      <i class="fas fa-chevron-right"></i>
+                    </a>
+                  </span>
+                {% endif %}
             </div>
         </div>
-
     </div>
     <div class="col-md-9 ml-auto">
       <article class="card mb-4">
@@ -44,27 +56,33 @@
       </div>
     </div>
   </div>
-  <div class ="row">
-    {% for image in story.media %}
-      <div class="col-lg-4 col-sm-6 col-xs-12">
-        <a href="{{ url_for('main.edit_story', story_id=story.id) }}">
-            <img class="card-img" src="{{ image.url }}" alt="" />
-        </a>
-      </div>
-    {% endfor %}
-  </div>
   <div class ="row" style="margin-bottom:30px;">
     <div class="col-md-3">
       <div class="card-body">
           <div class="post card-text">
             <p>
-              From: {# story.from #} LA
+               <i class="fas fa-campground"></i>
             </p>
             <p>
-              To: {# story.to #} Joshua
+               {{ ' ' + story.stay_place }}
             </p>
           </div>
       </div>
+      {% if story.itinerary %}
+      <div class="card-body">
+        <div class="post card-text">
+            <p>
+              <i class="fas fa-car"></i>
+            </p>
+            <p>
+                {{ story.start_place }} LA
+            </p>
+            <p>
+              {# story.to #} Joshua
+            </p>
+        </div>
+      </div>
+      {% endif %}
     </div>
     <div class="col-md-9 ml-auto">
       <div class="card-body">
@@ -74,5 +92,19 @@
       </div>
     </div>
   </div>
+  <div class ="row" style="margin-bottom:30px;">
+    {% for image in story.media %}
+      <div class="col-lg-4 col-sm-6 col-xs-12">
+        <a href="{# url_for('main.edit_story', story_id=story.id) #}">
+            <img class="card-img" src="{{ image.url }}" alt="" />
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
 </div>
+{% endblock %}
+{% block scripts %}
+  {{ super() }}
+  {{ map2.js }}
 {% endblock %}

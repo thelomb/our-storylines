@@ -7,13 +7,18 @@ from application.main.forms import (EditProfileForm,
 from flask_login import current_user, login_required
 from application.models import (User, Story, Media,
                                 Tag, Itinerary)
-from datetime import datetime
-from datetime import date
+from datetime import date, datetime
 from random import randint
 from flask_googlemaps import Map
 from googlemaps import Client
-from application.model_enums import TravelType
-from application.fullstory_service import Fullstory, Fullstory2
+from application.fullstory_service import Fullstory2
+
+
+geo_location_markers_icons = {
+    'start': 'twotone-room-24px.svg',
+    'end': '/images/twotone-flag-24px.svg',
+    'stay':'/images/baseline-hotel-24px.svg'
+}
 
 @bp.before_request
 def before_request():
@@ -26,7 +31,7 @@ def before_request():
 @bp.route('/index/<int:page>')
 @login_required
 def index(page=1):
-    stories = Story.query.order_by(Story.timestamp.desc()).paginate(
+    stories = Story.query.order_by(Story.date_for.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
     return render_template('index.html', title='Home',
                            posts=stories.items, page=page)
@@ -108,12 +113,20 @@ def fullstory():
 @bp.route('/story_date/<a_date>', methods=['GET'])
 @login_required
 def view_story_date(a_date):
-    # story = Story.query.get(story_id)
     story_date_parameter = a_date.split("-")
-    story = Story.query.filter_by(date_for=date(int(story_date_parameter[2]),
-                                                int(story_date_parameter[1]),
-                                                int(story_date_parameter[0])
-                                                )).first_or_404()
+    story_date = date(int(story_date_parameter[2]),
+                      int(story_date_parameter[1]),
+                      int(story_date_parameter[0]))
+    print('getting story')
+    story = Fullstory2.get_by_date_web(date_for=story_date)
+    if story is None:
+        return render_template('errors/404.html')
+    if story.media.count() == 0:
+        print('no media')
+        story.media = ([Media(name='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                              filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                              url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                              type='Image') for _ in range(3)])
     geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
     geocode_result = geolocation.geocode('''LA''')
     lat = geocode_result[0]['geometry']['location']['lat']
@@ -131,7 +144,7 @@ def view_story_date(a_date):
         fit_markers_to_bounds=True,
         markers=[
           {
-             'icon': Markup('http://localhost:5000/static/images/ic_place_24px.svg'),
+             'icon': Markup(url_for('static', filename='images/' + geo_location_markers_icons['start'])),
              'lat': lat,
              'lng': lng,
              'infobox': "<b>Hello World</b>",
@@ -147,7 +160,7 @@ def view_story_date(a_date):
         ]
         )
     return render_template('view_story_date.html',
-                           story=story, map2=sndmap)
+                           story=story, map2=sndmap, prev_story_date=story.prev_date, next_story_date=story.next_date)
 
 
 @bp.route('/edit_story_date/<a_date>', methods=['GET', 'POST'])

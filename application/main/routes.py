@@ -12,13 +12,8 @@ from random import randint
 from flask_googlemaps import Map
 from googlemaps import Client
 from application.fullstory_service import Fullstory2
+from application.location_service import map_a_story
 
-
-geo_location_markers_icons = {
-    'start': 'twotone-room-24px.svg',
-    'end': '/images/twotone-flag-24px.svg',
-    'stay':'/images/baseline-hotel-24px.svg'
-}
 
 @bp.before_request
 def before_request():
@@ -35,56 +30,6 @@ def index(page=1):
         page, current_app.config['STORIES_PER_PAGE'], False)
     return render_template('index.html', title='Home',
                            posts=stories.items, page=page)
-
-
-@bp.route('/user/<username>')
-@login_required
-def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    page = request.args.get('page', 1, type=int)
-    stories = user.stories.order_by(Story.timestamp.desc()).paginate(
-        page, current_app.config['STORIES_PER_PAGE'], False)
-    next_url = url_for('main.user', username=user.username,
-                       page=stories.next_num) \
-        if stories.has_next else None
-    prev_url = url_for('main.user', username=user.username,
-                       page=stories.prev_num) \
-        if stories.has_prev else None
-    return render_template('user.html', user=user, posts=stories.items,
-                           next_url=next_url, prev_url=prev_url)
-
-
-@bp.route('/edit_profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = EditProfileForm(current_user.username)
-    if form.validate_on_submit():
-        current_user.update(**form.data)  # save the object with changes
-        flash('Your changes have been saved')
-        return redirect(url_for('main.edit_profile'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html',
-                           title='Edit Profile', form=form)
-
-
-
-
-def tag_request(tag_request):
-    post_tags = []
-    if tag_request:
-        existing_tags = [name for name, in Tag.query.with_entities(
-            Tag.name)]
-        form_tags = tag_request.split(', ')
-        for tag in form_tags:
-            if tag not in existing_tags:
-                t = Tag(name=tag)
-                db.session.add(t)
-                post_tags.append(t)
-            else:
-                post_tags.append(Tag.query.filter(Tag.name == tag).first())
-    return post_tags
 
 
 @bp.route('/fullstory', methods=['GET', 'POST'])
@@ -122,45 +67,14 @@ def view_story_date(a_date):
     if story is None:
         return render_template('errors/404.html')
     if story.media.count() == 0:
-        print('no media')
-        story.media = ([Media(name='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                              filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                              url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                              type='Image') for _ in range(3)])
-    geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
-    geocode_result = geolocation.geocode('''LA''')
-    lat = geocode_result[0]['geometry']['location']['lat']
-    lng = geocode_result[0]['geometry']['location']['lng']
-    geocode_result = geolocation.geocode('''SF''')
-    lat2 = geocode_result[0]['geometry']['location']['lat']
-    lng2 = geocode_result[0]['geometry']['location']['lng']
-    sndmap = Map(
-        identifier="sndmap",
-        style="width:100%;height:100%;margin:0;",
-        # lat=37.4419,
-        # lng=-122.1419,
-        lat=lat,
-        lng=lng,
-        fit_markers_to_bounds=True,
-        markers=[
-          {
-             'icon': Markup(url_for('static', filename='images/' + geo_location_markers_icons['start'])),
-             'lat': lat,
-             'lng': lng,
-             'infobox': "<b>Hello World</b>",
-             'id': 'start'
-          },
-          {
-             'icon': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-             'lat': lat2,
-             'lng': lng2,
-             'infobox': "<b>Hello World from other place</b>",
-             'title':'finish'
-          },
-        ]
-        )
+        story.media = simulate_media()
+    sndmap = map_a_story(story)
     return render_template('view_story_date.html',
-                           story=story, map2=sndmap, prev_story_date=story.prev_date, next_story_date=story.next_date)
+                           story=story,
+                           map2=sndmap,
+                           prev_story_date=story.prev_date,
+                           next_story_date=story.next_date,
+                           title=story.title)
 
 
 @bp.route('/edit_story_date/<a_date>', methods=['GET', 'POST'])
@@ -197,6 +111,48 @@ def edit_story_date1(a_date):
         form.odometer_read.data = fullstory.odometer_at
         form.travel_type.data = fullstory.travel_type
     return render_template('fullstory.html', form=form, story=fullstory.story)
+
+
+@bp.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    stories = user.stories.order_by(Story.timestamp.desc()).paginate(
+        page, current_app.config['STORIES_PER_PAGE'], False)
+    next_url = url_for('main.user', username=user.username,
+                       page=stories.next_num) \
+        if stories.has_next else None
+    prev_url = url_for('main.user', username=user.username,
+                       page=stories.prev_num) \
+        if stories.has_prev else None
+    return render_template('user.html', user=user, posts=stories.items,
+                           next_url=next_url, prev_url=prev_url)
+
+
+@bp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        current_user.update(**form.data)  # save the object with changes
+        flash('Your changes have been saved')
+        return redirect(url_for('main.edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html',
+                           title='Edit Profile', form=form)
+
+
+def simulate_media():
+    media = ([Media(name=\
+                              'https://picsum.photos/700/300/?gravity=east&image=' \
+                              + str(randint(1,90)),
+                              filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                              url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                              type='Image') for _ in range(3)])
+    return media
 
 
 @bp.route('/story', methods=['GET', 'POST'])
@@ -693,3 +649,18 @@ def story_date_sandbox():
     return render_template('view_story_date_sandbox.html',
                            story=entry, map1=mymap, map2=sndmap)
 
+
+def tag_request(tag_request):
+    post_tags = []
+    if tag_request:
+        existing_tags = [name for name, in Tag.query.with_entities(
+            Tag.name)]
+        form_tags = tag_request.split(', ')
+        for tag in form_tags:
+            if tag not in existing_tags:
+                t = Tag(name=tag)
+                db.session.add(t)
+                post_tags.append(t)
+            else:
+                post_tags.append(Tag.query.filter(Tag.name == tag).first())
+    return post_tags

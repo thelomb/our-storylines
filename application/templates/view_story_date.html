@@ -61,24 +61,25 @@
       <div class="card-body">
           <div class="post card-text">
             <p>
-               <i class="fas fa-campground"></i>
+               <i class="fas fa-campground fa-2x"></i>
             </p>
             <p>
                {{ ' ' + story.stay_place }}
             </p>
           </div>
       </div>
-      {% if story.itinerary %}
+      {% if story.story.itinerary %}
       <div class="card-body">
         <div class="post card-text">
             <p>
-              <i class="fas fa-car"></i>
+              <i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-sm"></i><i class="fas fa-car-side fa-2x"></i>
+              {{ story.distance }} <small>mi.</small>
             </p>
             <p>
-                {{ story.start_place }} LA
+                <i class="fas fa-map-marker-alt fa-sm" style="color: rgb(112, 148, 245)"></i>{{ ' '+story.start_place }}
             </p>
             <p>
-              {# story.to #} Joshua
+                <i class="far fa-flag fa-sm" style="color: rgb(217, 80, 64)"></i><em>{{ ' '+story.end_place }}</em>
             </p>
         </div>
       </div>

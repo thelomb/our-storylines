@@ -1,9 +1,9 @@
-from flask import current_app
 from application import images
 from application.models import Story, Media, GeoPoint, Itinerary
-from googlemaps import Client
 from application.model_enums import TravelType
 from datetime import timedelta
+from application.location_service import Geolocation
+
 
 class Fullstory2(object):
 
@@ -121,9 +121,12 @@ class Fullstory2(object):
             fullstory.prev_date = None
         else:
             fullstory.prev_date = prev_story.story.date_for
+            prev_distance = 0
             if prev_story.story.itinerary:
+                prev_distance = prev_story.story.itinerary.odomter_at
+            if fullstory.story.itinerary:
                 fullstory.distance = fullstory.odometer_at -\
-                    prev_story.story.itinerary.odomter_at
+                    prev_distance
         next_story = cls.get_by_date(date_for + timedelta(days=1))
         if next_story.story is None:
             fullstory.next_date = None
@@ -148,15 +151,11 @@ class Fullstory2(object):
                 self.media = photo
 
     def create_stay(self):
-        geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
-        geocode_result = geolocation.geocode(self.stay_place)
-        lat = geocode_result[0]['geometry']['location']['lat']
-        lng = geocode_result[0]['geometry']['location']['lng']
-        fmt_addr = geocode_result[0]['formatted_address']
+        location = Geolocation(self.stay_place)
         self.stay = GeoPoint(place=self.stay_place,
-                             latitude=lat,
-                             longitude=lng,
-                             formatted_address=fmt_addr)
+                             latitude=location.lat,
+                             longitude=location.lng,
+                             formatted_address=location.fmt_addr)
 
     def process_stay(self):
         if self.story:
@@ -186,163 +185,32 @@ class Fullstory2(object):
                 self.story.itinerary.delete()
         self.create_itinerary()
 
-
-class Fullstory(object):
-
-    def __init__(self,
-                 date_for,
-                 title,
-                 content,
-                 files=None,
-                 start=None,
-                 end=None,
-                 stay_place=None,
-                 odometer_at=None,
-                 travel_type=None,
-                 author=None,
-                 story=None,
-                 media=None,
-                 stay=None,
-                 itinerary=None):
-        self.date_for = date_for
-        self.title = title
-        self.content = content
-        self.start = start
-        self.end = end
-        self.stay_place = stay_place
-        self.odometer_at = odometer_at
-        self.travel_type = (travel_type if travel_type else TravelType.NONE)
-        self.author = author
-        self.files = files
-        self.story = story
-        self.media = []
-        self.stay = stay
-        self.itinerary = itinerary
-        if self.files:
-            self.process_media_files()
-        if self.stay_place:
-            self.process_stay()
-        if self.start and self.end:
-            self.process_itinerary()
-        print('init fullstory')
-
-    def store(self):
-        Story.create(date_for=self.date_for,
-                     title=self.title,
-                     content=self.content,
-                     user_id=self.author.id,
-                     media=self.media,
-                     stay=self.stay,
-                     itinerary=self.itinerary)
-        print('story created!')
-
-    def update(self,
-               date_for,
-               title,
-               content,
-               start,
-               end,
-               stay_place,
-               odometer_at,
-               travel_type,
-               author,
-               files):
-        self.media = self.story.media
-        self.title = title
-        self.content = content
-        self.start = start
-        self.end = end
-        self.stay_place = stay_place
-        self.odometer_at = odometer_at
-        self.travel_type = TravelType[travel_type]
-        self.author = author
-        self.files = files
-        if self.files:
-            self.process_media_files()
-        if self.stay_place:
-            self.process_stay()
-        if self.start and self.end:
-            self.process_itinerary()
-        self.story.update(date_for=self.date_for,
-                          title=self.title,
-                          content=self.content,
-                          user_id=self.author.id,
-                          stay=self.stay,
-                          itinerary=self.itinerary)
-
-    @classmethod
-    def get_by_date(cls, date_for):
-        story = Story.query.filter_by(date_for=date_for).first_or_404()
-        fullstory = cls(date_for=story.date_for,
-                        title=story.title,
-                        content=story.content,
-                        story=story,
-                        stay=story.stay,
-                        itinerary=story.itinerary,
-                        start=story.itinerary.start.place,
-                        end=story.itinerary.end.place,
-                        odometer_at=story.itinerary.odometer_at,
-                        travel_type=story.itinerary.travel_type,
-                        stay_place=story.stay.place)
-        return fullstory
-
-    def process_media_files(self):
-        photo = []
-        if self.files:
-            for image_info in self.files:
-                    filename = images.save(image_info)
-                    url = images.url(filename)
-                    image = Media(name=filename,
-                                  filename=filename,
-                                  url=url,
-                                  type='Image')
-                    photo.append(image)
-            if self.media:
-                self.media.extend(photo)
-            else:
-                self.media = photo
-
-    def process_stay(self):
-        if self.story:
-            if self.story.stay:
-                if self.stay_place == self.story.stay.place:
-                    return
-                self.story.stay.delete()
-        geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
-        geocode_result = geolocation.geocode(self.stay_place)
-        lat = geocode_result[0]['geometry']['location']['lat']
-        lng = geocode_result[0]['geometry']['location']['lng']
-        fmt_addr = geocode_result[0]['formatted_address']
-        self.stay = GeoPoint(place=self.stay_place,
-                             latitude=lat,
-                             longitude=lng,
-                             formatted_address=fmt_addr)
-
-    def process_itinerary(self):
-        if self.story:
-            if self.story.itinerary:
-                print('deleting itinerary', self.story.itinerary.id)
-                self.story.itinerary.delete()
-        location = Geolocation(self.start)
-        start = GeoPoint(place=self.start,
-                         latitude=location.lat,
-                         longitude=location.lng,
-                         formatted_address=location.fmt_addr)
-        location = Geolocation(self.end)
-        end = GeoPoint(place=self.end,
-                       latitude=location.lat,
-                       longitude=location.lng,
-                       formatted_address=location.fmt_addr)
-        self.itinerary = Itinerary(odometer_at=self.odometer_at,
-                                   travel_type=self.travel_type,
-                                   start=start,
-                                   end=end)
-
-
-class Geolocation():
-    def __init__(self, place):
-        geolocation = Client(current_app.config['GOOGLEMAPS_KEY'])
-        geocode_result = geolocation.geocode(place)
-        self.lat = geocode_result[0]['geometry']['location']['lat']
-        self.lng = geocode_result[0]['geometry']['location']['lng']
-        self.fmt_addr = geocode_result[0]['formatted_address']
+    def get_geo_points(self):
+        geopoints = []
+        if self.story.stay:
+            point = {'place': self.story.stay.place,
+                     'lat': self.story.stay.latitude,
+                     'lng': self.story.stay.longitude,
+                     'fmt_addr': self.story.stay.formatted_address,
+                     'category': 'hotel',
+                     'type': 'stay'
+                     }
+            geopoints.append(point)
+        if self.story.itinerary:
+            start = {'place': self.story.itinerary.start.place,
+                     'lat': self.story.itinerary.start.latitude,
+                     'lng': self.story.itinerary.start.longitude,
+                     'fmt_addr': self.story.itinerary.start.formatted_address,
+                     'category': 'start',
+                     'type': 'start'
+                     }
+            end = {'place': self.story.itinerary.end.place,
+                   'lat': self.story.itinerary.end.latitude,
+                   'lng': self.story.itinerary.end.longitude,
+                   'fmt_addr': self.story.itinerary.end.formatted_address,
+                   'category': 'end',
+                   'type': 'end'
+                   }
+            geopoints.append(start)
+            geopoints.append(end)
+        return geopoints

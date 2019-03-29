@@ -109,6 +109,7 @@ class Fullstory2(object):
         fullstory.date_for = fullstory.story.date_for
         fullstory.title = fullstory.story.title
         fullstory.content = fullstory.story.content
+        fullstory.html_content = fullstory.story.html_content
         fullstory.stay_type = fullstory.story.stay_type.name
         fullstory.stay_type_label = fullstory.story.stay_type.value
         # if fullstory.story.stay:

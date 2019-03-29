@@ -110,8 +110,10 @@ def edit_story_date1(a_date):
                          author=current_user,
                          files=request.files.getlist('post_images')
                          )
-        flash('Your story is now published')
-        return redirect(url_for('main.index'))
+        flash("L'entrée vient d'être mise à jour", 'info')
+        return redirect(url_for('main.view_story_date',
+                                a_date=fullstory.date_for.
+                                strftime('%d-%m-%Y')))
     elif request.method == 'GET':
         form.day.data = fullstory.date_for
         form.title.data = fullstory.title

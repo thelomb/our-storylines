@@ -4,6 +4,6 @@
 - Stay description
 - For at-friends stay the people we meet (with pictures)
 - Public page with invitation only message
-
+- rework the login so that index is public
 
 

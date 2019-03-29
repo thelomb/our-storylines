@@ -10,6 +10,7 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 from application.email import send_password_reset_email
 
+
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -17,6 +18,8 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
+        flash('Vous êtes maintenant connecté et pouvez suivre les Boulombs',
+              'info')
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
@@ -25,14 +28,18 @@ def login():
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('main.index')
+        print('next page:', next_page)
         return redirect(next_page)
-    return render_template('auth/login.html', title='Sign In', form=form, website='Our Storylines')
+    return render_template('auth/login.html',
+                           title='Sign In',
+                           form=form,
+                           website='Our Storylines')
 
 
 @bp.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('auth.login'))
 
 
 # @bp.route('/register', methods=['GET', 'POST'])

@@ -1,6 +1,6 @@
 from application import images
 from application.models import Story, Media, GeoPoint, Itinerary
-from application.model_enums import TravelType
+from application.model_enums import TravelType, StayType
 from datetime import timedelta
 from application.location_service import Geolocation
 
@@ -20,6 +20,7 @@ class Fullstory2(object):
                       stay_place,
                       odometer_at,
                       travel_type,
+                      stay_type,
                       author,
                       files):
         print('from web form')
@@ -32,6 +33,7 @@ class Fullstory2(object):
         instance.end_place = end_place
         instance.odometer_at = odometer_at
         instance.travel_type = TravelType[travel_type]
+        instance.stay_type = StayType[stay_type]
         instance.author = author
         instance.files = files
         instance.media = []
@@ -47,6 +49,7 @@ class Fullstory2(object):
                      title=instance.title,
                      content=instance.content,
                      user_id=instance.author.id,
+                     stay_type=instance.stay_type,
                      media=instance.media,
                      stay=instance.stay,
                      itinerary=instance.itinerary)
@@ -61,6 +64,7 @@ class Fullstory2(object):
                stay_place,
                odometer_at,
                travel_type,
+               stay_type,
                author,
                files
                ):
@@ -72,6 +76,7 @@ class Fullstory2(object):
         self.stay_place = stay_place
         self.odometer_at = odometer_at
         self.travel_type = TravelType[travel_type]
+        self.stay_type = StayType[stay_type]
         self.author = author
         self.files = files
         if self.files:
@@ -86,6 +91,7 @@ class Fullstory2(object):
                           title=self.title,
                           content=self.content,
                           user_id=self.author.id,
+                          stay_type=self.stay_type,
                           stay=self.stay,
                           itinerary=self.itinerary)
 
@@ -103,6 +109,8 @@ class Fullstory2(object):
         fullstory.date_for = fullstory.story.date_for
         fullstory.title = fullstory.story.title
         fullstory.content = fullstory.story.content
+        fullstory.stay_type = fullstory.story.stay_type.name
+        fullstory.stay_type_label = fullstory.story.stay_type.value
         # if fullstory.story.stay:
         fullstory.stay_place = (fullstory.story.stay.place
                                 if fullstory.story.stay else None)
@@ -192,7 +200,7 @@ class Fullstory2(object):
                      'lat': self.story.stay.latitude,
                      'lng': self.story.stay.longitude,
                      'fmt_addr': self.story.stay.formatted_address,
-                     'category': 'hotel',
+                     'category': self.story.stay_type.name,
                      'type': 'stay'
                      }
             geopoints.append(point)

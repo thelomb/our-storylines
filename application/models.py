@@ -11,7 +11,7 @@ import bleach
 # import re
 from slugify import slugify
 from application.mixin import CRUDMixin
-from application.model_enums import DistanceUnit, TravelType
+from application.model_enums import DistanceUnit, TravelType, StayType
 from sqlalchemy import Enum
 
 
@@ -194,22 +194,10 @@ class Story(db.Model, CRUDMixin):
                                 uselist=False,
                                 backref='story',
                                 cascade="all, delete-orphan")
+    stay_type = db.Column(Enum(StayType), default='HOTEL')
 
     def __repr__(self):
         return '<Story id: {}, title {}>'.format(self.id, self.title)
-
-    #     # itinerary
-    #     print('User is: ', kwargs['user'])
-    #     if kwargs['form'].travel_type.data == TravelType.NONE.name:
-    #         stay = GeoPoint.create(place=kwargs['form'].start.data)
-    #         self.stay_id = stay.id
-    #     elif (kwargs['form'].travel_type.data != TravelType.NONE.name and
-    #           kwargs['form'].start.data is not None and
-    #           kwargs['form'].end.data is not None):
-    #         Itinerary.create(start=kwargs['form'].start.data,
-    #                          end=kwargs['form'].end.data,
-    #                          odometer_at=kwargs['form'].odometer_read.data,
-    #                          travel_type=kwargs['form'].travel_type.data)
 
     @staticmethod
     def on_changed_content(target, value, oldvalue, initiator):
@@ -220,13 +208,6 @@ class Story(db.Model, CRUDMixin):
         target.html_content = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
-
-    # def update(self, **kwargs):
-    #     print(kwargs)
-    #     for attr, value in kwargs.items():
-    #         setattr(self, attr, value)
-
-    #     return self.save()
 
 
 db.event.listen(Story.content, 'set', Story.on_changed_content)

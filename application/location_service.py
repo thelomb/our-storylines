@@ -6,7 +6,10 @@ from flask_googlemaps import Map
 geo_location_markers_icons = {
     'start': 'twotone-room-24px.svg',
     'end': 'twotone-flag-24px.svg',
-    'hotel': 'baseline-hotel-24px.svg'
+    'HOTEL': 'baseline-hotel-24px.svg',
+    'FRIENDS': 'ic_sentiment_very_satisfied_24px.svg',
+    'CAMPING': 'baseline-style-24px.svg',
+    'HOUSE': 'baseline-beach_access-24px.svg'
 }
 
 
@@ -39,6 +42,8 @@ def set_geo_markers(geopoints):
     markers = []
     start_list = min(len(geopoints) - 1, 1)
     for geopoint in geopoints[start_list:]:
+        if geopoint['category'] is None:
+            geopoint['category'] = 'HOTEL'
         marker = {
             'icon': Markup(url_for('static',
                                    filename='images/' +

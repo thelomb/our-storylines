@@ -61,10 +61,10 @@
       <div class="card-body">
           <div class="post card-text">
             <p>
-               <i class="fas fa-campground fa-2x"></i>
+               <i class="fas {{stay_type_icons[story.stay_type]}} fa-2x"></i>
             </p>
             <p>
-               {{ ' ' + story.stay_place }}
+               {{ story.stay_type_label +' à ' + story.stay_place }}
             </p>
           </div>
       </div>

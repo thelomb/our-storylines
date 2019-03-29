@@ -23,26 +23,29 @@
                 <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                 </div>
-                    <input type="text" name="day" class="form-control datetimepicker-input" data-target="#datetimepicker1"
+                    <input type="text" name="day" class="form-control form-control-lg datetimepicker-input" data-target="#datetimepicker1"
                     {# if story #} value="{{ form.day.data.strftime('%d/%m/%y') }}" {# endif #}/>
             </div>
           </div>
           {{ wtf.form_field(form.title, **{'placeholder': 'Entrez un titre', 'class': 'form-control form-control-lg'}) }}
           {{ wtf.form_field(form.stay, **{'class': 'form-control form-control-lg'}) }}
-          {{ wtf.form_field(form.travel_type, **{'class': 'form-control form-control-lg'}) }}
-          {{ wtf.form_field(form.start, **{'class': 'form-control form-control-lg'}) }}
-          {{ wtf.form_field(form.end, **{'class': 'form-control form-control-lg'}) }}
-
-          {{ wtf.form_field(form.odometer_read, **{'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.stay_type, **{'class': 'form-control form-control-lg'}) }}
           <!--<div class="form-group custom-file">
             <label class="custom-file-label control-label" for="post_images">Ajouter des photos!</label>
             <input type="file" class="custom-file-input" id="post_images" name="post_images" multiple>
           </div>-->
           {{ wtf.form_field(form.post_images, **{'multiple':''})}}
-          {{ wtf.form_field(form.submit, **{'class': 'btn btn-primary'}) }}
       </div>
       <div class="col-md-6">
-            {{ wtf.form_field(form.post, **{'placeholder': 'Décrivez votre journée...', 'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.start, **{'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.end, **{'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.travel_type, **{'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.odometer_read, **{'class': 'form-control form-control-lg'}) }}
+      </div>
+      <div class="col-md-12 style" style="margin-bottom:30px">
+          {{ wtf.form_field(form.post, **{'placeholder': 'Décrivez votre journée...', 'class': 'form-control form-control-lg'}) }}
+          {{ wtf.form_field(form.submit, **{'class': 'btn btn-primary'}) }}
+
       </div>
     </div>
   </form>

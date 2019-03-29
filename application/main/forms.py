@@ -10,7 +10,7 @@ from wtforms.validators import (DataRequired, ValidationError,
 from application.models import User
 from application import images
 from wtforms.fields.html5 import DateField
-from application.model_enums import TravelType
+from application.model_enums import TravelType, StayType
 
 
 class EditProfileForm(FlaskForm):
@@ -82,5 +82,7 @@ class FullStoryForm(FlaskForm):
                                  [validators.optional()])
     travel_type = SelectField("Le trajet s'est effectué par:",
                              choices=TravelType.choices())
+    stay_type = SelectField("Type d'hébergement:",
+                             choices=StayType.choices())
     submit = SubmitField('Validez')
 

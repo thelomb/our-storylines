@@ -15,6 +15,14 @@ from application.fullstory_service import Fullstory2
 from application.location_service import map_a_story
 
 
+stay_type_icons = {
+    'CAMPING': 'fa-campground',
+    'HOTEL': 'fa-hotel',
+    'FRIENDS': 'fa-smile-beam',
+    'HOUSE': 'fa-umbrella-beach'
+
+}
+
 @bp.before_request
 def before_request():
     if current_user.is_authenticated:
@@ -45,6 +53,7 @@ def fullstory():
                                  stay_place=form.stay.data,
                                  odometer_at=form.odometer_read.data,
                                  travel_type=form.travel_type.data,
+                                 stay_type=form.stay_type.data,
                                  author=current_user,
                                  files=request.files.getlist('post_images')
                                  )
@@ -74,7 +83,8 @@ def view_story_date(a_date):
                            map2=sndmap,
                            prev_story_date=story.prev_date,
                            next_story_date=story.next_date,
-                           title=story.title)
+                           title=story.title,
+                           stay_type_icons=stay_type_icons)
 
 
 @bp.route('/edit_story_date/<a_date>', methods=['GET', 'POST'])
@@ -96,6 +106,7 @@ def edit_story_date1(a_date):
                          stay_place=form.stay.data,
                          odometer_at=form.odometer_read.data,
                          travel_type=form.travel_type.data,
+                         stay_type=form.stay_type.data,
                          author=current_user,
                          files=request.files.getlist('post_images')
                          )
@@ -110,6 +121,7 @@ def edit_story_date1(a_date):
         form.end.data = fullstory.end_place
         form.odometer_read.data = fullstory.odometer_at
         form.travel_type.data = fullstory.travel_type
+        form.stay_type.data = fullstory.stay_type
     return render_template('fullstory.html', form=form, story=fullstory.story)
 
 

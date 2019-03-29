@@ -7,3 +7,5 @@
 - rework the login so that index is public
 
 
+## Ideas
+- picture geolocation (with some existing extension)

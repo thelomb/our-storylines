@@ -131,10 +131,12 @@ class Fullstory2(object):
             fullstory.prev_date = prev_story.story.date_for
             prev_distance = 0
             if prev_story.story.itinerary:
-                prev_distance = prev_story.story.itinerary.odomter_at
+                if prev_story.story.itinerary.travel_type == TravelType['CAR']:
+                  prev_distance = prev_story.story.itinerary.odomter_at
             if fullstory.story.itinerary:
-                fullstory.distance = fullstory.odometer_at -\
-                    prev_distance
+                if prev_story.story.itinerary.travel_type == TravelType['CAR']:
+                    fullstory.distance = fullstory.odometer_at -\
+                        prev_distance
         next_story = cls.get_by_date(date_for + timedelta(days=1))
         if next_story.story is None:
             fullstory.next_date = None

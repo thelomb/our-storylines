@@ -186,10 +186,12 @@ class Story(db.Model, CRUDMixin):
         back_populates="stories",
         lazy='dynamic')
     media = db.relationship('Media', backref='story', lazy='dynamic')
+    stay_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
     stay = db.relationship('GeoPoint',
                            uselist=False,
                            backref='story',
-                           cascade="all, delete-orphan")
+                           cascade="all, delete-orphan",
+                           single_parent=True)
     itinerary = db.relationship('Itinerary',
                                 uselist=False,
                                 backref='story',
@@ -268,7 +270,7 @@ class GeoPoint(db.Model, CRUDMixin):
     latitude = db.Column(db.Float())
     longitude = db.Column(db.Float())
     formatted_address = db.Column(db.String(140))
-    story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
+    # story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
     # intermediary_point = db.relationship('Itinerary')
 
 

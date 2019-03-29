@@ -1,8 +1,7 @@
 <article class="card mb-4">
     <header class="card-header">
         <div class="card-meta">
-                <time class="timeago" datetime="{{ post.timestamp }}">
-                </time>
+                {{ post.date_for.strftime('%d %b %Y') }}
         </div>
         <a href="{{ url_for('main.view_story_date', a_date=post.date_for.strftime('%d-%m-%Y')) }}">
             <h4 class="card-title">

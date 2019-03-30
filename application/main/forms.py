@@ -1,12 +1,16 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField,
-                     SubmitField, TextAreaField, MultipleFileField,
-                     IntegerField, SelectMultipleField, widgets,
-                     RadioField, SelectField,
+                     SubmitField,
+                     TextAreaField,
+                     IntegerField,
+                     SelectField,
                      validators)
-from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms.validators import (DataRequired, ValidationError,
-                                Length)
+from flask_wtf.file import FileField, FileAllowed
+from wtforms.validators import (DataRequired,
+                                ValidationError,
+                                Length,
+                                Optional,
+                                Required)
 from application.models import User
 from application import images
 from wtforms.fields.html5 import DateField
@@ -29,41 +33,6 @@ class EditProfileForm(FlaskForm):
                 raise ValidationError('Please use a different username')
 
 
-class PostForm(FlaskForm):
-    # post = TextAreaField('Say something', validators=[
-    #     DataRequired(), Length(min=1, max=140)])
-    title = StringField('Story Title', validators=[
-                        DataRequired()])
-    tags = StringField('Tags')
-    post = TextAreaField('Your Story', validators=[DataRequired()])
-    post_images = MultipleFileField('An illustration',
-                                    validators=[FileAllowed(images,
-                                                            'Image Only!')])
-    submit = SubmitField('Validez')
-
-class ActivityCheckBoxes(SelectMultipleField):
-    widget = widgets.ListWidget(prefix_label=False)
-    option_widget = widgets.CheckboxInput()
-
-
-class ItineraryForm(FlaskForm):
-    planning_description = TextAreaField('Le plan de la journée')
-    # actual_description = TextAreaField("Ce que l'on a fait")
-    day = DateField('Date', format='%d/%m/%Y')
-    planned_start_point = StringField('Point de départ')
-    planned_end_point = StringField("Point d'arrivée")
-    planned_distance = IntegerField("Distance prévue")
-    planned_stay = StringField("Logement")
-    # actual_start_point = db.Column(db.String(132))
-    # actual_end_point = db.Column(db.String(132))
-    # actual_distance = db.Column(db.Integer)
-    # actual_stay = db.Column(db.String(132))
-    submit = SubmitField('Validez')
-    activities = ActivityCheckBoxes('Les activités du jour',
-                                     choices=[('plane', 'plane icon'),
-                                              ('camping', 'camping icon')])
-
-
 class FullStoryForm(FlaskForm):
     day = DateField('Nous sommes le: ',
                     format='%d/%m/%Y',
@@ -74,15 +43,30 @@ class FullStoryForm(FlaskForm):
                          validators=[DataRequired()])
     post_images = FileField('Les images du jour',
                             validators=[FileAllowed(images,
-                                        'Image Only!')])
+                                                    'Image Only!')])
+    stay = StringField('Lieu de séjour',
+                       validators=[DataRequired()])
+    stay_type = SelectField("Type d'hébergement:",
+                            choices=StayType.choices())
     start = StringField('Départ')
     end = StringField('Arrivée')
-    stay = StringField('Lieu de séjour')
-    odometer_read = IntegerField('Le compteur en fin de journée',
-                                 [validators.optional()])
+    odometer_read = IntegerField('Le compteur en fin de journée')
     travel_type = SelectField("Le trajet s'est effectué par:",
-                             choices=TravelType.choices())
-    stay_type = SelectField("Type d'hébergement:",
-                             choices=StayType.choices())
+                              choices=TravelType.choices())
     submit = SubmitField('Validez')
 
+    def validate_end(self, field):
+        message = 'Si vous commencez ou finissez quelque part, \
+                   il faut que vous finissiez ou commenciez votre itinéraire 😜'
+        if ((self.start.data == '' and self.end.data != '') or
+                (self.start.data != '' and self.end.data == '')):
+            raise ValidationError(message)
+
+    def validate_odometer_read(self, field):
+        message = 'Si vous faîtes le trajet en voiture, ce serait bien \
+                  de noter les kilomètres (ok, les miles 🤓)'
+        print('travel_type.data', self.travel_type.data == TravelType.CAR.name)
+        print('field', field.data is None)
+        if (self.travel_type.data == TravelType.CAR.name and
+                field.data is None):
+            raise ValidationError(message)

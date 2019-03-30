@@ -10,7 +10,7 @@
         </a>
     </header>
     {% if post.media.count()>0 %}
-        <a href="{{ url_for('main.view_story', story_id=post.id) }}">
+        <a href="{{ url_for('main.view_story_date', a_date=post.date_for.strftime('%d-%m-%Y')) }}">
             <img class="card-img" src="{{ post.media[0].url }}" alt="" />
         </a>
     {% endif %}

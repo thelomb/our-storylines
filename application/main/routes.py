@@ -55,7 +55,7 @@ def fullstory():
                                  start_place=form.start.data,
                                  end_place=form.end.data,
                                  stay_place=form.stay.data,
-                                 odometer_at=form.odometer_read.data,
+                                 odometer_at=str_to_int(form.odometer_read.data),
                                  travel_type=form.travel_type.data,
                                  stay_type=form.stay_type.data,
                                  author=current_user,
@@ -108,7 +108,7 @@ def edit_story_date1(a_date):
                          start_place=form.start.data,
                          end_place=form.end.data,
                          stay_place=form.stay.data,
-                         odometer_at=form.odometer_read.data,
+                         odometer_at=str_to_int(form.odometer_read.data),
                          travel_type=form.travel_type.data,
                          stay_type=form.stay_type.data,
                          author=current_user,
@@ -125,7 +125,8 @@ def edit_story_date1(a_date):
         form.stay.data = fullstory.stay_place
         form.start.data = fullstory.start_place
         form.end.data = fullstory.end_place
-        form.odometer_read.data = fullstory.odometer_at
+        print('in get, fullstory.end_place', fullstory.end_place)
+        form.odometer_read.data = int_to_str(fullstory.odometer_at)
         form.travel_type.data = fullstory.travel_type
         form.stay_type.data = fullstory.stay_type
     return render_template('fullstory.html', form=form, story=fullstory.story)
@@ -161,6 +162,20 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html',
                            title='Edit Profile', form=form)
+
+
+def str_to_int(string):
+    try:
+        int(float(string))
+        return int(float(string))
+    except ValueError:
+        return None
+
+
+def int_to_str(int):
+    if int:
+        return str(int)
+    return ''
 
 
 def simulate_media():

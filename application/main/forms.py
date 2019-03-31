@@ -50,7 +50,7 @@ class FullStoryForm(FlaskForm):
                             choices=StayType.choices())
     start = StringField('Départ')
     end = StringField('Arrivée')
-    odometer_read = IntegerField('Le compteur en fin de journée')
+    odometer_read = StringField('Le compteur en fin de journée')
     travel_type = SelectField("Le trajet s'est effectué par:",
                               choices=TravelType.choices())
     submit = SubmitField('Validez')
@@ -63,10 +63,13 @@ class FullStoryForm(FlaskForm):
             raise ValidationError(message)
 
     def validate_odometer_read(self, field):
-        message = 'Si vous faîtes le trajet en voiture, ce serait bien \
+        message_missing_data = 'Si vous faîtes le trajet en voiture, ce serait bien \
                   de noter les kilomètres (ok, les miles 🤓)'
-        print('travel_type.data', self.travel_type.data == TravelType.CAR.name)
-        print('field', field.data is None)
-        if (self.travel_type.data == TravelType.CAR.name and
-                field.data is None):
-            raise ValidationError(message)
+        message_value_error = 'Entrée invalide... 🧐'
+        if field.data and self.travel_type.data == TravelType.CAR.name:
+            try:
+                int(field.data)
+            except ValueError:
+                raise ValidationError(message_value_error)
+        elif field.data == '' and self.travel_type.data == TravelType.CAR.name:
+            raise ValidationError(message_missing_data)

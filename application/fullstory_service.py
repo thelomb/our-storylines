@@ -115,14 +115,32 @@ class Fullstory2(object):
     def _current_prev_next_stories(stories, date_for):
         next = False
         filtered_stories = {}
-        for story in stories:
-            if story.date_for == date_for:
-                filtered_stories['current'] = story
-            if story.date_for == date_for - timedelta(days=1):
-                filtered_stories['previous'] = story
+        cumulative_distance = 0
+        cumulate = False
+        for i, story in enumerate(stories):
             if story.date_for == date_for + timedelta(days=1):
                 filtered_stories['next'] = story
                 next = True
+            else:
+                if story.date_for == date_for:
+                    filtered_stories['current'] = story
+
+                if story.date_for == date_for - timedelta(days=1):
+                    filtered_stories['previous'] = story
+
+                if story.itinerary:
+                    if story.itinerary.travel_type == TravelType.FLIGHT:
+                        cumulate = True
+
+                if not cumulate and story.itinerary:
+                    cumulative_distance = max(cumulative_distance,
+                                              story.itinerary.odometer_at)
+                elif story.itinerary:
+                        if story.itinerary.odometer_at > 0:
+                            cumulative_distance = cumulative_distance +\
+                                story.itinerary.odometer_at
+                            cumulate = False
+
         filtered_stories['nb_stories'] = len(stories) - next
         return filtered_stories
 
@@ -151,6 +169,12 @@ class Fullstory2(object):
         fullstory.media = (fullstory.story.media
                            if fullstory.story.media else None)
         # prev_story = cls.get_by_date(date_for - timedelta(days=1))
+        # odo_read = story.itinerary.odometer_at\
+        #     if story.itinerary else 0
+        # prev_odo_read = stories[min(0, i - 1)].itinerary.odometer_at\
+        #     if stories[min(0, i - 1)].itinerary else 0
+        # distance = odo_read - prev_odo_read
+
         if fullstory.prev_date_story:
             fullstory.prev_date = fullstory.prev_date_story.date_for
             prev_distance = 0

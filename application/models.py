@@ -277,7 +277,7 @@ db.event.listen(Tag.name, 'set', Tag.on_changed_name)
 class Itinerary(db.Model, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
     travel_type = db.Column(Enum(TravelType), default='CAR')
-    odometer_at = db.Column(db.Integer)
+    odometer_at = db.Column(db.Integer, default=0)
     odometer_scale = db.Column(Enum(DistanceUnit), default='MILE')
     story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
     start_point_id = db.Column(db.Integer, db.ForeignKey("geo_point.id"))

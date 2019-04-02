@@ -98,9 +98,33 @@ class Fullstory2(object):
 
     @classmethod
     def get_by_date(cls, date_for):
-        story = Story.query.filter_by(date_for=date_for).first()
-        fullstory = cls(story)
+        print('date for + 1', date_for + timedelta(days=1))
+        stories = Story.query.filter(Story.date_for <= date_for +
+                                     timedelta(days=1)).all()
+        print('stories:', len(stories))
+        filtered_stories = cls._current_prev_next_stories(stories=stories,
+                                                          date_for=date_for)
+        print('filtered stories', filtered_stories)
+        fullstory = cls(filtered_stories.get('current', None))
+        fullstory.nb_stories = filtered_stories.get('nb_stories')
+        fullstory.prev_date_story = filtered_stories.get('previous', None)
+        fullstory.next_date_story = filtered_stories.get('next', None)
         return fullstory
+
+    @staticmethod
+    def _current_prev_next_stories(stories, date_for):
+        next = False
+        filtered_stories = {}
+        for story in stories:
+            if story.date_for == date_for:
+                filtered_stories['current'] = story
+            if story.date_for == date_for - timedelta(days=1):
+                filtered_stories['previous'] = story
+            if story.date_for == date_for + timedelta(days=1):
+                filtered_stories['next'] = story
+                next = True
+        filtered_stories['nb_stories'] = len(stories) - next
+        return filtered_stories
 
     @classmethod
     def get_by_date_web(cls, date_for):
@@ -126,25 +150,26 @@ class Fullstory2(object):
                                  if fullstory.story.itinerary else None)
         fullstory.media = (fullstory.story.media
                            if fullstory.story.media else None)
-        prev_story = cls.get_by_date(date_for - timedelta(days=1))
-        if prev_story.story is None:
-            fullstory.prev_date = None
-        else:
-            fullstory.prev_date = prev_story.story.date_for
+        # prev_story = cls.get_by_date(date_for - timedelta(days=1))
+        if fullstory.prev_date_story:
+            fullstory.prev_date = fullstory.prev_date_story.date_for
             prev_distance = 0
-            if prev_story.story.itinerary:
-                if prev_story.story.itinerary.travel_type == TravelType['CAR']:
-                    prev_distance = prev_story.story.itinerary.odometer_at
+            if fullstory.prev_date_story.itinerary:
+                if fullstory.prev_date_story.itinerary.travel_type ==\
+                        TravelType['CAR']:
+                    prev_distance = fullstory.prev_date_story.\
+                        itinerary.odometer_at
             if fullstory.story.itinerary:
                 if fullstory.story.itinerary.travel_type == TravelType['CAR']:
                     fullstory.distance =\
                         fullstory.story.itinerary.odometer_at -\
                         prev_distance
-        next_story = cls.get_by_date(date_for + timedelta(days=1))
-        if next_story.story is None:
-            fullstory.next_date = None
         else:
-            fullstory.next_date = next_story.story.date_for
+            fullstory.prev_date = None
+        if fullstory.next_date_story:
+            fullstory.next_date = fullstory.next_date_story.date_for
+        else:
+            fullstory.next_date = None
         return fullstory
 
     def process_media_files(self):
@@ -246,6 +271,21 @@ class Fullstory2(object):
                    }
             geopoints.append(start)
             geopoints.append(end)
+        location = 0
+        if self.story.media:
+            for medium in self.story.media:
+                if medium.location:
+                    location += 1
+                    geopoints.append({'place': 'location #' + str(location),
+                                      'lat': medium.location.latitude,
+                                      'lng': medium.location.longitude,
+                                      'fmt_addr':
+                                      medium.location.formatted_address,
+                                      'category': 'picture',
+                                      'type': 'picture',
+                                      'image': medium.url
+                                      })
+
         return geopoints
 
 
@@ -318,7 +358,7 @@ class WebImage(object):
             if self.gps.get('GPSLongitude') and\
                     self.gps.get('GPSLongitudeRef'):
                 multiplier = 1
-                if not self.gps.get('GPSLongitudeRef') == 'W':
+                if not self.gps.get('GPSLongitudeRef') == 'E':
                     multiplier = -1
                 self.longitude = self._convert_to_degrees(
                     self.gps.get('GPSLongitude')) * multiplier

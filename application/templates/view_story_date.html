@@ -114,8 +114,8 @@
   </div>
   <div class ="row" style="margin-bottom:30px;">
     {% for image in story.media %}
-      <div class="col-lg-4 col-sm-6 col-xs-12">
-        <a href="{# url_for('main.edit_story', story_id=story.id) #}">
+      <div class="col-lg-4 col-sm-6 col-xs-12" style="margin-bottom:10px">
+        <a href="{{image.url}}">
             <img class="card-img" src="{{ image.url }}" alt="" />
         </a>
       </div>

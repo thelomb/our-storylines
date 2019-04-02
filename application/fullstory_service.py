@@ -106,7 +106,6 @@ class Fullstory2(object):
         fullstory.next_date_story = filtered_stories.get('next', None)
         fullstory.cumulative_distance = filtered_stories.\
             get('cumulative_distance', None)
-        print('total distance', fullstory.cumulative_distance)
         return fullstory
 
     @staticmethod

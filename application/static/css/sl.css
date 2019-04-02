@@ -120,3 +120,19 @@
 textarea.form-control {
   height: 100%;
 }
+
+.card-header h3 {
+  color: #01b4bc;
+}
+
+.svg-inline--fa {
+  color: #fa8925;
+}
+
+.navbar-light .navbar-brand {
+  color: #5fa55a;
+}
+
+.card-title .card-calendar .svg-inline--fa{
+  color:#fa5457;
+}

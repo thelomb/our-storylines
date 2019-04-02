@@ -8,6 +8,7 @@
 - rework the login so that index is public
 - manage google location API errors (offline, etc.)
 - image page with navigation
+- photo legend
 
 ## Ideas
 - For at-friends stay the people we meet (with pictures)

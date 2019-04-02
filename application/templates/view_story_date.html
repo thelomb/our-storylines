@@ -3,9 +3,9 @@
 {% block app_content %}
  <div class="container">
   <div class="row">
-    <div class="col-md-3 ml-auto">
+    <div class="col-md-2 ml-auto">
         <div class="card-title">
-            <div class="">
+            <div class="card-calendar">
                 {% if prev_story_date %}
                   <span>
                     <a href=" {{ url_for('main.view_story_date', a_date=prev_story_date.strftime('%d-%m-%Y')) }}">
@@ -29,6 +29,14 @@
                   </span>
                 {% endif %}
             </div>
+        </div>
+    </div>
+    <div class="col-md-1 ml-auto">
+        <div class="card-title">
+          <span><i class="fas fa-stopwatch fa-2x"></i></span>
+          <p>{{story.nb_stories}}ème jour du périple</p>
+          <span><i class="fas fa-tachometer-alt fa-2x"></i></span
+          <p>{{story.cumulative_distance}}km. parcourus</p>
         </div>
     </div>
     <div class="col-md-9 ml-auto">

@@ -81,7 +81,6 @@ def view_story_date(a_date):
     story_date = date(int(story_date_parameter[2]),
                       int(story_date_parameter[1]),
                       int(story_date_parameter[0]))
-    print('getting story')
     story = Fullstory2.get_by_date_web(date_for=story_date)
     story.media = story.media.order_by(Media.image_ratio)
     if story is None:
@@ -132,7 +131,6 @@ def edit_story_date1(a_date):
         form.stay.data = fullstory.stay_place
         form.start.data = fullstory.start_place
         form.end.data = fullstory.end_place
-        print('in get, fullstory.end_place', fullstory.end_place)
         form.odometer_read.data = int_to_str(fullstory.odometer_at)
         form.travel_type.data = fullstory.travel_type
         form.stay_type.data = fullstory.stay_type

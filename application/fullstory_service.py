@@ -4,7 +4,7 @@ from application.model_enums import TravelType, StayType
 from datetime import timedelta
 from application.location_service import Geolocation
 from PIL import Image, ExifTags
-import os
+
 
 class Fullstory2(object):
 
@@ -24,7 +24,6 @@ class Fullstory2(object):
                       stay_type,
                       author,
                       files):
-        print('from web form')
         instance = cls()
         instance.date_for = date_for
         instance.title = title
@@ -54,7 +53,6 @@ class Fullstory2(object):
                      media=instance.media,
                      stay=instance.stay,
                      itinerary=instance.itinerary)
-        print('end create')
 
     def update(self,
                date_for,
@@ -98,17 +96,17 @@ class Fullstory2(object):
 
     @classmethod
     def get_by_date(cls, date_for):
-        print('date for + 1', date_for + timedelta(days=1))
         stories = Story.query.filter(Story.date_for <= date_for +
                                      timedelta(days=1)).all()
-        print('stories:', len(stories))
         filtered_stories = cls._current_prev_next_stories(stories=stories,
                                                           date_for=date_for)
-        print('filtered stories', filtered_stories)
         fullstory = cls(filtered_stories.get('current', None))
         fullstory.nb_stories = filtered_stories.get('nb_stories')
         fullstory.prev_date_story = filtered_stories.get('previous', None)
         fullstory.next_date_story = filtered_stories.get('next', None)
+        fullstory.cumulative_distance = filtered_stories.\
+            get('cumulative_distance', None)
+        print('total distance', fullstory.cumulative_distance)
         return fullstory
 
     @staticmethod
@@ -142,6 +140,7 @@ class Fullstory2(object):
                             cumulate = False
 
         filtered_stories['nb_stories'] = len(stories) - next
+        filtered_stories['cumulative_distance'] = cumulative_distance
         return filtered_stories
 
     @classmethod
@@ -342,20 +341,14 @@ class WebImage(object):
     def fix_orientation(self):
         if self.exif:
             for tag, value in self.exif.items():
-                # print('tag', tag)
-                # print('value', value)
-                # print('exiftag for tag', ExifTags.TAGS.get(tag, tag))
                 if ExifTags.TAGS.get(tag, tag) == 'Orientation':
                     if value == 3:
-                        print('rotate 180')
                         self._image = self._image.rotate(180, expand=True)
                     elif value == 6:
-                        print('rotate 270')
                         self._image = self._image.rotate(270, expand=True)
                         self.exif_width, self.exif_height =\
                             self.exif_height, self.exif_width
                     elif value == 8:
-                        print('rotate 90')
                         self._image = self._image.rotate(90, expand=True)
                         self.exif_width, self.exif_height =\
                             self.exif_height, self.exif_width

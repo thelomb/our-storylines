@@ -44,7 +44,6 @@ class Storyline(db.Model):
         lazy='dynamic')
 
     def add_member(self, user):
-        print('add member')
         if not self.is_member(user):
             self.members.append(user)
             if not user.current_line_id:
@@ -58,7 +57,6 @@ class Storyline(db.Model):
             # TO DO deal with user stories
 
     def set_administrator(self, user):
-        print('set admin')
         if not self.administrator_id:
             self.administrator_id = user.id
 
@@ -159,7 +157,6 @@ class User(UserMixin, CRUDMixin, db.Model):
             {'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'], algorithm='HS256').decode(
             'utf-8')
-        print(token)
         return token
 
     @staticmethod

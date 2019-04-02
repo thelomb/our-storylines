@@ -13,6 +13,7 @@ from slugify import slugify
 from application.mixin import CRUDMixin
 from application.model_enums import DistanceUnit, TravelType, StayType
 from sqlalchemy import Enum
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 storyline_members = db.Table(
@@ -223,7 +224,37 @@ class Media(db.Model, CRUDMixin):
     url = db.Column(db.String(1400))
     story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
     related_story = db.relationship('Story')
+    location_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
+    location = db.relationship('GeoPoint',
+                               uselist=False,
+                               backref='media',
+                               cascade="all, delete-orphan",
+                               single_parent=True)
+    request_file_name = db.Column(db.String(256))
+    exif_width = db.Column(db.Integer)
+    exif_height = db.Column(db.Integer)
 
+    def __init__(self,
+                 name,
+                 filename,
+                 url,
+                 type,
+                 request_file_name,
+                 location,
+                 exif_width=1,
+                 exif_height=1):
+        self.name = name
+        self.filename = filename
+        self.url = url
+        self.type = type
+        self.request_file_name = request_file_name
+        self.location = location
+        self.exif_width = exif_width
+        self.exif_height = exif_height
+
+    @hybrid_property
+    def image_ratio(self):
+        return self.exif_width / self.exif_height
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)

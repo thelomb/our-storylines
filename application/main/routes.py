@@ -34,6 +34,12 @@ def before_request():
         db.session.commit()
 
 
+@bp.after_request
+def add_header(response):
+    response.cache_control.max_age = 300
+    return response
+
+
 @bp.route('/')
 @bp.route('/index/<int:page>')
 @login_required
@@ -77,6 +83,7 @@ def view_story_date(a_date):
                       int(story_date_parameter[0]))
     print('getting story')
     story = Fullstory2.get_by_date_web(date_for=story_date)
+    story.media = story.media.order_by(Media.image_ratio)
     if story is None:
         return render_template('errors/404.html')
     if story.media.count() == 0:
@@ -180,11 +187,15 @@ def int_to_str(int):
 
 def simulate_media():
     media = ([Media(name=\
-                              'https://picsum.photos/700/300/?gravity=east&image=' \
-                              + str(randint(1,90)),
-                              filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                              url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                              type='Image') for _ in range(3)])
+                'https://picsum.photos/700/300/?gravity=east&image=' +
+                str(randint(1, 90)),
+                filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
+                type='Image',
+                request_file_name = None,
+                location = None,
+                exif_width = 1,
+                exif_height = 1) for _ in range(3)])
     return media
 
 

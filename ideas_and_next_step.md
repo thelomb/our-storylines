@@ -1,11 +1,12 @@
 # Ideas and Next Development Steps
 
 ## Next Development
+- refactor distance in itinerary model
+- storyline: nb days, cumul km
+- color scheme: saturated colors
+- single entry per day
 - rework the login so that index is public
 - manage google location API errors (offline, etc.)
-- picture geolocation on map
-- storyline: nb days, cumul km
-- refactor distance in itinerary model
 - image page with navigation
 
 ## Ideas

@@ -107,6 +107,7 @@ def edit_story_date1(a_date):
                       int(story_date_parameter[0]))
     fullstory = Fullstory2.get_by_date_web(date_for=story_date)
     form = FullStoryForm()
+    image_comments = mock_comments(fullstory.story.media)
     if form.validate_on_submit():
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
@@ -118,7 +119,8 @@ def edit_story_date1(a_date):
                          travel_type=form.travel_type.data,
                          stay_type=form.stay_type.data,
                          author=current_user,
-                         files=request.files.getlist('post_images')
+                         files=request.files.getlist('post_images'),
+                         image_comments=image_comments
                          )
         flash("L'entrée vient d'être mise à jour", 'info')
         return redirect(url_for('main.view_story_date',
@@ -182,6 +184,11 @@ def int_to_str(int):
         return str(int)
     return ''
 
+
+def mock_comments(media):
+    comments = {}
+    for medium in media:
+        comments[medium.filename]=medium.filename
 
 def simulate_media():
     media = ([Media(name=\

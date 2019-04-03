@@ -65,7 +65,8 @@ class Fullstory2(object):
                travel_type,
                stay_type,
                author,
-               files
+               files,
+               image_comments
                ):
         self.media = self.story.media
         self.title = title
@@ -78,6 +79,7 @@ class Fullstory2(object):
         self.stay_type = StayType[stay_type]
         self.author = author
         self.files = files
+        self.image_comments = image_comments
         if self.files:
             self.process_media_files()
         if self.stay_place:

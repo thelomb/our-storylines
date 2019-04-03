@@ -107,8 +107,8 @@ def edit_story_date1(a_date):
                       int(story_date_parameter[0]))
     fullstory = Fullstory2.get_by_date_web(date_for=story_date)
     form = FullStoryForm()
-    image_comments = mock_comments(fullstory.story.media)
     if form.validate_on_submit():
+        image_comments = mock_comments(fullstory.story.media)
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
                          content=form.post.data,
@@ -188,19 +188,21 @@ def int_to_str(int):
 def mock_comments(media):
     comments = {}
     for medium in media:
-        comments[medium.filename]=medium.filename
+        comments[medium.filename] = medium.filename + ' was commented'
+    print(comments)
+    return comments
 
 def simulate_media():
     media = ([Media(name=\
-                'https://picsum.photos/700/300/?gravity=east&image=' +
-                str(randint(1, 90)),
-                filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1,90)),
-                type='Image',
-                request_file_name = None,
-                location = None,
-                exif_width = 1,
-                exif_height = 1) for _ in range(3)])
+                    'https://picsum.photos/700/300/?gravity=east&image=' +
+                    str(randint(1, 90)),
+                    filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1, 90)),
+                    url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1, 90)),
+                    type='Image',
+                    request_file_name = None,
+                    location = None,
+                    exif_width = 1,
+                    exif_height = 1) for _ in range(3)])
     return media
 
 

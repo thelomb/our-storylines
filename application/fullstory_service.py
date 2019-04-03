@@ -88,6 +88,8 @@ class Fullstory2(object):
             self.process_itinerary()
         else:
             self.itinerary = None
+        if self.media:
+            self.process_media_comment()
         self.story.update(date_for=self.date_for,
                           title=self.title,
                           content=self.content,
@@ -195,6 +197,16 @@ class Fullstory2(object):
         else:
             fullstory.next_date = None
         return fullstory
+
+    def process_media_comment(self):
+        if self.media:
+            for medium in self.media:
+                comment = self.image_comments.get(medium.filename, None)
+                if comment:
+                    image = Media.query.filter_by(filename=medium.filename).\
+                        first()
+                    image.comment = comment
+                    image.save()
 
     def process_media_files(self):
         photo = []

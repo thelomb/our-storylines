@@ -62,14 +62,17 @@ def fullstory():
                                  start_place=form.start.data,
                                  end_place=form.end.data,
                                  stay_place=form.stay.data,
-                                 odometer_at=str_to_int(form.odometer_read.data),
+                                 odometer_at=str_to_int(
+                                     form.odometer_read.data),
                                  travel_type=form.travel_type.data,
                                  stay_type=form.stay_type.data,
                                  author=current_user,
                                  files=request.files.getlist('post_images')
                                  )
         flash('Your story is now published')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.view_story_date',
+                                a_date=fullstory.date_for.
+                                strftime('%d-%m-%Y')))
     elif request.method == 'GET':
         form.day.data = date.today()
     return render_template('fullstory.html', form=form)

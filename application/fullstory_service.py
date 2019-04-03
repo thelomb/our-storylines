@@ -145,7 +145,7 @@ class Fullstory2(object):
 
                 break
 
-        filtered_stories['nb_stories'] = i
+        filtered_stories['nb_stories'] = i + 1
         filtered_stories['cumulative_distance'] = cumulative_distance
         return filtered_stories
 

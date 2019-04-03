@@ -133,10 +133,8 @@ class Fullstory2(object):
 
             if story.date_for == date_for:
                 filtered_stories['current'] = story
-                try:
+                if i > 0:
                     filtered_stories['previous'] = stories[i - 1]
-                except IndexError:
-                    pass
 
                 try:
                     filtered_stories['next'] = stories[i + 1]

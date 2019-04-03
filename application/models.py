@@ -171,7 +171,7 @@ class User(UserMixin, CRUDMixin, db.Model):
 
 class Story(db.Model, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
-    date_for = db.Column(db.Date, index=True)
+    date_for = db.Column(db.Date, index=True, unique=True)
     title = db.Column(db.String(140), index=True)
     content = db.Column(db.Text)
     html_content = db.Column(db.Text)

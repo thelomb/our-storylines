@@ -9,13 +9,13 @@
 - manage google location API errors (offline, etc.)
 - image page with navigation
 - photo legend
--- model: legend
 -- service: load comment by image (-> nothing to do?)
 -- service: save comment -> extend media init with comment
 -- route: load (if anyhting)
 -- route: update -> get comment in form by picture id
 -- edit_story: allow change name? modifyadd comment
 -- view_story: find a way to nicely display the comment (under pix?)
+- refactor service to make commit at the end
 
 ## Ideas
 - For at-friends stay the people we meet (with pictures)

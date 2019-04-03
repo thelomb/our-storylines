@@ -16,6 +16,7 @@ from datetime import date, datetime
 from random import randint
 from application.fullstory_service import Fullstory2
 from application.location_service import map_a_story
+from wtforms import TextField
 
 
 stay_type_icons = {
@@ -100,15 +101,25 @@ def view_story_date(a_date):
 @bp.route('/edit_story_date/<a_date>', methods=['GET', 'POST'])
 @login_required
 def edit_story_date1(a_date):
-    # story = Story.query.get(story_id)
+    class FullStoryFormWithComments(FullStoryForm):
+        pass
     story_date_parameter = a_date.split("-")
     story_date = date(int(story_date_parameter[2]),
                       int(story_date_parameter[1]),
                       int(story_date_parameter[0]))
     fullstory = Fullstory2.get_by_date_web(date_for=story_date)
-    form = FullStoryForm()
+    if fullstory.story.media:
+        for medium in fullstory.story.media:
+            setattr(FullStoryFormWithComments,
+                    medium.filename + 'comment',
+                    TextField(''))
+    form = FullStoryFormWithComments()
     if form.validate_on_submit():
-        image_comments = mock_comments(fullstory.story.media)
+        for field in form:
+            print('field name and data', field.name, field.data)
+
+        image_comments = get_image_comments(form=form,
+                                            media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
                          content=form.post.data,
@@ -136,6 +147,9 @@ def edit_story_date1(a_date):
         form.odometer_read.data = int_to_str(fullstory.odometer_at)
         form.travel_type.data = fullstory.travel_type
         form.stay_type.data = fullstory.stay_type
+        if fullstory.story.media:
+            for medium in fullstory.story.media:
+                form[medium.filename + 'comment'].data = medium.comment
     return render_template('fullstory.html', form=form, story=fullstory.story)
 
 
@@ -185,11 +199,11 @@ def int_to_str(int):
     return ''
 
 
-def mock_comments(media):
+def get_image_comments(form, media):
     comments = {}
     for medium in media:
-        comments[medium.filename] = medium.filename + ' was commented'
-    print(comments)
+        comments[medium.filename] = form[medium.filename + 'comment'].data
+    print('comments:', comments)
     return comments
 
 def simulate_media():

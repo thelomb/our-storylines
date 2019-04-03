@@ -48,7 +48,6 @@
 
       </div>
     </div>
-  </form>
   {% if story %}
     {% if story.media %}
       <hr>
@@ -58,17 +57,19 @@
             <div class="col-lg-4 col-sm-6 col-xs-12">
               <article class="card card-outline mb-4">
                 <img class="card-img-top" src="{{ image.url }}" alt="Card image cap">
-                <div class="card-body">
-                  <header>
-                    <h6 class="card-title"> {{ image.name }}</h6>
-                  </header>
-                  <a href="{{ url_for('main.delete_picture', story_id=story.id, picture_id=image.id) }}" class="card-link"><i class="fa fa-trash fa-lg">Supprimer</i></a>
-                </div>
+                <!--<div class="card-body">-->
+                  <!--<header>-->
+                    {{ wtf.form_field(form[image.filename+'comment'], **{'class': 'form-control'}) }}
+                  <!--</header>-->
+                  <a href="{{ url_for('main.delete_picture', story_id=story.id, picture_id=image.id) }}" class="card-link"><i class="fas fa-trash-alt fa-2x"></i> Supprimer</a>
+                <!--</div>-->
               </article><!-- /.card -->
             </div>
           {% endfor %}
       </div>
+      {{ wtf.form_field(form.submit, **{'class': 'btn btn-primary'}) }}
     {% endif %}
   {% endif %}
+  </form>
 </div>
 {% endblock %}

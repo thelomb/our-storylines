@@ -319,7 +319,8 @@ class Fullstory2(object):
                                       medium.location.formatted_address,
                                       'category': 'picture',
                                       'type': 'picture',
-                                      'image': medium.url
+                                      'image': medium.url,
+                                      'comment': medium.comment
                                       })
 
         return geopoints

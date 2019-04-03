@@ -46,8 +46,15 @@ def set_geo_markers(geopoints):
         infobox = "<b>Hello World</b>"
         if geopoint['category'] is None:
             geopoint['category'] = 'HOTEL'
+        comment = geopoint.get('comment', '')
+        if comment is None:
+            comment = ''
         if geopoint.get('image'):
-            infobox = '<p><img src="' + geopoint['image'] + '" height=300/></p>'
+            infobox = '<quote>' +\
+                comment +\
+                '</quote><p><img src="' +\
+                geopoint['image'] +\
+                '" height=300/></p>'
         marker = {
             'icon': Markup(url_for('static',
                                    filename='images/' +

@@ -100,8 +100,7 @@ class Fullstory2(object):
 
     @classmethod
     def get_by_date(cls, date_for):
-        stories = Story.query.filter(Story.date_for <= date_for +
-                                     timedelta(days=1)).all()
+        stories = Story.query.filter().all()
         filtered_stories = cls._current_prev_next_stories(stories=stories,
                                                           date_for=date_for)
         fullstory = cls(filtered_stories.get('current', None))
@@ -114,35 +113,39 @@ class Fullstory2(object):
 
     @staticmethod
     def _current_prev_next_stories(stories, date_for):
-        next = False
         filtered_stories = {}
         cumulative_distance = 0
         cumulate = False
         for i, story in enumerate(stories):
-            if story.date_for == date_for + timedelta(days=1):
-                filtered_stories['next'] = story
-                next = True
-            else:
-                if story.date_for == date_for:
-                    filtered_stories['current'] = story
 
-                if story.date_for == date_for - timedelta(days=1):
-                    filtered_stories['previous'] = story
+            if story.itinerary:
+                if story.itinerary.travel_type == TravelType.FLIGHT:
+                    cumulate = True
 
-                if story.itinerary:
-                    if story.itinerary.travel_type == TravelType.FLIGHT:
-                        cumulate = True
+            if not cumulate and story.itinerary:
+                cumulative_distance = max(cumulative_distance,
+                                          story.itinerary.odometer_at)
+            elif story.itinerary:
+                    if story.itinerary.odometer_at > 0:
+                        cumulative_distance = cumulative_distance +\
+                            story.itinerary.odometer_at
+                        cumulate = False
 
-                if not cumulate and story.itinerary:
-                    cumulative_distance = max(cumulative_distance,
-                                              story.itinerary.odometer_at)
-                elif story.itinerary:
-                        if story.itinerary.odometer_at > 0:
-                            cumulative_distance = cumulative_distance +\
-                                story.itinerary.odometer_at
-                            cumulate = False
+            if story.date_for == date_for:
+                filtered_stories['current'] = story
+                try:
+                    filtered_stories['previous'] = stories[i - 1]
+                except IndexError:
+                    pass
 
-        filtered_stories['nb_stories'] = len(stories) - next
+                try:
+                    filtered_stories['next'] = stories[i + 1]
+                except IndexError:
+                    pass
+
+                break
+
+        filtered_stories['nb_stories'] = i
         filtered_stories['cumulative_distance'] = cumulative_distance
         return filtered_stories
 

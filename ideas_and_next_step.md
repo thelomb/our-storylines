@@ -4,7 +4,6 @@
 - refactor service to make commit at the end
 - breaking story navgiation if day gap
 - breaking user navigation wrong redirect
-- single entry per day
 - rework the login so that index is public
 - manage google location API errors (offline, etc.)
 - image page with navigation

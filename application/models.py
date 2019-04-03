@@ -230,6 +230,7 @@ class Media(db.Model, CRUDMixin):
     request_file_name = db.Column(db.String(256))
     exif_width = db.Column(db.Integer)
     exif_height = db.Column(db.Integer)
+    comment = db.Column(db.String(1000))
 
     def __init__(self,
                  name,

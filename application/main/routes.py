@@ -71,7 +71,7 @@ def fullstory():
                                  )
         flash('Your story is now published')
         return redirect(url_for('main.view_story_date',
-                                a_date=fullstory.date_for.
+                                a_date=form.day.data.
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
         form.day.data = date.today()
@@ -141,6 +141,7 @@ def edit_story_date1(a_date):
                                 a_date=fullstory.date_for.
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
+        form.id.data =fullstory.story.id
         form.day.data = fullstory.date_for
         form.title.data = fullstory.title
         form.post.data = fullstory.content

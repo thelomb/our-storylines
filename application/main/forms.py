@@ -5,16 +5,34 @@ from wtforms import (StringField,
                      IntegerField,
                      SelectField,
                      validators)
+from wtforms.widgets import HiddenInput
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import (DataRequired,
                                 ValidationError,
                                 Length,
                                 Optional,
                                 Required)
-from application.models import User
+from application.models import User, Story
 from application import images
 from wtforms.fields.html5 import DateField
 from application.model_enums import TravelType, StayType
+
+
+class Unique(object):
+    """ validator that checks field uniqueness"""
+
+    def __init__(self, model, field, message=None):
+        self.model = model
+        self.field = field
+        if not message:
+            message = 'this element already exists'
+        self.message = message
+
+    def __call__(self, form, field):
+        check = self.model.query.filter(self.field == field.data).first()
+        if check:
+            if check.id != form.id.data:
+                raise ValidationError(self.message)
 
 
 class EditProfileForm(FlaskForm):
@@ -34,9 +52,15 @@ class EditProfileForm(FlaskForm):
 
 
 class FullStoryForm(FlaskForm):
+    id = IntegerField(widget=HiddenInput(),
+                      validators=[Optional()])
     day = DateField('Nous sommes le: ',
                     format='%d/%m/%Y',
-                    validators=[DataRequired()], id='datepick')
+                    validators=[DataRequired(),
+                                Unique(Story,
+                                       Story.date_for,
+                                       'Une seule entrée par jour!')],
+                                id='datepick')
     title = StringField('Titre',
                         validators=[DataRequired()])
     post = TextAreaField('La journée',
@@ -73,3 +97,5 @@ class FullStoryForm(FlaskForm):
                 raise ValidationError(message_value_error)
         elif field.data == '' and self.travel_type.data == TravelType.CAR.name:
             raise ValidationError(message_missing_data)
+
+

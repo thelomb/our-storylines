@@ -26,6 +26,9 @@
                     <input type="text" name="day" class="form-control form-control-lg datetimepicker-input" data-target="#datetimepicker1"
                     {# if story #} value="{{ form.day.data.strftime('%d/%m/%y') }}" {# endif #}/>
             </div>
+            {% if form.day.errors %}
+              {{ form.day.errors[0] }}
+            {% endif %}
           </div>
           {{ wtf.form_field(form.title, **{'placeholder': 'Entrez un titre', 'class': 'form-control form-control-lg'}) }}
           {{ wtf.form_field(form.stay, **{'class': 'form-control form-control-lg'}) }}
@@ -72,4 +75,5 @@
   {% endif %}
   </form>
 </div>
+{{ form.errors }}
 {% endblock %}

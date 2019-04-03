@@ -128,7 +128,9 @@
           <a href="{{image.url}}">
             <img class="card-img-top" src="{{ image.url }}" alt="" />
           </a>
-          {{ image.comment}}
+          <quote>
+          {% if image.comment %} {{ image.comment}} {% endif %}
+          </quote>
         </article>
       </div>
     {% endfor %}

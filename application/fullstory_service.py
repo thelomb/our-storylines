@@ -1,7 +1,6 @@
-from application import images
+from application import images, db
 from application.models import Story, Media, GeoPoint, Itinerary
 from application.model_enums import TravelType, StayType
-from datetime import timedelta
 from application.location_service import Geolocation
 from PIL import Image, ExifTags
 
@@ -45,7 +44,8 @@ class Fullstory2(object):
             instance.itinerary = None
         if instance.files:
             instance.process_media_files()
-        Story.create(date_for=instance.date_for,
+        Story.create(commit=False,
+                     date_for=instance.date_for,
                      title=instance.title,
                      content=instance.content,
                      user_id=instance.author.id,
@@ -53,6 +53,7 @@ class Fullstory2(object):
                      media=instance.media,
                      stay=instance.stay,
                      itinerary=instance.itinerary)
+        db.session.commit()
 
     def update(self,
                date_for,
@@ -66,8 +67,7 @@ class Fullstory2(object):
                stay_type,
                author,
                files,
-               image_comments
-               ):
+               image_comments):
         self.media = self.story.media
         self.title = title
         self.content = content
@@ -90,13 +90,15 @@ class Fullstory2(object):
             self.itinerary = None
         if self.media:
             self.process_media_comment()
-        self.story.update(date_for=self.date_for,
+        self.story.update(commit=False,
+                          date_for=self.date_for,
                           title=self.title,
                           content=self.content,
                           user_id=self.author.id,
                           stay_type=self.stay_type,
                           stay=self.stay,
                           itinerary=self.itinerary)
+        db.session.commit()
 
     @classmethod
     def get_by_date(cls, date_for):
@@ -207,7 +209,7 @@ class Fullstory2(object):
                     image = Media.query.filter_by(filename=medium.filename).\
                         first()
                     image.comment = comment
-                    image.save()
+                    image.save(commit=False)
 
     def process_media_files(self):
         photo = []
@@ -255,7 +257,7 @@ class Fullstory2(object):
     def process_stay(self):
         if self.story:
             if self.story.stay:
-                self.story.stay.delete()
+                self.story.stay.delete(commit=False)
         self.create_stay()
 
     def create_itinerary(self):
@@ -277,7 +279,7 @@ class Fullstory2(object):
     def process_itinerary(self):
         if self.story:
             if self.story.itinerary:
-                self.story.itinerary.delete()
+                self.story.itinerary.delete(commit=False)
         self.create_itinerary()
 
     def get_geo_points(self):

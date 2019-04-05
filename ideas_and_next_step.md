@@ -2,7 +2,6 @@
 
 ## Next Development
 - refactor service to make commit at the end
-- breaking story navgiation if day gap
 - breaking user navigation wrong redirect
 - rework the login so that index is public
 - manage google location API errors (offline, etc.)

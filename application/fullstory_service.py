@@ -100,7 +100,7 @@ class Fullstory2(object):
 
     @classmethod
     def get_by_date(cls, date_for):
-        stories = Story.query.filter().all()
+        stories = Story.query.all()
         filtered_stories = cls._current_prev_next_stories(stories=stories,
                                                           date_for=date_for)
         fullstory = cls(filtered_stories.get('current', None))

@@ -16,14 +16,14 @@ class CRUDMixin(object):
         return None
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, commit=True, **kwargs):
         instance = cls(**kwargs)
-        return instance.save()
+        return instance.save(commit=commit)
 
     def update(self, commit=True, **kwargs):
         for attr, value in kwargs.items():
             setattr(self, attr, value)
-        return commit and self.save() or self
+        return commit and self.save(commit=commit) or self
 
     def save(self, commit=True):
         db.session.add(self)

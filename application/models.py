@@ -81,7 +81,7 @@ class User(UserMixin, CRUDMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    stories = db.relationship('Story', backref='author', lazy='dynamic')
+    # stories = db.relationship('Story', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     current_line_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
@@ -90,6 +90,13 @@ class User(UserMixin, CRUDMixin, db.Model):
         secondary=storyline_members,
         back_populates='members',
         lazy='dynamic')
+    picture_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    picture = db.relationship('Media',
+                              uselist=False,
+                              backref='user',
+                              cascade="all, delete-orphan",
+                              single_parent=True)
+
 
     def __repr__(self):
         return '<The user is {}>'.format(self.username)
@@ -177,24 +184,39 @@ class Story(db.Model, CRUDMixin):
     html_content = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User',
+                           foreign_keys=[user_id],
+                           single_parent=True)
     storyline_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
     tags = db.relationship(
         'Tag',
         secondary=story_tags,
         back_populates="stories",
         lazy='dynamic')
-    media = db.relationship('Media', backref='story', lazy='dynamic')
+    media = db.relationship('Media',
+                            backref='story',
+                            lazy='dynamic',
+                            cascade="all, delete-orphan")
     stay_id = db.Column(db.Integer, db.ForeignKey('geo_point.id'))
     stay = db.relationship('GeoPoint',
                            uselist=False,
                            backref='story',
                            cascade="all, delete-orphan",
                            single_parent=True)
+    stay_type = db.Column(Enum(StayType), default='HOTEL')
+    stay_description = db.Column(db.Text)
     itinerary = db.relationship('Itinerary',
                                 uselist=False,
                                 backref='story',
                                 cascade="all, delete-orphan")
-    stay_type = db.Column(Enum(StayType), default='HOTEL')
+    comments = db.relationship('Comment',
+                               backref='story',
+                               lazy='dynamic',
+                               cascade="all, delete-orphan")
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    friend = db.relationship('User',
+                             foreign_keys=[friend_id],
+                             single_parent=True)
 
     def __repr__(self):
         return '<Story id: {}, title {}>'.format(self.id, self.title)
@@ -254,6 +276,7 @@ class Media(db.Model, CRUDMixin):
     def image_ratio(self):
         return self.exif_width / self.exif_height
 
+
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), index=True, nullable=False)
@@ -295,12 +318,37 @@ class Itinerary(db.Model, CRUDMixin):
 
 class GeoPoint(db.Model, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
-    place = db.Column(db.String(32))
+    place = db.Column(db.String(140))
     latitude = db.Column(db.Float())
     longitude = db.Column(db.Float())
     formatted_address = db.Column(db.String(140))
     # story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
     # intermediary_point = db.relationship('Itinerary')
+
+
+class Comment(db.Model, CRUDMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    html_content = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    author = db.relationship('User',
+                             foreign_keys=[author_id],
+                             single_parent=True)
+    story_id = db.Column(db.Integer, db.ForeignKey('story.id'))
+
+    @staticmethod
+    def on_changed_content(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p', 'img']
+        bleach.sanitizer.ALLOWED_ATTRIBUTES['img'] = ['alt', 'src', 'class']
+        target.html_content = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
+
+
+db.event.listen(Comment.content, 'set', Comment.on_changed_content)
 
 
 # Mixin flask login

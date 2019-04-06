@@ -28,14 +28,16 @@ def map_a_story(story):
     if geopoints is None:
         map = None
         return map
-    bounds = not len(geopoints) == 1
     markers = set_geo_markers(geopoints)
+    bounds = not len(markers) == 1
     map = Map(identifier="sndmap",
               style="width:100%;height:100%;margin:0;",
-              lat=geopoints[0]['lat'],
-              lng=geopoints[0]['lng'],
+              lat=markers[0]['lat'],
+              lng=markers[0]['lng'],
               fit_markers_to_bounds=bounds,  # True
+              zoom=13,
               markers=markers)
+    print(vars(map))
     return map
 
 

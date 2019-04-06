@@ -1,7 +1,6 @@
 # Ideas and Next Development Steps
 
 ## Next Development
-- refactor service to make commit at the end
 - rework the login so that index is public
 - manage google location API errors (offline, etc.)
 - image page with navigation

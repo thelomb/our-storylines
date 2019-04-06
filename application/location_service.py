@@ -6,7 +6,7 @@ from flask_googlemaps import Map
 geo_location_markers_icons = {
     'start': 'twotone-room-24px.svg',
     'end': 'twotone-flag-24px.svg',
-    'picture': 'ic_camera_roll_24px.svg',
+    'picture': 'ic_star_24px.svg',
     'HOTEL': 'baseline-hotel-24px.svg',
     'FRIENDS': 'ic_sentiment_very_satisfied_24px.svg',
     'CAMPING': 'baseline-style-24px.svg',

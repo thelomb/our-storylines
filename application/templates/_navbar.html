@@ -1,10 +1,11 @@
       <header role="banner">
         <nav class="navbar navbar-expand-md navbar-light bg-white absolute-top">
           <div class="container">
-
+            {% if not current_user.is_anonymous %}
             <button class="navbar-toggler order-2 order-md-1" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
+            {% endif %}
             <a class="navbar-brand order-1 order-md-3" href="{{ url_for('main.index') }}">
             {% if current_user.is_anonymous %} {{ website }} {% else %}The Boulomb USA 2019 {% endif %}</a>
             {% if not current_user.is_anonymous %}

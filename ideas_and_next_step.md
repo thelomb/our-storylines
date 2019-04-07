@@ -6,11 +6,10 @@
 - image page with navigation
 
 ## Bug fix
-- increase geopoin place db size
 - remove error printout from fullstory
 - translate message when pusblishing new story
-- breaking user navigation wrong redirect
--
+- iphone navigation
+- text area size
 
 ## Ideas
 - For at-friends stay the people we meet (with pictures)

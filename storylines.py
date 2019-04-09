@@ -5,7 +5,7 @@ from application.models import (User,
                                 Media,
                                 Itinerary,
                                 GeoPoint)
-from application.email import send_password_reset_email
+from application.email import send_password_reset_email, send_email
 
 app = create_app()
 
@@ -19,4 +19,5 @@ def make_shell_context():
             'Media': Media,
             'Itinerary': Itinerary,
             'GeoPoint': GeoPoint,
-            'send_password_reset_email': send_password_reset_email}
+            'send_password_reset_email': send_password_reset_email,
+            'send_email': send_email}

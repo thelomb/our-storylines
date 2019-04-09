@@ -14,4 +14,7 @@ class Config(object):
     ITINERARIES_PER_PAGE = 25
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = os.environ.get('MAI_PORT') or 25
+    MAIL_USERNAME = ''
+    MAIL_PASSWORD = ''
+    MAIL_USE_TLS = True
     GOOGLEMAPS_KEY = os.environ.get('GOOGLEMAPS_KEY')

@@ -16,5 +16,6 @@ class Config(object):
     MAIL_PORT = os.environ.get('MAI_PORT') or 25
     MAIL_USERNAME = ''
     MAIL_PASSWORD = ''
+    ADMINS = 'pascal.lombardet@gmail.com'
     MAIL_USE_TLS = True
     GOOGLEMAPS_KEY = os.environ.get('GOOGLEMAPS_KEY')

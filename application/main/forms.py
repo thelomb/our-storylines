@@ -10,8 +10,7 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import (DataRequired,
                                 ValidationError,
                                 Length,
-                                Optional,
-                                Required)
+                                Optional)
 from application.models import User, Story
 from application import images
 from wtforms.fields.html5 import DateField
@@ -60,11 +59,11 @@ class FullStoryForm(FlaskForm):
                                 Unique(Story,
                                        Story.date_for,
                                        'Une seule entrée par jour!')],
-                                id='datepick')
+                    id='datepick')
     title = StringField('Titre',
                         validators=[DataRequired()])
     post = TextAreaField('La journée',
-                         validators=[DataRequired()])
+                         validators=[DataRequired()], render_kw={'rows': '19'})
     post_images = FileField('Les images du jour',
                             validators=[FileAllowed(images,
                                                     'Image Only!')])

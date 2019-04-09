@@ -5,12 +5,6 @@
 - manage google location API errors (offline, etc.)
 - image page with navigation
 
-## Bug fix
-- remove error printout from fullstory
-- translate message when pusblishing new story
-- iphone navigation
-- text area size
-
 ## Ideas
 - For at-friends stay the people we meet (with pictures)
 - Stay description
@@ -18,3 +12,4 @@
 - commenting
 - followers vs contributors
 - send invite
+- text area size with javascript

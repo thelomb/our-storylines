@@ -69,7 +69,7 @@ def fullstory():
                                  author=current_user,
                                  files=request.files.getlist('post_images')
                                  )
-        flash('Your story is now published')
+        flash('Vous venez de publier une nouvelle journée!', 'info')
         return redirect(url_for('main.view_story_date',
                                 a_date=form.day.data.
                                 strftime('%d-%m-%Y')))
@@ -154,6 +154,7 @@ def edit_story_date1(a_date):
         if fullstory.story.media:
             for medium in fullstory.story.media:
                 form[medium.filename + 'comment'].data = medium.comment
+        print(fullstory.content)
     return render_template('fullstory.html', form=form, story=fullstory.story)
 
 

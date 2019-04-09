@@ -13,7 +13,7 @@ class Config(object):
     STORIES_PER_PAGE = 3
     ITINERARIES_PER_PAGE = 25
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
-    MAIL_PORT = os.environ.get('MAI_PORT') or 25
+    MAIL_PORT = os.environ.get('MAIL_PORT') or 25
     MAIL_USERNAME = ''
     MAIL_PASSWORD = ''
     ADMINS = 'pascal.lombardet@gmail.com'

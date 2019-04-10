@@ -19,3 +19,6 @@ class Config(object):
     MAIL_USE_TLS = False
     GOOGLEMAPS_KEY = os.environ.get('GOOGLEMAPS_KEY')
     ADMINS = ['thelomb@our-storylines.com', 'pascal.lombardet@gmail.com']
+    LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL') or 'INFO'
+    LOGGING_LEVEL_EMAIL = os.environ.get('LOGGING_LEVEL_EMAIL')\
+        or 'ERROR'

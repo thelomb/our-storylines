@@ -11,16 +11,31 @@ import bleach
 # import re
 from slugify import slugify
 from application.mixin import CRUDMixin
-from application.model_enums import DistanceUnit, TravelType, StayType
+from application.model_enums import (DistanceUnit,
+                                     TravelType,
+                                     StayType)
 from sqlalchemy import Enum
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
-storyline_members = db.Table(
-    'storyline_members',
-    db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('storyline_id', db.Integer, db.ForeignKey('storyline.id'))
-)
+# storyline_members = db.Table(
+#     'storyline_members',
+#     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
+#     db.Column('storyline_id', db.Integer, db.ForeignKey('storyline.id')),
+# )
+
+class StorylineMembership(db.Model):
+    storyline_id = db.Column(db.Integer,
+                             db.ForeignKey('storyline.id'),
+                             primary_key=True)
+    member_id = db.Column(db.Integer,
+                          db.ForeignKey('user.id'),
+                          primary_key=True)
+    is_admin = db.Column(db.Boolean, default=False)
+    is_contributor = db.Column(db.Boolean, default=False)
+    is_visitor = db.Column(db.Boolean, default=False)
+    member = db.relationship('User', back_populates='storylines')
+    storyline = db.relationship('Storyline', back_populates='members')
 
 
 story_tags = db.Table(
@@ -34,46 +49,46 @@ class Storyline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), index=True, nullable=False)
     description = db.Column(db.String(140))
-    administrator_id = db.Column(db.Integer, db.ForeignKey('user.id'),
-                                 nullable=True)
     stories = db.relationship('Story', backref='storyline', lazy='dynamic')
     members = db.relationship(
-        'User',
-        secondary=storyline_members,
-        back_populates="memberships",
+        'StorylineMembership',
+        back_populates="storyline",
         lazy='dynamic')
 
-    def add_member(self, user):
+    def add_member(self,
+                   user,
+                   is_admin=False,
+                   is_contributor=False,
+                   is_visitor=True):
         if not self.is_member(user):
-            self.members.append(user)
-            if not user.current_line_id:
-                user.current_line_id = self.id
+            user_role = StorylineMembership(member=user,
+                                            is_admin=is_admin,
+                                            is_contributor=is_contributor,
+                                            is_visitor=is_visitor)
+
+            self.members.append(user_role)
 
     def remove_member(self, user):
         if self.is_member(user):
             self.members.remove(user)
             if user.current_line_id == self.id:
                 user.current_line_id = None
-            # TO DO deal with user stories
-
-    def set_administrator(self, user):
-        if not self.administrator_id:
-            self.administrator_id = user.id
-
-            # admin becomes member automatically
-            self.add_member(user)
 
     def is_member(self, user):
-        return self.members.filter(
-            storyline_members.c.member_id == user.id).count() > 0
+        return self.members.filter(StorylineMembership.member == user and
+                                   StorylineMembership.storyline == self
+                                   ).count() > 0
+    # def is_member(self, user):
+    #     return self.members.filter(
+    #         storyline_members.c.member_id == user.id).count() > 0
 
-    def linked_stories(self):
-        return (Story.query.filter_by(storyline_id=self.id)
-                .order_by(Story.timestamp.desc()))
+    # def linked_stories(self):
+    #     return (Story.query.filter_by(storyline_id=self.id)
+    #             .order_by(Story.timestamp.desc()))
 
-    def daily_stories(self, day):
-        return (Story.query.filter(storyline_id=self.id)
-                .order_by(Story.timestamp.desc()))
+    # def daily_stories(self, day):
+    #     return (Story.query.filter(storyline_id=self.id)
+    #             .order_by(Story.timestamp.desc()))
 
 
 class User(UserMixin, CRUDMixin, db.Model):
@@ -85,11 +100,9 @@ class User(UserMixin, CRUDMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     current_line_id = db.Column(db.Integer, db.ForeignKey('storyline.id'))
-    memberships = db.relationship(
-        'Storyline',
-        secondary=storyline_members,
-        back_populates='members',
-        lazy='dynamic')
+    storylines = db.relationship('StorylineMembership',
+                                 back_populates='member',
+                                 lazy='dynamic')
     picture_id = db.Column(db.Integer, db.ForeignKey('media.id'))
     picture = db.relationship('Media',
                               uselist=False,

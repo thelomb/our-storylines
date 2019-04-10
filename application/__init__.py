@@ -80,14 +80,12 @@ def create_app(config_class=Config):
                 mailhost=(app.config['MAIL_SERVER'],
                           app.config['MAIL_PORT']
                           ),
-                fromaddr=('thelomb@' +
-                          app.config['MAIL_SERVER']
-                          ),
-                toaddrs=app.config['ADMINS'],
+                fromaddr=(app.config['ADMINS'][0]),
+                toaddrs=app.config['ADMINS'][1],
                 subject='Microblog Failure',
                 credentials=auth,
                 secure=secure)
-            mail_handler.setLevel(logging.ERROR)
+            mail_handler.setLevel(logging.INFO)
             app.logger.addHandler(mail_handler)
 
     return app

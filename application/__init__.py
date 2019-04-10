@@ -88,4 +88,6 @@ def create_app(config_class=Config):
             mail_handler.setLevel(logging.INFO)
             app.logger.addHandler(mail_handler)
 
+        app.logger.info('Our Storylines... starting up... email sent...')
+
     return app

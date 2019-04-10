@@ -17,5 +17,5 @@ class Config(object):
     MAIL_USERNAME = ''
     MAIL_PASSWORD = ''
     ADMINS = 'pascal.lombardet@gmail.com'
-    MAIL_USE_TLS = True
+    MAIL_USE_TLS = False
     GOOGLEMAPS_KEY = os.environ.get('GOOGLEMAPS_KEY')

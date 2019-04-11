@@ -43,11 +43,12 @@ def add_header(response):
     return response
 
 
-@bp.route('/')
-@bp.route('/index/<int:page>')
+@bp.route('/<storyline>/')
+@bp.route('/<storyline>/<int:page>')
 @login_required
-def index(page=1):
-    stories = Story.query.order_by(Story.date_for.desc()).paginate(
+def index(storyline, page=1):
+    storyline = Storyline.query.filter_by(name=storyline).first_or_404()
+    stories = storyline.stories.order_by(Story.date_for.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
     return render_template('index.html', title='Home',
                            posts=stories.items, page=page)
@@ -168,46 +169,13 @@ def storyline_community():
     members = stln.members.join(StorylineMembership.member).\
         filter(User.username != current_user.username).\
         all()
-    # stories = user.stories.order_by(Story.timestamp.desc()).paginate(
-    #     page, current_app.config['STORIES_PER_PAGE'], False)
-    # next_url = url_for('main.user', username=user.username,
-    #                    page=stories.next_num) \
-    #     if stories.has_next else None
-    # prev_url = url_for('main.user', username=user.username,
-    #                    page=stories.prev_num) \
-    #     if stories.has_prev else None
-    return render_template('user.html',
+    return render_template('community.html',
                            user=current_user,
                            members=members,
                            # posts=stories.items,
                            # next_url=next_url,
                            # prev_url=prev_url
                            )
-
-
-# @bp.route('/user/<username>')
-# @login_required
-# def user(username):
-#     user = User.query.filter_by(username=username).first_or_404()
-#     stln = Storyline.current_story_line()
-#     raise
-#     members = stln.members.filter(username != user.username).\
-#         all()
-#     # stories = user.stories.order_by(Story.timestamp.desc()).paginate(
-#     #     page, current_app.config['STORIES_PER_PAGE'], False)
-#     # next_url = url_for('main.user', username=user.username,
-#     #                    page=stories.next_num) \
-#     #     if stories.has_next else None
-#     # prev_url = url_for('main.user', username=user.username,
-#     #                    page=stories.prev_num) \
-#     #     if stories.has_prev else None
-#     return render_template('user.html',
-#                            user=user,
-#                            members=members,
-#                            # posts=stories.items,
-#                            # next_url=next_url,
-#                            # prev_url=prev_url
-#                            )
 
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
@@ -249,17 +217,18 @@ def get_image_comments(form, media):
     print('comments:', comments)
     return comments
 
+
 def simulate_media():
-    media = ([Media(name=\
-                    'https://picsum.photos/700/300/?gravity=east&image=' +
+    picsum = 'https://picsum.photos/700/300/?gravity=east&image='
+    media = ([Media(name=picsum +
                     str(randint(1, 90)),
-                    filename='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1, 90)),
-                    url='https://picsum.photos/700/300/?gravity=east&image=' + str(randint(1, 90)),
+                    filename=picsum + str(randint(1, 90)),
+                    url=picsum + str(randint(1, 90)),
                     type='Image',
-                    request_file_name = None,
-                    location = None,
-                    exif_width = 1,
-                    exif_height = 1) for _ in range(3)])
+                    request_file_name=None,
+                    location=None,
+                    exif_width=1,
+                    exif_height=1) for _ in range(3)])
     return media
 
 
@@ -270,19 +239,3 @@ def delete_picture(story_id, picture_id):
     db.session.delete(image)
     db.session.commit()
     return redirect(url_for('main.edit_story', story_id=story_id))
-
-
-# def tag_request(tag_request):
-#     post_tags = []
-#     if tag_request:
-#         existing_tags = [name for name, in Tag.query.with_entities(
-#             Tag.name)]
-#         form_tags = tag_request.split(', ')
-#         for tag in form_tags:
-#             if tag not in existing_tags:
-#                 t = Tag(name=tag)
-#                 db.session.add(t)
-#                 post_tags.append(t)
-#             else:
-#                 post_tags.append(Tag.query.filter(Tag.name == tag).first())
-#     return post_tags

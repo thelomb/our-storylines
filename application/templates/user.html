@@ -18,7 +18,7 @@
                                 <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
                             </p>
                             <p>
-                                <a href="{{ url_for('main.edit_profile') }}">Edit your profile</a>
+                                <a href="{{ url_for('main.edit_profile',username=user.username) }}">Mettez à jour votre profile</a>
                             </p>
                             <p>
                                 <a href="{{ url_for('auth.reset_password_request', username=user.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
@@ -43,13 +43,9 @@
                             {% endif %}
                             {% if user.roles_in_storyline().is_admin %}
                                 <p>
-                                    <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i>Nouveau mot de passe</a>
-                                </p>
-                                <p>
-                                    <a href="{{ url_for('main.edit_profile') }}">Edit your profile</a>
+                                    <a href="{{ url_for('auth.reset_password_request', username=member.member.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
                                 </p>
                             {% endif %}
-
                         </td>
                     </tr>
                     {% endfor %}

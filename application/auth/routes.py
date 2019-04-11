@@ -79,11 +79,13 @@ def reset_password(token):
         return redirect(url_for('main.index'))
     user = User.verify_reset_password_token(token)
     if not user:
-        return redirect(url_for('main.index'))
+        current_app.logger.warning('user tried to set new\
+                                   password with invalid or expired token')
+        return redirect(url_for('auth.login'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)
         db.session.commit()
-        flash('Your password has been reset')
+        flash('Vous voilà à nouveau connecté!')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)

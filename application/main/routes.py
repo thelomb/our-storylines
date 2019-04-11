@@ -143,7 +143,7 @@ def edit_story_date1(a_date):
                                 a_date=fullstory.date_for.
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
-        form.id.data =fullstory.story.id
+        form.id.data = fullstory.story.id
         form.day.data = fullstory.date_for
         form.title.data = fullstory.title
         form.post.data = fullstory.content
@@ -185,44 +185,47 @@ def storyline_community():
                            )
 
 
-@bp.route('/user/<username>')
-@login_required
-def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    stln = Storyline.current_story_line()
-    raise
-    members = stln.members.filter(username != user.username).\
-        all()
-    # stories = user.stories.order_by(Story.timestamp.desc()).paginate(
-    #     page, current_app.config['STORIES_PER_PAGE'], False)
-    # next_url = url_for('main.user', username=user.username,
-    #                    page=stories.next_num) \
-    #     if stories.has_next else None
-    # prev_url = url_for('main.user', username=user.username,
-    #                    page=stories.prev_num) \
-    #     if stories.has_prev else None
-    return render_template('user.html',
-                           user=user,
-                           members=members,
-                           # posts=stories.items,
-                           # next_url=next_url,
-                           # prev_url=prev_url
-                           )
+# @bp.route('/user/<username>')
+# @login_required
+# def user(username):
+#     user = User.query.filter_by(username=username).first_or_404()
+#     stln = Storyline.current_story_line()
+#     raise
+#     members = stln.members.filter(username != user.username).\
+#         all()
+#     # stories = user.stories.order_by(Story.timestamp.desc()).paginate(
+#     #     page, current_app.config['STORIES_PER_PAGE'], False)
+#     # next_url = url_for('main.user', username=user.username,
+#     #                    page=stories.next_num) \
+#     #     if stories.has_next else None
+#     # prev_url = url_for('main.user', username=user.username,
+#     #                    page=stories.prev_num) \
+#     #     if stories.has_prev else None
+#     return render_template('user.html',
+#                            user=user,
+#                            members=members,
+#                            # posts=stories.items,
+#                            # next_url=next_url,
+#                            # prev_url=prev_url
+#                            )
 
 
-@bp.route('/edit_profile', methods=['GET', 'POST'])
+@bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
 @login_required
-def edit_profile():
-    form = EditProfileForm(current_user.username)
-    if form.validate_on_submit():
-        current_user.update(**form.data)  # save the object with changes
-        flash('Your changes have been saved')
-        return redirect(url_for('main.edit_profile'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html',
-                           title='Edit Profile', form=form)
+def edit_profile(username):
+    if current_user.username == username:
+        form = EditProfileForm(current_user.username)
+        if form.validate_on_submit():
+            current_user.update(**form.data)  # save the object with changes
+            flash('Your changes have been saved')
+            return redirect(url_for('main.storyline_community'))
+        elif request.method == 'GET':
+            form.username.data = current_user.username
+            form.about_me.data = current_user.about_me
+        return render_template('edit_profile.html',
+                               title='Edit Profile', form=form)
+    else:
+        return render_template('errors/404.html')
 
 
 def str_to_int(string):

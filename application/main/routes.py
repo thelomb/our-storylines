@@ -19,7 +19,7 @@ from random import randint
 from application.fullstory_service import Fullstory2
 from application.location_service import map_a_story
 from wtforms import TextField
-
+from application.helpers import authorized_storyline
 
 stay_type_icons = {
     'CAMPING': 'fa-campground',
@@ -42,21 +42,31 @@ def add_header(response):
     response.cache_control.max_age = 300
     return response
 
-
-@bp.route('/<storyline>/')
+@bp.route('/')
+@bp.route('/<storyline>')
 @bp.route('/<storyline>/<int:page>')
 @login_required
-def index(storyline, page=1):
-    storyline = Storyline.query.filter_by(name=storyline).first_or_404()
-    stories = storyline.stories.order_by(Story.date_for.desc()).paginate(
+@authorized_storyline
+def index(storyline=None, page=1):
+    if not storyline:
+        sl = current_user.current_storyline()
+        if not storyline:
+            return render_template('errors/404.html')
+    sl = Storyline.query.filter_by(slug=storyline).first_or_404()
+    stories = sl.stories.order_by(Story.date_for.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
-    return render_template('index.html', title='Home',
-                           posts=stories.items, page=page)
+    return render_template('index.html',
+                           title='Home',
+                           posts=stories.items,
+                           page=page,
+                           storyline=storyline)
 
 
-@bp.route('/fullstory', methods=['GET', 'POST'])
+@bp.route('/<storyline>/fullstory', methods=['GET', 'POST'])
 @login_required
-def fullstory():
+@authorized_storyline
+def fullstory(storyline):
+    sl = Storyline.query.filter_by(slug=storyline).first_or_404()
     form = FullStoryForm()
     if form.validate_on_submit():
         Fullstory2.from_web_form(date_for=form.day.data,
@@ -70,10 +80,12 @@ def fullstory():
                                  travel_type=form.travel_type.data,
                                  stay_type=form.stay_type.data,
                                  author=current_user,
-                                 files=request.files.getlist('post_images')
+                                 files=request.files.getlist('post_images'),
+                                 storyline=sl
                                  )
         flash('Vous venez de publier une nouvelle journée!', 'info')
         return redirect(url_for('main.view_story_date',
+                                storyline=sl.slug,
                                 a_date=form.day.data.
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
@@ -81,17 +93,23 @@ def fullstory():
     return render_template('fullstory.html', form=form)
 
 
-@bp.route('/story_date/<a_date>', methods=['GET'])
+@bp.route('/<storyline>/<a_date>', methods=['GET'])
 @login_required
-def view_story_date(a_date):
-    story_date_parameter = a_date.split("-")
-    story_date = date(int(story_date_parameter[2]),
-                      int(story_date_parameter[1]),
-                      int(story_date_parameter[0]))
-    story = Fullstory2.get_by_date_web(date_for=story_date)
-    story.media = story.media.order_by(Media.image_ratio)
-    if story is None:
+@authorized_storyline
+def view_story_date(storyline, a_date):
+    try:
+        story_date_parameter = a_date.split("-")
+        story_date = date(int(story_date_parameter[2]),
+                          int(story_date_parameter[1]),
+                          int(story_date_parameter[0]))
+        story = Fullstory2.get_by_date_web(date_for=story_date,
+                                           storyline=storyline)
+        if story is None:
+            raise ValueError
+    except (ValueError, IndexError, AttributeError):
         return render_template('errors/404.html')
+
+    story.media = story.media.order_by(Media.image_ratio)
     if story.media.count() == 0:
         story.media = simulate_media()
     sndmap = map_a_story(story)
@@ -101,19 +119,27 @@ def view_story_date(a_date):
                            prev_story_date=story.prev_date,
                            next_story_date=story.next_date,
                            title=story.title,
-                           stay_type_icons=stay_type_icons)
+                           stay_type_icons=stay_type_icons,
+                           storyline=storyline)
 
 
-@bp.route('/edit_story_date/<a_date>', methods=['GET', 'POST'])
+@bp.route('/<storyline>/edit_story/<a_date>', methods=['GET', 'POST'])
 @login_required
-def edit_story_date1(a_date):
+@authorized_storyline
+def edit_story_date1(storyline, a_date):
     class FullStoryFormWithComments(FullStoryForm):
         pass
-    story_date_parameter = a_date.split("-")
-    story_date = date(int(story_date_parameter[2]),
-                      int(story_date_parameter[1]),
-                      int(story_date_parameter[0]))
-    fullstory = Fullstory2.get_by_date_web(date_for=story_date)
+    try:
+        story_date_parameter = a_date.split("-")
+        story_date = date(int(story_date_parameter[2]),
+                          int(story_date_parameter[1]),
+                          int(story_date_parameter[0]))
+        fullstory = Fullstory2.get_by_date_web(date_for=story_date,
+                                               storyline=storyline)
+        if fullstory is None:
+            raise ValueError
+    except (ValueError, IndexError, AttributeError):
+        return render_template('errors/404.html')
     if fullstory.story.media:
         for medium in fullstory.story.media:
             setattr(FullStoryFormWithComments,
@@ -141,6 +167,7 @@ def edit_story_date1(a_date):
                          )
         flash("L'entrée vient d'être mise à jour", 'info')
         return redirect(url_for('main.view_story_date',
+                                storyline=storyline,
                                 a_date=fullstory.date_for.
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
@@ -158,19 +185,23 @@ def edit_story_date1(a_date):
             for medium in fullstory.story.media:
                 form[medium.filename + 'comment'].data = medium.comment
         print(fullstory.content)
-    return render_template('fullstory.html', form=form, story=fullstory.story)
+    return render_template('fullstory.html',
+                           form=form,
+                           story=fullstory.story,
+                           storyline=storyline)
 
 
-@bp.route('/community')
+@bp.route('/<storyline>/community')
 @login_required
-def storyline_community():
+@authorized_storyline
+def storyline_community(storyline):
     user = User.query.filter_by(username=current_user.username).first_or_404()
-    stln = user.current_storyline()
+    stln = Storyline.query.filter_by(slug=storyline).first_or_404()
     members = stln.members.join(StorylineMembership.member).\
-        filter(User.username != current_user.username).\
+        filter(User.username != user.username).\
         all()
     return render_template('community.html',
-                           user=current_user,
+                           user=user,
                            members=members,
                            # posts=stories.items,
                            # next_url=next_url,
@@ -186,7 +217,9 @@ def edit_profile(username):
         if form.validate_on_submit():
             current_user.update(**form.data)  # save the object with changes
             flash('Your changes have been saved')
-            return redirect(url_for('main.storyline_community'))
+            return redirect(url_for('main.storyline_community',
+                                    storyline=current_user.
+                                    current_storyline().slug))
         elif request.method == 'GET':
             form.username.data = current_user.username
             form.about_me.data = current_user.about_me

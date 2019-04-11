@@ -1,5 +1,5 @@
 from application import images, db
-from application.models import Story, Media, GeoPoint, Itinerary
+from application.models import Story, Media, GeoPoint, Itinerary, Storyline
 from application.model_enums import TravelType, StayType
 from application.location_service import Geolocation
 from PIL import Image, ExifTags
@@ -22,7 +22,8 @@ class Fullstory2(object):
                       travel_type,
                       stay_type,
                       author,
-                      files):
+                      files,
+                      storyline):
         instance = cls()
         instance.date_for = date_for
         instance.title = title
@@ -35,6 +36,7 @@ class Fullstory2(object):
         instance.stay_type = StayType[stay_type]
         instance.author = author
         instance.files = files
+        instance.storyline_id=storyline.id
         instance.media = []
         if instance.stay_place:
             instance.create_stay()
@@ -101,8 +103,11 @@ class Fullstory2(object):
         db.session.commit()
 
     @classmethod
-    def get_by_date(cls, date_for):
-        stories = Story.query.order_by(Story.date_for).all()
+    def get_by_date(cls, date_for, storyline_slug):
+        storyline = Storyline.query.filter_by(slug=storyline_slug).first()
+        if storyline is None:
+            return None
+        stories = storyline.stories
         filtered_stories = cls._current_prev_next_stories(stories=stories,
                                                           date_for=date_for)
         fullstory = cls(filtered_stories.get('current', None))
@@ -150,9 +155,9 @@ class Fullstory2(object):
         return filtered_stories
 
     @classmethod
-    def get_by_date_web(cls, date_for):
-        fullstory = cls.get_by_date(date_for)
-        if fullstory.story is None:
+    def get_by_date_web(cls, date_for, storyline):
+        fullstory = cls.get_by_date(date_for, storyline)
+        if fullstory is None:
             return None
         fullstory.date_for = fullstory.story.date_for
         fullstory.title = fullstory.story.title

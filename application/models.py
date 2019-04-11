@@ -54,6 +54,7 @@ class Storyline(db.Model):
         'StorylineMembership',
         back_populates="storyline",
         lazy='dynamic')
+    slug = db.Column(db.String(32), index=True, nullable=False)
 
     def add_member(self,
                    user,
@@ -89,17 +90,13 @@ class Storyline(db.Model):
                                    StorylineMembership.storyline == self and
                                    StorylineMembership.is_admin
                                    ).count() > 0
-    # def is_member(self, user):
-    #     return self.members.filter(
-    #         storyline_members.c.member_id == user.id).count() > 0
 
-    # def linked_stories(self):
-    #     return (Story.query.filter_by(storyline_id=self.id)
-    #             .order_by(Story.timestamp.desc()))
+    @staticmethod
+    def on_changed_name(target, value, oldvalue, initiator):
+        target.slug = slugify(value)
 
-    # def daily_stories(self, day):
-    #     return (Story.query.filter(storyline_id=self.id)
-    #             .order_by(Story.timestamp.desc()))
+
+db.event.listen(Storyline.name, 'set', Storyline.on_changed_name)
 
 
 class User(UserMixin, CRUDMixin, db.Model):

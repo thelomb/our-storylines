@@ -16,7 +16,7 @@
     <p class="infinite-scroll-error">No more pages to load</p>
   </div>-->
   <div class="infinite-pagination">
-    <a class="pagination__next" href="{{ url_for('main.index', page=page + 1) }}">Next page</a>
+    <a class="pagination__next" href="{{ url_for('main.index', storyline=storyline, page=page + 1) }}">Next page</a>
   </div>
 
 {% endblock %}

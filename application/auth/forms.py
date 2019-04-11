@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, BooleanField,
-                     SubmitField, TextAreaField)
-from wtforms.validators import (DataRequired, ValidationError, Email,
-                                EqualTo, Length)
-from application.models import User
+from wtforms import (StringField,
+                     PasswordField,
+                     BooleanField,
+                     SubmitField)
+from wtforms.validators import (DataRequired,
+                                EqualTo)
 
 
 class LoginForm(FlaskForm):
@@ -12,6 +13,14 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Se souvenir de moi')
     submit = SubmitField('Se connecter')
 
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Choisissez votre mot de passe',
+                             validators=[DataRequired()])
+    password_repeat = PasswordField('Répétez le mot de passe',
+                                    validators=[DataRequired(),
+                                                EqualTo('password')])
+    submit = SubmitField('Sauvez le mot de passe')
 
 # class RegistrationForm(FlaskForm):
 #     username = StringField('Username', validators=[DataRequired()])
@@ -32,13 +41,8 @@ class LoginForm(FlaskForm):
 #             raise ValidationError('Please use a different email address')
 
 
-class ResetPasswordRequestForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
+# class ResetPasswordRequestForm(FlaskForm):
+#     email = StringField('Email', validators=[DataRequired(), Email()])
+#     submit = SubmitField('Request Password Reset')
 
 
-class ResetPasswordForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired()])
-    password_repeat = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Request Password Reset')

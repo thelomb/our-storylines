@@ -11,7 +11,9 @@ from application.main.forms import (EditProfileForm,
 from flask_login import current_user, login_required
 from application.models import (User,
                                 Story,
-                                Media)
+                                Media,
+                                Storyline,
+                                StorylineMembership)
 from datetime import date, datetime
 from random import randint
 from application.fullstory_service import Fullstory2
@@ -158,11 +160,39 @@ def edit_story_date1(a_date):
     return render_template('fullstory.html', form=form, story=fullstory.story)
 
 
+@bp.route('/community')
+@login_required
+def storyline_community():
+    user = User.query.filter_by(username=current_user.username).first_or_404()
+    stln = user.current_storyline()
+    members = stln.members.join(StorylineMembership.member).\
+        filter(User.username != current_user.username).\
+        all()
+    # stories = user.stories.order_by(Story.timestamp.desc()).paginate(
+    #     page, current_app.config['STORIES_PER_PAGE'], False)
+    # next_url = url_for('main.user', username=user.username,
+    #                    page=stories.next_num) \
+    #     if stories.has_next else None
+    # prev_url = url_for('main.user', username=user.username,
+    #                    page=stories.prev_num) \
+    #     if stories.has_prev else None
+    return render_template('user.html',
+                           user=current_user,
+                           members=members,
+                           # posts=stories.items,
+                           # next_url=next_url,
+                           # prev_url=prev_url
+                           )
+
+
 @bp.route('/user/<username>')
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    page = request.args.get('page', 1, type=int)
+    stln = Storyline.current_story_line()
+    raise
+    members = stln.members.filter(username != user.username).\
+        all()
     # stories = user.stories.order_by(Story.timestamp.desc()).paginate(
     #     page, current_app.config['STORIES_PER_PAGE'], False)
     # next_url = url_for('main.user', username=user.username,
@@ -173,6 +203,7 @@ def user(username):
     #     if stories.has_prev else None
     return render_template('user.html',
                            user=user,
+                           members=members,
                            # posts=stories.items,
                            # next_url=next_url,
                            # prev_url=prev_url

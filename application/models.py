@@ -65,7 +65,6 @@ class Storyline(db.Model):
                                             is_admin=is_admin,
                                             is_contributor=is_contributor,
                                             is_visitor=is_visitor)
-
             self.members.append(user_role)
 
     def remove_member(self, user):
@@ -77,6 +76,18 @@ class Storyline(db.Model):
     def is_member(self, user):
         return self.members.filter(StorylineMembership.member == user and
                                    StorylineMembership.storyline == self
+                                   ).count() > 0
+
+    def is_contributor(self, user):
+        return self.members.filter(StorylineMembership.member == user and
+                                   StorylineMembership.storyline == self and
+                                   StorylineMembership.is_contributor
+                                   ).count() > 0
+
+    def is_admin(self, user):
+        return self.members.filter(StorylineMembership.member == user and
+                                   StorylineMembership.storyline == self and
+                                   StorylineMembership.is_admin
                                    ).count() > 0
     # def is_member(self, user):
     #     return self.members.filter(
@@ -110,7 +121,6 @@ class User(UserMixin, CRUDMixin, db.Model):
                               cascade="all, delete-orphan",
                               single_parent=True)
 
-
     def __repr__(self):
         return '<The user is {}>'.format(self.username)
 
@@ -126,6 +136,27 @@ class User(UserMixin, CRUDMixin, db.Model):
         return ('http://www.gravatar.com/avatar/{}?d=identicon&s={}'.
                 format(digest, size))
 
+    def current_storyline(self):
+        return Storyline.query.filter_by(id=self.current_line_id).first()
+
+    def roles_in_storyline(self, storyline=None):
+        """
+        Return the user's roles for in a specific Storyline defined in
+        StorylineMembership. If no storyline is given, the current user
+        storyline is used
+
+        Keyword argument:
+        storyline -- a storyline (default None for current storyline)
+        """
+
+        if storyline is None:
+            storyline_id = self.current_line_id
+        else:
+            storyline_id = storyline.id
+
+        return StorylineMembership.query.filter_by(
+            storyline_id=storyline_id,
+            member_id=self.id).first()
     # def follow(self, user):
     #     if not self.is_following(user):
     #         self.followed.append(user)

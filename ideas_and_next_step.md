@@ -1,5 +1,8 @@
 # Ideas and Next Development Steps
 
+## Bug
+last seen not working
+
 ## Next Development
 - rework the login so that index is public
 - manage google location API errors (offline, etc.)

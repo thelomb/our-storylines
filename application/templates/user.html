@@ -20,9 +20,40 @@
                             <p>
                                 <a href="{{ url_for('main.edit_profile') }}">Edit your profile</a>
                             </p>
+                            <p>
+                                <a href="{{ url_for('auth.reset_password_request', username=user.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
+                            </p>
+
                         {% endif %}
                     </td>
                 </tr>
+                {% if members %}
+                    {% for member in members %}
+                    <tr>
+                        <td>
+                            <img src="{{ user.avatar(150) }}">
+                        </td>
+                        <td>
+                            <h1>User: {{ member.member.username }}</h1>
+                            {% if member.member.about_me %}
+                                <p>{{ member.member.about_me }}</p>
+                            {% endif %}
+                            {% if member.member.last_seen %}
+                                <p>Last seen on: <time class="timeago">{{ member.member.last_seen }}</time></p>
+                            {% endif %}
+                            {% if user.roles_in_storyline().is_admin %}
+                                <p>
+                                    <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i>Nouveau mot de passe</a>
+                                </p>
+                                <p>
+                                    <a href="{{ url_for('main.edit_profile') }}">Edit your profile</a>
+                                </p>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
             </table>
         </div>
     </div>

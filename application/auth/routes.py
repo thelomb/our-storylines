@@ -1,14 +1,18 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import (render_template,
+                   flash,
+                   redirect,
+                   url_for,
+                   request,
+                   current_app)
 from application import db
 from application.auth import bp
 from application.auth.forms import (LoginForm,
-                                    ResetPasswordRequestForm,
                                     ResetPasswordForm)
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from application.models import User
 from werkzeug.urls import url_parse
-from datetime import datetime
 from application.email import send_password_reset_email
+from application.helpers import admin_only
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -58,19 +62,15 @@ def logout():
 #     return render_template('auth/register.html', title='Register', form=form)
 
 
-@bp.route('/reset_password_request', methods=['GET', 'POST'])
-def reset_password_request():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-    form = ResetPasswordRequestForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            send_password_reset_email(user)
-        flash('Check your email for the instructions to reset your password')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password_request.html',
-                           title='Reset Password', form=form)
+@bp.route('/reset_password_request/<username>', methods=['GET'])
+@login_required
+@admin_only
+def reset_password_request(username):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        send_password_reset_email(user)
+        flash('Email sent to ' + username + ' at ' + user.email, 'info')
+    return redirect(url_for('main.storyline_community'))
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])

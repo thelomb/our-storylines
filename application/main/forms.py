@@ -35,9 +35,10 @@ class Unique(object):
 
 
 class EditProfileForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
-    submit = SubmitField('Submit')
+    username = StringField("Nom d'Utilisateur", validators=[DataRequired()])
+    about_me = TextAreaField('Décrivez-vous en 140 charactères',
+                             validators=[Length(min=0, max=140)])
+    submit = SubmitField('Sauvez')
 
     def __init__(self, original_username, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
@@ -96,5 +97,3 @@ class FullStoryForm(FlaskForm):
                 raise ValidationError(message_value_error)
         elif field.data == '' and self.travel_type.data == TravelType.CAR.name:
             raise ValidationError(message_missing_data)
-
-

@@ -42,6 +42,7 @@ def add_header(response):
     response.cache_control.max_age = 300
     return response
 
+
 @bp.route('/')
 @bp.route('/<storyline>')
 @bp.route('/<storyline>/<int:page>')
@@ -50,19 +51,20 @@ def add_header(response):
 def index(storyline=None, page=1):
     if not storyline:
         sl = current_user.current_storyline()
-        if not storyline:
+        if sl is None:
             return render_template('errors/404.html')
-    sl = Storyline.query.filter_by(slug=storyline).first_or_404()
+    else:
+        sl = Storyline.query.filter_by(slug=storyline).first_or_404()
     stories = sl.stories.order_by(Story.date_for.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
     return render_template('index.html',
                            title='Home',
                            posts=stories.items,
                            page=page,
-                           storyline=storyline)
+                           storyline=sl)
 
 
-@bp.route('/<storyline>/fullstory', methods=['GET', 'POST'])
+@bp.route('/<storyline>/new', methods=['GET', 'POST'])
 @login_required
 @authorized_storyline
 def fullstory(storyline):
@@ -90,13 +92,16 @@ def fullstory(storyline):
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
         form.day.data = date.today()
-    return render_template('fullstory.html', form=form)
+    return render_template('new_story.html',
+                           form=form,
+                           storyline=sl)
 
 
 @bp.route('/<storyline>/<a_date>', methods=['GET'])
 @login_required
 @authorized_storyline
 def view_story_date(storyline, a_date):
+    sl = Storyline.query.filter_by(slug=storyline).first_or_404()
     try:
         story_date_parameter = a_date.split("-")
         story_date = date(int(story_date_parameter[2]),
@@ -120,7 +125,7 @@ def view_story_date(storyline, a_date):
                            next_story_date=story.next_date,
                            title=story.title,
                            stay_type_icons=stay_type_icons,
-                           storyline=storyline)
+                           storyline=sl)
 
 
 @bp.route('/<storyline>/edit_story/<a_date>', methods=['GET', 'POST'])
@@ -129,6 +134,9 @@ def view_story_date(storyline, a_date):
 def edit_story_date1(storyline, a_date):
     class FullStoryFormWithComments(FullStoryForm):
         pass
+
+    sl = Storyline.query.filter_by(slug=storyline).first_or_404()
+
     try:
         story_date_parameter = a_date.split("-")
         story_date = date(int(story_date_parameter[2]),
@@ -167,7 +175,7 @@ def edit_story_date1(storyline, a_date):
                          )
         flash("L'entrée vient d'être mise à jour", 'info')
         return redirect(url_for('main.view_story_date',
-                                storyline=storyline,
+                                storyline=sl.slug,
                                 a_date=fullstory.date_for.
                                 strftime('%d-%m-%Y')))
     elif request.method == 'GET':
@@ -185,10 +193,10 @@ def edit_story_date1(storyline, a_date):
             for medium in fullstory.story.media:
                 form[medium.filename + 'comment'].data = medium.comment
         print(fullstory.content)
-    return render_template('fullstory.html',
+    return render_template('new_story.html',
                            form=form,
                            story=fullstory.story,
-                           storyline=storyline)
+                           storyline=sl)
 
 
 @bp.route('/<storyline>/community')
@@ -196,13 +204,14 @@ def edit_story_date1(storyline, a_date):
 @authorized_storyline
 def storyline_community(storyline):
     user = User.query.filter_by(username=current_user.username).first_or_404()
-    stln = Storyline.query.filter_by(slug=storyline).first_or_404()
-    members = stln.members.join(StorylineMembership.member).\
+    sl = Storyline.query.filter_by(slug=storyline).first_or_404()
+    members = sl.members.join(StorylineMembership.member).\
         filter(User.username != user.username).\
         all()
     return render_template('community.html',
                            user=user,
                            members=members,
+                           storyline=sl
                            # posts=stories.items,
                            # next_url=next_url,
                            # prev_url=prev_url
@@ -224,23 +233,37 @@ def edit_profile(username):
             form.username.data = current_user.username
             form.about_me.data = current_user.about_me
         return render_template('edit_profile.html',
-                               title='Edit Profile', form=form)
+                               title='Edit Profile',
+                               form=form,
+                               storyline=current_user.
+                               current_storyline())
     else:
         return render_template('errors/404.html')
 
 
-def str_to_int(string):
+@bp.route('/<storyline>/<a_date>/delete_picture/<int:picture_id>')
+@login_required
+@authorized_storyline
+def delete_picture(storyline, a_date, picture_id):
     try:
-        int(float(string))
-        return int(float(string))
-    except ValueError:
-        return None
+        story_date_parameter = a_date.split("-")
+        story_date = date(int(story_date_parameter[2]),
+                          int(story_date_parameter[1]),
+                          int(story_date_parameter[0]))
+        fullstory = Fullstory2.get_by_date_web(date_for=story_date,
+                                               storyline=storyline)
+        if fullstory is None:
+            raise ValueError
+    except (ValueError, IndexError, AttributeError):
+        return render_template('errors/404.html')
 
-
-def int_to_str(int):
-    if int:
-        return str(int)
-    return ''
+    image = fullstory.media.filter_by(id=picture_id).first()
+    if image:
+        db.session.delete(image)
+        db.session.commit()
+    return redirect(url_for('main.edit_story_date1',
+                            storyline=storyline,
+                            a_date=a_date))
 
 
 def get_image_comments(form, media):
@@ -265,10 +288,15 @@ def simulate_media():
     return media
 
 
-@bp.route('/story/<int:story_id>/delete_picture/<int:picture_id>')
-@login_required
-def delete_picture(story_id, picture_id):
-    image = Media.query.get(picture_id)
-    db.session.delete(image)
-    db.session.commit()
-    return redirect(url_for('main.edit_story', story_id=story_id))
+def str_to_int(string):
+    try:
+        int(float(string))
+        return int(float(string))
+    except ValueError:
+        return None
+
+
+def int_to_str(int):
+    if int:
+        return str(int)
+    return ''

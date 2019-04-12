@@ -3,14 +3,14 @@
         <div class="card-meta">
                 {{ post.date_for.strftime('%d %b %Y') }}
         </div>
-        <a href="{{ url_for('main.view_story_date', storyline=storyline, a_date=post.date_for.strftime('%d-%m-%Y')) }}">
+        <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=post.date_for.strftime('%d-%m-%Y')) }}">
             <h4 class="card-title">
                 {{ post.title }}
             </h4>
         </a>
     </header>
     {% if post.media.count()>0 %}
-        <a href="{{ url_for('main.view_story_date', storyline=storyline, a_date=post.date_for.strftime('%d-%m-%Y')) }}">
+        <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=post.date_for.strftime('%d-%m-%Y')) }}">
             <img class="card-img" src="{{ post.media[0].url }}" alt="" />
         </a>
     {% endif %}

@@ -8,13 +8,13 @@
             <div class="card-calendar">
                 {% if prev_story_date %}
                   <span>
-                    <a href=" {{ url_for('main.view_story_date', storyline=storyline, a_date=prev_story_date.strftime('%d-%m-%Y')) }}">
+                    <a href=" {{ url_for('main.view_story_date', storyline=storyline.slug, a_date=prev_story_date.strftime('%d-%m-%Y')) }}">
                       <i class="fas fa-chevron-left"></i>
                     </a>
                   </span>
                 {% endif %}
                 <span class="fa-7x fa-layers fa-fw text-center">
-                  <a href="{{ url_for('main.edit_story_date1', storyline=storyline, a_date=story.date_for.strftime('%d-%m-%Y')) }}">
+                  <a href="{{ url_for('main.edit_story_date1', storyline=storyline.slug, a_date=story.date_for.strftime('%d-%m-%Y')) }}">
                     <span><i class="fas fa-calendar"></i></span>
                     <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-10 down-1.5" style="font-weight:900">{{ '{d.day}'.format(d=story.date_for)  }}</span>
 
@@ -23,7 +23,7 @@
                 </span>
                 {% if next_story_date %}
                   <span>
-                    <a href=" {{ url_for('main.view_story_date', storyline=storyline, a_date=next_story_date.strftime('%d-%m-%Y')) }}">
+                    <a href=" {{ url_for('main.view_story_date', storyline=storyline.slug, a_date=next_story_date.strftime('%d-%m-%Y')) }}">
                       <i class="fas fa-chevron-right"></i>
                     </a>
                   </span>

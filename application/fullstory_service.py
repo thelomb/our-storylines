@@ -36,7 +36,7 @@ class Fullstory2(object):
         instance.stay_type = StayType[stay_type]
         instance.author = author
         instance.files = files
-        instance.storyline_id=storyline.id
+        instance.storyline_id = storyline.id
         instance.media = []
         if instance.stay_place:
             instance.create_stay()
@@ -54,7 +54,8 @@ class Fullstory2(object):
                      stay_type=instance.stay_type,
                      media=instance.media,
                      stay=instance.stay,
-                     itinerary=instance.itinerary)
+                     itinerary=instance.itinerary,
+                     storyline_id=instance.storyline_id)
         db.session.commit()
 
     def update(self,

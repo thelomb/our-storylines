@@ -1,8 +1,0 @@
-{% extends 'base.html' %}
-{% block app_content %}
-    {% for itinerary in itineraries %}
-        <div class="row mb-4 pb-4 border-bottom">
-            {% include '_itinerary_card.html' %}
-        </div>
-    {% endfor %}
-{% endblock %}

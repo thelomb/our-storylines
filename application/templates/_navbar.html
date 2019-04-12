@@ -1,7 +1,5 @@
-  {% if storyline %}
-    {% set storyline_slug = storyline %}
-  {% else %}
-    {% set storyline_slug = current_user.current_storyline().slug %}
+  {% if not storyline and not current_user.is_anonymous %}
+    {% set storyline = current_user.current_storyline().slug %}
   {% endif %}
       <header role="banner">
         <nav class="navbar navbar-expand-md navbar-light bg-white absolute-top">
@@ -12,16 +10,31 @@
             </button>
             {% endif %}
 
-            <a class="navbar-brand order-1 order-md-3" href="{{ url_for('main.index', storyline=storyline_slug,page=1) }}">
-            {% if current_user.is_anonymous %} {{ website }} {% else %}The Boulomb USA 2019 {% endif %}</a>
+            <a class="navbar-brand order-1 order-md-3"
+               href="
+                    {% if not current_user.is_anonymous %}
+                      {{
+                        url_for('main.index',
+                                storyline=storyline.slug,
+                                page=1)
+                       }}
+                    {% else %}
+                      {{ url_for('auth.login') }}
+                    {% endif %}
+                    ">
+            {% if current_user.is_anonymous %}
+              {{ website }}
+            {% else %}
+              {{storyline.name}}
+            {% endif %}</a>
             {% if not current_user.is_anonymous %}
             <div class="collapse navbar-collapse order-4 order-md-3" id="navbar">
               <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                  <a class="nav-link" href="{{ url_for('main.fullstory', storyline=storyline_slug) }}"><i class="fa fa-pen-fancy fa-2x" title="Ajouter une nouvelle journée"></i></a>
+                  <a class="nav-link" href="{{ url_for('main.fullstory', storyline=storyline.slug) }}"><i class="fa fa-pen-fancy fa-2x" title="Ajouter une nouvelle journée"></i></a>
                 </li>
                 <li class="nav-item active">
-                  <a class="nav-link" href="{{ url_for('main.storyline_community', storyline=storyline_slug) }}"><i class="fa fa-user-friends fa-2x" title="Voir la communauté"></i></a>
+                  <a class="nav-link" href="{{ url_for('main.storyline_community', storyline=storyline.slug) }}"><i class="fa fa-user-friends fa-2x" title="Voir la communauté"></i></a>
                 </li>
               </ul>
             </div>

@@ -39,7 +39,8 @@
                                 <p>{{ member.member.about_me }}</p>
                             {% endif %}
                             {% if member.member.last_seen %}
-                                <p>Last seen on: <time class="timeago">{{ member.member.last_seen }}</time></p>
+                                <p>Last seen on: <time class="timeago" datetime={{ member.member.last_seen }}>{{ member.member.last_seen }}</time></p>
+                                {{ member.member.last_seen }}
                             {% endif %}
                             {% if user.roles_in_storyline().is_admin %}
                                 <p>

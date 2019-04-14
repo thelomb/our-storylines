@@ -6,51 +6,11 @@
         <div class="col-md-12">
             <table class="table table-hover">
                 <tr>
-                    <td>
-                        <img src="{{ user.avatar(150) }}">
-                    </td>
-                    <td>
-                        <h1>User: {{ user.username }}</h1>
-                        {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-                        {% if user.last_seen %}<p>Last seen on: <time class="timeago">{{ user.last_seen }}</time></p>{% endif %}
-                        {% if user == current_user %}
-                            <p>
-                                <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
-                            </p>
-                            <p>
-                                <a href="{{ url_for('main.edit_profile',username=user.username) }}">Mettez à jour votre profile</a>
-                            </p>
-                            <p>
-                                <a href="{{ url_for('auth.reset_password_request', username=user.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
-                            </p>
-
-                        {% endif %}
-                    </td>
-                </tr>
-                {% if members %}
-                    {% for member in members %}
+                {% for membership in memberships %}
                     <tr>
-                        <td>
-                            <img src="{{ user.avatar(150) }}">
-                        </td>
-                        <td>
-                            <h1>User: {{ member.member.username }}</h1>
-                            {% if member.member.about_me %}
-                                <p>{{ member.member.about_me }}</p>
-                            {% endif %}
-                            {% if member.member.last_seen %}
-                                <p>Last seen on: <time class="timeago" datetime={{ member.member.last_seen }}>{{ member.member.last_seen }}</time></p>
-                                {{ member.member.last_seen }}
-                            {% endif %}
-                            {% if user.roles_in_storyline().is_admin %}
-                                <p>
-                                    <a href="{{ url_for('auth.reset_password_request', username=member.member.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
-                                </p>
-                            {% endif %}
-                        </td>
+                        {% include "_user.html" %}
                     </tr>
-                    {% endfor %}
-                {% endif %}
+                {% endfor %}
             </table>
         </div>
     </div>

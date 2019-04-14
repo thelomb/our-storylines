@@ -203,14 +203,13 @@ def edit_story_date1(storyline, a_date):
 @login_required
 @authorized_storyline
 def storyline_community(storyline):
-    user = User.query.filter_by(username=current_user.username).first_or_404()
     sl = Storyline.query.filter_by(slug=storyline).first_or_404()
-    members = sl.members.join(StorylineMembership.member).\
-        filter(User.username != user.username).\
+    memberships = sl.members.join(StorylineMembership.member).\
+        order_by(User.last_seen.desc()).\
         all()
     return render_template('community.html',
-                           user=user,
-                           members=members,
+                           current_user=current_user,
+                           memberships=memberships,
                            storyline=sl
                            # posts=stories.items,
                            # next_url=next_url,

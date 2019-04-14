@@ -1,0 +1,25 @@
+<td>
+    <img src="{{ membership.member.avatar(150) }}">
+</td>
+<td>
+    <h1>{{ membership.member.username }}</h1>
+    {% if membership.member.about_me %}
+        <p>{{ membership.member.about_me }}</p>
+    {% endif %}
+    {% if membership.member.last_seen %}
+        <p>Dernière fois vu ici: <time datetime={{membership.member.last_seen}} class="timeago">{{ membership.member.last_seen }}</time></p>
+    {% endif %}
+    {% if membership.member == current_user %}
+        <p>
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+        </p>
+        <p>
+            <a href="{{ url_for('main.edit_profile',username=membership.member.username) }}">Mettez à jour votre profile</a>
+        </p>
+    {% endif %}
+    {% if current_user.roles_in_storyline().is_admin or membership.member == current_user %}
+        <p>
+            <a href="{{ url_for('auth.reset_password_request', username=membership.member.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
+        </p>
+    {% endif %}
+</td>

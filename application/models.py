@@ -1,5 +1,5 @@
 from flask import current_app
-from application import db, login
+from application import db, login, images
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -16,6 +16,8 @@ from application.model_enums import (DistanceUnit,
                                      StayType)
 from sqlalchemy import Enum
 from sqlalchemy.ext.hybrid import hybrid_property
+from application.imagery import WebImage
+from PIL import Image
 
 
 # storyline_members = db.Table(
@@ -145,7 +147,6 @@ class User(UserMixin, CRUDMixin, db.Model):
         Keyword argument:
         storyline -- a storyline (default None for current storyline)
         """
-
         if storyline is None:
             storyline_id = self.current_line_id
         else:
@@ -154,51 +155,6 @@ class User(UserMixin, CRUDMixin, db.Model):
         return StorylineMembership.query.filter_by(
             storyline_id=storyline_id,
             member_id=self.id).first()
-    # def follow(self, user):
-    #     if not self.is_following(user):
-    #         self.followed.append(user)
-
-    # def unfollow(self, user):
-    #     if self.is_following(user):
-    #         self.followed.remove(user)
-
-    # def is_following(self, user):
-    #     return self.followed.filter(
-    #         followers.c.followed_id == user.id).count() > 0
-
-    #
-    #SQL equivalent:
-    #SELECT
-    #    p.*
-    #FROM
-    #   post p
-    #JOIN
-    #   followers f
-    #ON
-    #   f.followed_id=p.user_id
-    #WHERE
-    #   f.follower_id=(select id from User where id=me)
-    #ORDER BY
-    #   p.timestamp DESC
-    # def followed_posts(self):
-    #     followed = Post.query.join(
-    #         followers, (followers.c.followed_id == Post.user_id)).filter(
-    #             followers.c.follower_id == self.id)
-    #     own = Post.query.filter_by(user_id=self.id)
-    #     return followed.union(own).order_by(Post.timestamp.desc())
-
-    # def followed_posts_sql(self):
-    #     statement = """
-    #         SELECT p.* FROM post p JOIN
-    #         followers f ON f.followed_id=p.user_id
-    #         WHERE f.follower_id=:id
-    #         UNION
-    #         select p.* from post p where p.user_id=:id
-    #         ORDER BY p.timestamp DESC
-    #         """
-    #     sql = text(statement)
-    #     out = db.engine.execute(sql, id=self.id)
-    #     return out
 
     def get_reset_password_token(self, expires_in=600):
         token = jwt.encode(
@@ -215,6 +171,43 @@ class User(UserMixin, CRUDMixin, db.Model):
         except:
             return
         return User.query.get(id)
+
+    def update(self,
+               username,
+               about_me,
+               file):
+        self.username = username
+        self.about_me = about_me
+        if len(file) == 1:
+            image_info = file[0]
+            if self.picture:
+                if self.picture.request_file_name == image_info.filename:
+                        return
+            filename = images.save(image_info)
+            path = images.path(filename)
+            url = images.url(filename)
+            web_image = WebImage(Image.open(path))
+            web_image.fix_orientation()
+            web_image.save(path)
+            thumbnail = web_image.another_square_image()
+            thumb_name = '128x128_' + filename
+            thumb_url = url.replace(filename, thumb_name)
+            thumb_path = path.replace(filename, thumb_name)
+            thumbnail.save(thumb_path)
+
+            image = Media(name=thumb_name,
+                          filename=thumb_name,
+                          url=thumb_url,
+                          type='Image',
+                          request_file_name=image_info.filename,
+                          location=None,
+                          exif_width=web_image.exif_width,
+                          exif_height=web_image.exif_height)
+            web_image.close()
+            self.picture = image
+        else:
+            return
+
 
 
 class Story(db.Model, CRUDMixin):

@@ -7,7 +7,8 @@ from flask import (render_template,
 from application import db
 from application.main import bp
 from application.main.forms import (EditProfileForm,
-                                    FullStoryForm)
+                                    FullStoryForm,
+                                    CommentForm)
 from flask_login import current_user, login_required
 from application.models import (User,
                                 Story,
@@ -97,10 +98,11 @@ def fullstory(storyline):
                            storyline=sl)
 
 
-@bp.route('/<storyline>/<a_date>', methods=['GET'])
+@bp.route('/<storyline>/<a_date>', methods=['GET', 'POST'])
 @login_required
 @authorized_storyline
 def view_story_date(storyline, a_date):
+    form = CommentForm()
     sl = Storyline.query.filter_by(slug=storyline).first_or_404()
     try:
         story_date_parameter = a_date.split("-")
@@ -118,6 +120,9 @@ def view_story_date(storyline, a_date):
     if story.media.count() == 0:
         story.media = simulate_media()
     sndmap = map_a_story(story)
+    if form.validate_on_submit():
+        story.add_comment(comment=form.comment.data,
+                          author=current_user)
     return render_template('view_story_date.html',
                            story=story,
                            map2=sndmap,
@@ -125,7 +130,8 @@ def view_story_date(storyline, a_date):
                            next_story_date=story.next_date,
                            title=story.title,
                            stay_type_icons=stay_type_icons,
-                           storyline=sl)
+                           storyline=sl,
+                           form=form)
 
 
 @bp.route('/<storyline>/edit_story/<a_date>', methods=['GET', 'POST'])
@@ -223,7 +229,11 @@ def edit_profile(username):
     if current_user.username == username:
         form = EditProfileForm(current_user.username)
         if form.validate_on_submit():
-            current_user.update(**form.data)  # save the object with changes
+            file = request.files.getlist('picture')
+            current_user.update(username=form.username.data,
+                                about_me=form.about_me.data,
+                                file=file)
+            current_user.save()
             flash('Your changes have been saved')
             return redirect(url_for('main.storyline_community',
                                     storyline=current_user.

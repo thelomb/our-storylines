@@ -38,6 +38,10 @@ class EditProfileForm(FlaskForm):
     username = StringField("Nom d'Utilisateur", validators=[DataRequired()])
     about_me = TextAreaField('Décrivez-vous en 140 charactères',
                              validators=[Length(min=0, max=140)])
+    picture = FileField('Une image de vous',
+                        validators=[FileAllowed(images,
+                                    'Image Only!')],
+                        render_kw={'multiple': False})
     submit = SubmitField('Sauvez')
 
     def __init__(self, original_username, *args, **kwargs):
@@ -48,7 +52,7 @@ class EditProfileForm(FlaskForm):
         if username.data != self.original_username:
             user = User.query.filter_by(username=self.username.data).first()
             if user is not None:
-                raise ValidationError('Please use a different username')
+                raise ValidationError("Ce nom d'utilisateur est déjà pris 😕 Choisissez en un autre!")
 
 
 class FullStoryForm(FlaskForm):
@@ -97,3 +101,8 @@ class FullStoryForm(FlaskForm):
                 raise ValidationError(message_value_error)
         elif field.data == '' and self.travel_type.data == TravelType.CAR.name:
             raise ValidationError(message_missing_data)
+
+
+class CommentForm(FlaskForm):
+    comment = TextAreaField('Votre commentaire', render_kw={'placeholder': 'Ajouter votre commentaire...'})
+    submit = SubmitField('Sauvez')

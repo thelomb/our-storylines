@@ -35,7 +35,7 @@
         <div class="card-title">
           <span><i class="fas fa-stopwatch fa-2x"></i></span>
           <p>{{story.nb_stories}}ème jour du périple</p>
-          <span><i class="fas fa-tachometer-alt fa-2x"></i></span
+          <span><i class="fas fa-tachometer-alt fa-2x"></i></span>
           <p>{{story.cumulative_distance}}km. parcourus</p>
         </div>
     </div>
@@ -64,7 +64,7 @@
       </div>
     </div>
   </div>
-  <div class ="row" style="margin-bottom:30px;">
+  <div class ="row" style="margin-bottom:0px;">
     <div class="col-md-3">
       <div class="card-body">
           <div class="post card-text">
@@ -120,7 +120,12 @@
       </div>
     </div>
   </div>
+  <hr />
+  {% include "_commenting.html" %}
+  <hr />
   <div class ="row" style="margin-bottom:30px;">
+    <h3>Les Photos du Jour</h3>
+    <div class="row">
     {% for image in story.media %}
 
       <div class="col-lg-4 col-sm-6 col-xs-12" style="margin-bottom:10px">
@@ -134,6 +139,7 @@
         </article>
       </div>
     {% endfor %}
+    </div>
   </div>
 
 </div>

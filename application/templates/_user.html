@@ -1,25 +1,39 @@
 <td>
-    <img src="{{ membership.member.avatar(150) }}">
+    <div class="text-center">
+        {% if membership.member == current_user %}
+            <a href="{{url_for('main.edit_profile',username=membership.member.username)}}">
+        {% endif %}
+            <img class="rounded-circle user-profile" src="
+                {% if membership.member.picture %}
+                    {{ membership.member.picture.url }}
+                {% else %}
+                    {{ membership.member.avatar(256) }}
+                {% endif %}
+                " alt="{{ membership.member.username }}">
+        {% if membership.member == current_user %}
+            </a>
+        {% endif %}
+    </div>
+
 </td>
 <td>
-    <h1>{{ membership.member.username }}</h1>
-    {% if membership.member.about_me %}
-        <p>{{ membership.member.about_me }}</p>
-    {% endif %}
-    {% if membership.member.last_seen %}
-        <p>Dernière fois vu ici: <time datetime={{membership.member.last_seen}} class="timeago">{{ membership.member.last_seen }}</time></p>
-    {% endif %}
-    {% if membership.member == current_user %}
-        <p>
-            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
-        </p>
-        <p>
-            <a href="{{ url_for('main.edit_profile',username=membership.member.username) }}">Mettez à jour votre profile</a>
-        </p>
-    {% endif %}
-    {% if current_user.roles_in_storyline().is_admin or membership.member == current_user %}
-        <p>
-            <a href="{{ url_for('auth.reset_password_request', username=membership.member.username) }}"><i class="fas fa-key"></i>Nouveau mot de passe</a>
-        </p>
-    {% endif %}
+    <article class="card card-outline mb-4">
+        <div class="card-body">
+            <header>
+                <h4 class="card-title">
+                    {{ membership.member.username }}
+                </h4>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    Etait ici <time datetime={{membership.member.last_seen}} class="timeago">{{ membership.member.last_seen }}</time>
+                </h6>
+            </header>
+            <p class="card-text">
+                {% if membership.member.about_me %}
+                    {{ membership.member.about_me }}
+                {% else %}
+                    Pas de status
+                {% endif %}
+            </p>
+        </div>
+    </article>
 </td>

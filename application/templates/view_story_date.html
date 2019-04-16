@@ -152,4 +152,8 @@
 {% block scripts %}
   {{ super() }}
   {{ map2.js }}
+
+  {{ moment.include_moment() }}
+  {{ moment.lang("fr") }}
+
 {% endblock %}

@@ -35,6 +35,7 @@ stay_type_icons = {
 def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
+        print(datetime.utcnow())
         db.session.commit()
 
 

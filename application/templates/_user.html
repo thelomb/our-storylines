@@ -24,7 +24,7 @@
                     {{ membership.member.username }}
                 </h4>
                 <h6 class="card-subtitle mb-2 text-muted">
-                    Etait ici <time datetime={{membership.member.last_seen}} class="timeago">{{ membership.member.last_seen }}</time>
+                    Etait ici {{moment(membership.member.last_seen).fromNow()}}
                 </h6>
             </header>
             <p class="card-text">

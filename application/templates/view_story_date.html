@@ -66,58 +66,63 @@
   </div>
   <div class ="row" style="margin-bottom:0px;">
     <div class="col-md-3">
-      <div class="card-body">
-          <div class="post card-text">
-            <p>
-               <i class="fas {{stay_type_icons[story.stay_type]}} fa-2x"></i>
-            </p>
-            <p>
-               {{ story.stay_type_label +' à ' + story.stay_place }}
-            </p>
+      <article class="card card-outline mb-4">
+          <div class="card-body">
+              <header>
+                  <h4 class="card-title text-center">
+
+                      {{  story.stay_place }}
+                  </h4>
+                  <h6 class="card-subtitle mb-2 text-muted">
+                      <i class="fas {{stay_type_icons[story.stay_type]}} fa-2x"></i> {{ story.stay_type_label }}
+                  </h6>
+              </header>
+              <p class="card-text">
+                      Pas de status
+              </p>
+              {% if story.story.itinerary %}
+              <header>
+                {% if story.travel_type=='CAR' %}
+                  <i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-sm"></i><i class="fas fa-car-side fa-2x"></i>
+                  {{ story.distance }} <small>mi.</small>
+                {% endif %}
+                {% if story.travel_type=='FLIGHT' %}
+                  <i class="fas fa-plane fa-2x"></i>
+                {% endif %}
+
+                <h6>
+                  <i class="fas
+                                {% if story.travel_type=='CAR' %}
+                                fa-map-marker-alt
+                                {% endif %}
+                                {% if story.travel_type=='FLIGHT' %}
+                                fa-plane-departure
+                                {% endif %}
+                            fa-sm" style="color: rgb(112, 148, 245)"></i><em>{{ ' '+story.start_place }}</em>
+                </h6>
+                <h6>
+                  <i class="fas
+                                {% if story.travel_type=='CAR' %}
+                                fa-flag
+                                {% endif %}
+                                {% if story.travel_type=='FLIGHT' %}
+                                fa-plane-arrival
+                                {% endif %}
+                            fa-sm" style="color: rgb(217, 80, 64)"></i><em>{{ ' '+story.end_place }}</em>
+                </h6>
+              </header>
+              {% endif %}
           </div>
-      </div>
-      {% if story.story.itinerary %}
-      <div class="card-body">
-        <div class="post card-text">
-            <p>
-              {% if story.travel_type=='CAR' %}
-                <i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-sm"></i><i class="fas fa-car-side fa-2x"></i>
-                {{ story.distance }} <small>mi.</small>
-              {% endif %}
-              {% if story.travel_type=='FLIGHT' %}
-                <i class="fas fa-plane fa-2x"></i>
-              {% endif %}
-            </p>
-            <p>
-                <i class="fas
-                              {% if story.travel_type=='CAR' %}
-                              fa-map-marker-alt
-                              {% endif %}
-                              {% if story.travel_type=='FLIGHT' %}
-                              fa-plane-departure
-                              {% endif %}
-                          fa-sm" style="color: rgb(112, 148, 245)"></i>{{ ' '+story.start_place }}
-            </p>
-            <p>
-                <i class="fas
-                              {% if story.travel_type=='CAR' %}
-                              fa-flag
-                              {% endif %}
-                              {% if story.travel_type=='FLIGHT' %}
-                              fa-plane-arrival
-                              {% endif %}
-                          fa-sm" style="color: rgb(217, 80, 64)"></i><em>{{ ' '+story.end_place }}</em>
-            </p>
-        </div>
-      </div>
-      {% endif %}
+      </article>
     </div>
-    <div class="col-md-9 ml-auto">
-      <div class="card-body">
+    <div class="col-md-9">
+      <article class="card map">
+        <!--<div class="card-body">-->
           <div id="map-canvas" style = "height:500px; background-color: #DDD">
             {{map2.html}}
           </div>
-      </div>
+        <!--</div>-->
+      </article>
     </div>
   </div>
   <hr />

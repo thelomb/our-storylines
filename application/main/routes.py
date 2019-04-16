@@ -25,7 +25,7 @@ from application.helpers import authorized_storyline
 stay_type_icons = {
     'CAMPING': 'fa-campground',
     'HOTEL': 'fa-hotel',
-    'FRIENDS': 'fa-smile-beam',
+    'FRIENDS': 'fa-home',
     'HOUSE': 'fa-umbrella-beach'
 
 }
@@ -161,9 +161,6 @@ def edit_story_date1(storyline, a_date):
                     TextField(''))
     form = FullStoryFormWithComments()
     if form.validate_on_submit():
-        for field in form:
-            print('field name and data', field.name, field.data)
-
         image_comments = get_image_comments(form=form,
                                             media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,

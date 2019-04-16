@@ -136,3 +136,7 @@ textarea.form-control {
 .card-title .card-calendar .svg-inline--fa{
   color:#fa5457;
 }
+
+.card.map {
+  padding:0;
+}

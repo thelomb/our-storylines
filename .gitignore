@@ -113,7 +113,7 @@ status/
 
 #flask
 .flaskenv
-static/
+/static
 test_description.txt
 *.DS_Store
 #node by milo

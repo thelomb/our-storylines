@@ -13,7 +13,8 @@ from slugify import slugify
 from application.mixin import CRUDMixin
 from application.model_enums import (DistanceUnit,
                                      TravelType,
-                                     StayType)
+                                     StayType,
+                                     ImageFeature)
 from sqlalchemy import Enum
 from sqlalchemy.ext.hybrid import hybrid_property
 from application.imagery import WebImage
@@ -287,6 +288,7 @@ class Media(db.Model, CRUDMixin):
     exif_width = db.Column(db.Integer)
     exif_height = db.Column(db.Integer)
     comment = db.Column(db.String(1000))
+    feature = db.Column(Enum(ImageFeature), default='NONE')
 
     def __init__(self,
                  name,

@@ -19,8 +19,9 @@ from datetime import date, datetime
 from random import randint
 from application.fullstory_service import Fullstory2
 from application.location_service import map_a_story
-from wtforms import TextField
+from wtforms import TextField, SelectField
 from application.helpers import authorized_storyline
+from application.model_enums import ImageFeature
 
 stay_type_icons = {
     'CAMPING': 'fa-campground',
@@ -143,6 +144,21 @@ def edit_story_date1(storyline, a_date):
     class FullStoryFormWithComments(FullStoryForm):
         pass
 
+        def validate(self):
+            featuredFields = {}
+            for name, value in self.data.items():
+                if (name.startswith('feature') and
+                        value != ImageFeature.NONE.name):
+                    featuredFields[value] = \
+                        featuredFields.get(value, 0) + 1
+
+            for feature, nbitem in featuredFields.items():
+                raise
+                if nbitem > 1:
+                    self.post_images.errors = ["problème d'image"]
+                    return False
+            return True
+
     sl = Storyline.query.filter_by(slug=storyline).first_or_404()
 
     try:
@@ -160,9 +176,15 @@ def edit_story_date1(storyline, a_date):
         for medium in fullstory.story.media:
             setattr(FullStoryFormWithComments,
                     medium.filename + 'comment',
-                    TextField(''))
+                    TextField('', render_kw={'placeholder':
+                                              'Commentez cette photo'}))
+            setattr(FullStoryFormWithComments,
+                    'feature' + medium.filename,
+                    SelectField("Action spéciale",
+                                choices=ImageFeature.choices()))
     form = FullStoryFormWithComments()
     if form.validate_on_submit():
+        print('validated!')
         image_comments = get_image_comments(form=form,
                                             media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,

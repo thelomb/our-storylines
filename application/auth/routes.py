@@ -55,7 +55,7 @@ def reset_password_request(username):
         send_password_reset_email(user)
         flash('Email sent to ' + username + ' at ' + user.email, 'info')
     return redirect(url_for('main.storyline_community',
-                            user.current_storyline().slug))
+                            storyline=user.current_storyline().slug))
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])

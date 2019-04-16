@@ -29,7 +29,8 @@ class Fullstory2(object):
                       stay_type,
                       author,
                       files,
-                      storyline):
+                      storyline,
+                      stay_description):
         instance = cls()
         instance.date_for = date_for
         instance.title = title
@@ -43,6 +44,7 @@ class Fullstory2(object):
         instance.author = author
         instance.files = files
         instance.storyline_id = storyline.id
+        instance.stay_description = stay_description
         instance.media = []
         if instance.stay_place:
             instance.create_stay()
@@ -61,7 +63,8 @@ class Fullstory2(object):
                      media=instance.media,
                      stay=instance.stay,
                      itinerary=instance.itinerary,
-                     storyline_id=instance.storyline_id)
+                     storyline_id=instance.storyline_id,
+                     stay_description=instance.stay_description)
         db.session.commit()
 
     def update(self,
@@ -76,7 +79,8 @@ class Fullstory2(object):
                stay_type,
                author,
                files,
-               image_comments):
+               image_comments,
+               stay_description):
         self.media = self.story.media
         self.title = title
         self.content = content
@@ -89,6 +93,7 @@ class Fullstory2(object):
         self.author = author
         self.files = files
         self.image_comments = image_comments
+        self.stay_description = stay_description
         if self.files:
             self.process_media_files()
         if self.stay_place:
@@ -106,7 +111,8 @@ class Fullstory2(object):
                           user_id=self.author.id,
                           stay_type=self.stay_type,
                           stay=self.stay,
-                          itinerary=self.itinerary)
+                          itinerary=self.itinerary,
+                          stay_description=self.stay_description)
         db.session.commit()
 
     @classmethod
@@ -172,6 +178,7 @@ class Fullstory2(object):
         fullstory.html_content = fullstory.story.html_content
         fullstory.stay_type = fullstory.story.stay_type.name
         fullstory.stay_type_label = fullstory.story.stay_type.value
+        fullstory.stay_description = fullstory.story.stay_description
         # if fullstory.story.stay:
         fullstory.stay_place = (fullstory.story.stay.place
                                 if fullstory.story.stay else None)

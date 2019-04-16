@@ -68,18 +68,21 @@
     <div class="col-md-3">
       <article class="card card-outline mb-4">
           <div class="card-body">
-              <header>
-                  <h4 class="card-title text-center">
+              <header class="mb-4">
+                  <h5 class="card-title">
 
-                      {{  story.stay_place }}
+                      {{story.stay_place}}
                   </h4>
                   <h6 class="card-subtitle mb-2 text-muted">
                       <i class="fas {{stay_type_icons[story.stay_type]}} fa-2x"></i> {{ story.stay_type_label }}
                   </h6>
               </header>
-              <p class="card-text">
-                      Pas de status
-              </p>
+              <blockquote class="blockquote">
+                <p class="quotation-mark">
+                  “
+                </p>
+                <p class="quotation-text">{{  story.stay_description }}</p>
+              </blockquote>
               {% if story.story.itinerary %}
               <header>
                 {% if story.travel_type=='CAR' %}

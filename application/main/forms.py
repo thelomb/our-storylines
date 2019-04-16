@@ -81,6 +81,9 @@ class FullStoryForm(FlaskForm):
     odometer_read = StringField('Le compteur en fin de journée')
     travel_type = SelectField("Le trajet s'est effectué par:",
                               choices=TravelType.choices())
+    stay_description = TextAreaField('Description du lieu de séjour',
+                                     render_kw={'placeholder':
+                                        'Comment était le séjour, chez qui?'})
     submit = SubmitField('Validez')
 
     def validate_end(self, field):
@@ -104,5 +107,7 @@ class FullStoryForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    comment = TextAreaField('Votre commentaire', render_kw={'placeholder': 'Ajouter votre commentaire...'})
+    comment = TextAreaField('Votre commentaire',
+                            render_kw={'placeholder':
+                                       'Ajouter votre commentaire...'})
     submit = SubmitField('Sauvez')

@@ -85,7 +85,8 @@ def fullstory(storyline):
                                  stay_type=form.stay_type.data,
                                  author=current_user,
                                  files=request.files.getlist('post_images'),
-                                 storyline=sl
+                                 storyline=sl,
+                                 stay_description=form.stay_description.data
                                  )
         flash('Vous venez de publier une nouvelle journée!', 'info')
         return redirect(url_for('main.view_story_date',
@@ -175,7 +176,8 @@ def edit_story_date1(storyline, a_date):
                          stay_type=form.stay_type.data,
                          author=current_user,
                          files=request.files.getlist('post_images'),
-                         image_comments=image_comments
+                         image_comments=image_comments,
+                         stay_description=form.stay_description.data
                          )
         flash("L'entrée vient d'être mise à jour", 'info')
         return redirect(url_for('main.view_story_date',
@@ -193,6 +195,7 @@ def edit_story_date1(storyline, a_date):
         form.odometer_read.data = int_to_str(fullstory.odometer_at)
         form.travel_type.data = fullstory.travel_type
         form.stay_type.data = fullstory.stay_type
+        form.stay_description.data = fullstory.stay_description
         if fullstory.story.media:
             for medium in fullstory.story.media:
                 form[medium.filename + 'comment'].data = medium.comment

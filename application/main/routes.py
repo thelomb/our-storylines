@@ -120,12 +120,11 @@ def view_story_date(storyline, a_date):
         return render_template('errors/404.html')
 
     story.media = story.media.order_by(Media.image_ratio)
-    if story.media.count() == 0:
-        story.media = simulate_media()
     sndmap = map_a_story(story)
     if form.validate_on_submit():
         story.add_comment(comment=form.comment.data,
                           author=current_user)
+    inline_image(story)
     return render_template('view_story_date.html',
                            story=story,
                            map2=sndmap,
@@ -310,18 +309,18 @@ def get_image_addons(form, media):
     return add_ons
 
 
-def simulate_media():
-    picsum = 'https://picsum.photos/700/300/?gravity=east&image='
-    media = ([Media(name=picsum +
-                    str(randint(1, 90)),
-                    filename=picsum + str(randint(1, 90)),
-                    url=picsum + str(randint(1, 90)),
-                    type='Image',
-                    request_file_name=None,
-                    location=None,
-                    exif_width=1,
-                    exif_height=1) for _ in range(3)])
-    return media
+# def simulate_media():
+#     picsum = 'https://picsum.photos/700/300/?gravity=east&image='
+#     media = ([Media(name=picsum +
+#                     str(randint(1, 90)),
+#                     filename=picsum + str(randint(1, 90)),
+#                     url=picsum + str(randint(1, 90)),
+#                     type='Image',
+#                     request_file_name=None,
+#                     location=None,
+#                     exif_width=1,
+#                     exif_height=1) for _ in range(3)])
+#     return media
 
 
 def str_to_int(string):
@@ -336,3 +335,47 @@ def int_to_str(int):
     if int:
         return str(int)
     return ''
+
+
+def inline_image(story):
+    if story.html_content:
+        paragraph_end = '</p>'
+        position = 0
+        content = story.html_content
+        for i, f in enumerate(ImageFeature):
+            if not (f == ImageFeature.NONE or
+                    f == ImageFeature.FEATURED):
+                position += 1
+                if position % 2 == 0:
+                    float = 'left mr-4'
+                else:
+                    float = 'right ml-4 in-text'
+                image = story.featured_image(f)
+                if image:
+                    insert = ('</p><img src="' +
+                              image.url +
+                              '" class="float-' +
+                              float +
+                              '" width=25% alt="' +
+                              image.name +
+                              '">')
+                    content = nth_repl(content,
+                                       paragraph_end,
+                                       insert,
+                                       position)
+        story.html_content = content
+
+
+def nth_repl(s, sub, repl, nth):
+    find = s.find(sub)
+    # if find is not p1 we have found at least one match for the substring
+    i = find != -1
+    # loop util we find the nth or we find no match
+    while find != -1 and i != nth:
+        # find + 1 means we start at the last match start index + 1
+        find = s.find(sub, find + 1)
+        i += 1
+    # if i  is equal to nth we found nth matches so replace
+    if i == nth:
+        return s[:find] + repl + s[find + len(sub):]
+    return s

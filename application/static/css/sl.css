@@ -121,7 +121,7 @@ textarea.form-control {
   height: 100%;
 }
 
-.card-header h3 {
+.card-header h3, .card-header a h4 {
   color: #01b4bc;
 }
 
@@ -148,9 +148,36 @@ blockquote p.quotation-mark
   margin-bottom:0;
   font-size:200%;
   line-height:1;
+  color: #01b4bc;
 }
 blockquote p.quotation-text
 {
   padding:0;
   margin-top:-30px;
+  color: #01b4bc;
+}
+h3 {
+  color: #01b4bc;
+}
+
+.text-muted {
+  color: #01b4bc!important;
+}
+
+img.in-text {
+  margin-right: -1.5rem;
+}
+
+#imagesOfTheDay {
+  background-color:black;
+  border-radius:15px;
+}
+
+.btn-primary, .btn-default {
+  background-color: #fa8925;
+  color: white;
+}
+
+.alert-info {
+  color: #fa8925;
 }

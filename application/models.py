@@ -190,7 +190,7 @@ class User(UserMixin, CRUDMixin, db.Model):
             web_image = WebImage(Image.open(path))
             web_image.fix_orientation()
             web_image.save(path)
-            thumbnail = web_image.another_square_image()
+            thumbnail = web_image.square_thumbnail()
             thumb_name = '128x128_' + filename
             thumb_url = url.replace(filename, thumb_name)
             thumb_path = path.replace(filename, thumb_name)
@@ -289,6 +289,7 @@ class Media(db.Model, CRUDMixin):
     exif_height = db.Column(db.Integer)
     comment = db.Column(db.String(1000))
     feature = db.Column(Enum(ImageFeature), default='NONE')
+    resized_url = db.Column(db.String(1400))
 
     def __init__(self,
                  name,
@@ -297,11 +298,13 @@ class Media(db.Model, CRUDMixin):
                  type,
                  request_file_name,
                  location,
+                 resized_url,
                  exif_width=1,
                  exif_height=1):
         self.name = name
         self.filename = filename
         self.url = url
+        self.resized_url = resized_url
         self.type = type
         self.request_file_name = request_file_name
         self.location = location

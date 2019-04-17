@@ -9,6 +9,7 @@ class WebImage(object):
         self.longitude = None
         self.exif_width = None
         self.exif_height = None
+        self.gps = None
         self._get_exif()
         self._to_latitude()
         self._to_longitude()
@@ -94,20 +95,33 @@ class WebImage(object):
         except ValueError:
             return 0
 
-    def square_image(self):
-        size = (256, 256)
-        self._image.thumbnail(size, Image.ANTIALIAS)
-        thumbnail = Image.new('RGBA', size, (255, 255, 255, 0))
-        thumbnail.paste(
-            self._image,
-            (int((size[0] - self._image.size[0]) / 2),
-             int((size[1] - self._image.size[1]) / 2))
+    def resize_image(self, width=1024, height=700):
+        size = (width, height)
+        image = self._image
+        image.thumbnail(size, Image.ANTIALIAS)
+        resized = Image.new('RGBA', size, (255, 255, 255, 0))
+        resized.paste(
+            image, (int((size[0] - image.size[0]) / 2),
+                    int((size[1] - image.size[1]) / 2))
         )
-        return thumbnail.convert('RGB')
+        return resized
 
-    def another_square_image(self):
+# def resize_image(filepath, i):
+#     size = (1024, 700)
+#     image = Image.open(filepath)
+#     image.thumbnail(size, Image.ANTIALIAS)
+#     background = Image.new('RGBA', size, (255, 255, 255, 0))
+#     background.paste(
+#         image, (int((size[0] - image.size[0]) / 2),
+#                 int((size[1] - image.size[1]) / 2))
+#     )
+#     background.save("squared"+str(i)+".png")
+
+    def square_thumbnail(self):
         thumb = ImageOps.fit(self._image, (256, 256), Image.ANTIALIAS)
         return thumb
+
+
 
 # gps GPSLatitudeRef N
 # gps GPSLatitude ((46, 1), (10, 1), (1629, 100))

@@ -228,7 +228,10 @@ class Fullstory2(object):
                 feature = self.image_addons.get('features').\
                     get(medium.filename, None)
                 medium.comment = comment
-                medium.feature = ImageFeature[feature]
+                if feature:
+                    medium.feature = ImageFeature[feature]
+                else:
+                    medium.feature = ImageFeature.NONE
                 medium.save(commit=False)
 
     def process_media_files(self):
@@ -247,6 +250,22 @@ class Fullstory2(object):
                     url = images.url(filename)
                     web_image = WebImage(Image.open(path))
                     web_image.fix_orientation()
+
+                    # try:
+                    width = 1024
+                    height = 700
+                    resized = web_image.resize_image(width=width,
+                                                     height=height)
+                    resized_filename = str(width) + 'x' + str(height) +\
+                        filename
+                    resized_path = path.replace(filename,
+                                                resized_filename)
+                    resized_url = url.replace(filename,
+                                              resized_filename)
+                    resized.save(resized_path, 'PNG')
+                    resized.close()
+                    # except IOError:
+                    #     print('a little problem...')
                     web_image.save(path)
                     geo_point = GeoPoint(place='tdb',
                                          latitude=web_image.latitude,
@@ -255,6 +274,7 @@ class Fullstory2(object):
                     image = Media(name=filename,
                                   filename=filename,
                                   url=url,
+                                  resized_url=resized_url,
                                   type='Image',
                                   request_file_name=image_info.filename,
                                   location=geo_point,
@@ -334,17 +354,19 @@ class Fullstory2(object):
         if self.story.media:
             for medium in self.story.media:
                 if medium.location:
-                    location += 1
-                    geopoints.append({'place': 'location #' + str(location),
-                                      'lat': medium.location.latitude,
-                                      'lng': medium.location.longitude,
-                                      'fmt_addr':
-                                      medium.location.formatted_address,
-                                      'category': 'picture',
-                                      'type': 'picture',
-                                      'image': medium.url,
-                                      'comment': medium.comment
-                                      })
+                    if medium.location.latitude and medium.location.longitude:
+                        location += 1
+                        geopoints.append({'place': 'location #' +
+                                          str(location),
+                                          'lat': medium.location.latitude,
+                                          'lng': medium.location.longitude,
+                                          'fmt_addr':
+                                          medium.location.formatted_address,
+                                          'category': 'picture',
+                                          'type': 'picture',
+                                          'image': medium.url,
+                                          'comment': medium.comment
+                                          })
 
         return geopoints
 
@@ -357,10 +379,10 @@ class Fullstory2(object):
             self.story.save(commit=False)
             db.session.commit()
 
-    def featured_image(self):
+    def featured_image(self, image_type=ImageFeature.FEATURED):
         image = None
         if self.media:
             for medium in self.media:
-                if medium.feature == ImageFeature.FEATURED:
+                if medium.feature == image_type:
                     return medium
         return image

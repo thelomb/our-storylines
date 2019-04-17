@@ -3,16 +3,9 @@
 {% block app_content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <table class="table">
-                <tr>
-                {% for membership in memberships %}
-                    <tr>
-                        {% include "_user.html" %}
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
+        {% for membership in memberships %}
+                {% include "_user.html" %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

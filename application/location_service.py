@@ -37,7 +37,6 @@ def map_a_story(story):
               fit_markers_to_bounds=bounds,  # True
               zoom=13,
               markers=markers)
-    print(vars(map))
     return map
 
 

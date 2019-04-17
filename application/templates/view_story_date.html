@@ -49,10 +49,11 @@
       </article>
     </div>
   </div>
-  <div class="row">
+  <div class="row mb-4">
     <div class="col-md-12 ml-auto">
       <div class="card-body">
           <div class="post">
+            <img src="{{ story.featured_image().url }}" class="float-right" width=25% alt="{{ story.featured_image().name }}">
             <p class="card-text">
               {% if story.html_content %}
                   {{ story.html_content | safe}}

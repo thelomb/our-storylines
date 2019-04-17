@@ -153,7 +153,6 @@ def edit_story_date1(storyline, a_date):
                         featuredFields.get(value, 0) + 1
 
             for feature, nbitem in featuredFields.items():
-                raise
                 if nbitem > 1:
                     self.post_images.errors = ["problème d'image"]
                     return False
@@ -185,7 +184,7 @@ def edit_story_date1(storyline, a_date):
     form = FullStoryFormWithComments()
     if form.validate_on_submit():
         print('validated!')
-        image_comments = get_image_comments(form=form,
+        image_addons = get_image_addons(form=form,
                                             media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
@@ -198,7 +197,7 @@ def edit_story_date1(storyline, a_date):
                          stay_type=form.stay_type.data,
                          author=current_user,
                          files=request.files.getlist('post_images'),
-                         image_comments=image_comments,
+                         image_addons=image_addons,
                          stay_description=form.stay_description.data
                          )
         flash("L'entrée vient d'être mise à jour", 'info')
@@ -221,7 +220,7 @@ def edit_story_date1(storyline, a_date):
         if fullstory.story.media:
             for medium in fullstory.story.media:
                 form[medium.filename + 'comment'].data = medium.comment
-        print(fullstory.content)
+                form['feature' + medium.filename].data = medium.feature.name
     return render_template('new_story.html',
                            form=form,
                            story=fullstory.story,
@@ -298,12 +297,17 @@ def delete_picture(storyline, a_date, picture_id):
                             a_date=a_date))
 
 
-def get_image_comments(form, media):
+def get_image_addons(form, media):
+    add_ons = {}
     comments = {}
+    features = {}
     for medium in media:
         comments[medium.filename] = form[medium.filename + 'comment'].data
-    print('comments:', comments)
-    return comments
+        features[medium.filename] = form['feature' + medium.filename].data
+        print(form['feature' + medium.filename].data)
+    add_ons['comments'] = comments
+    add_ons['features'] = features
+    return add_ons
 
 
 def simulate_media():

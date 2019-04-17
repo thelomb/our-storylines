@@ -5,7 +5,7 @@ from application.models import (Story,
                                 Itinerary,
                                 Storyline,
                                 Comment)
-from application.model_enums import TravelType, StayType
+from application.model_enums import TravelType, StayType, ImageFeature
 from application.location_service import Geolocation
 from application.imagery import WebImage
 from PIL import Image
@@ -79,7 +79,7 @@ class Fullstory2(object):
                stay_type,
                author,
                files,
-               image_comments,
+               image_addons,
                stay_description):
         self.media = self.story.media
         self.title = title
@@ -92,7 +92,7 @@ class Fullstory2(object):
         self.stay_type = StayType[stay_type]
         self.author = author
         self.files = files
-        self.image_comments = image_comments
+        self.image_addons = image_addons
         self.stay_description = stay_description
         if self.files:
             self.process_media_files()
@@ -103,7 +103,7 @@ class Fullstory2(object):
         else:
             self.itinerary = None
         if self.media:
-            self.process_media_comment()
+            self.process_media_addons()
         self.story.update(commit=False,
                           date_for=self.date_for,
                           title=self.title,
@@ -220,15 +220,16 @@ class Fullstory2(object):
             fullstory.next_date = None
         return fullstory
 
-    def process_media_comment(self):
+    def process_media_addons(self):
         if self.media:
             for medium in self.media:
-                comment = self.image_comments.get(medium.filename, None)
-                if comment:
-                    image = Media.query.filter_by(filename=medium.filename).\
-                        first()
-                    image.comment = comment
-                    image.save(commit=False)
+                comment = self.image_addons.get('comments').\
+                    get(medium.filename, None)
+                feature = self.image_addons.get('features').\
+                    get(medium.filename, None)
+                medium.comment = comment
+                medium.feature = ImageFeature[feature]
+                medium.save(commit=False)
 
     def process_media_files(self):
         photo = []
@@ -356,3 +357,10 @@ class Fullstory2(object):
             self.story.save(commit=False)
             db.session.commit()
 
+    def featured_image(self):
+        image = None
+        if self.media:
+            for medium in self.media:
+                if medium.feature == ImageFeature.FEATURED:
+                    return medium
+        return image

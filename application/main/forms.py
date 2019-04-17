@@ -109,5 +109,6 @@ class FullStoryForm(FlaskForm):
 class CommentForm(FlaskForm):
     comment = TextAreaField('Votre commentaire',
                             render_kw={'placeholder':
-                                       'Ajouter votre commentaire...'})
+                                       'Ajouter votre commentaire...',
+                                       'class': 'btn-primary'})
     submit = SubmitField('Sauvez')

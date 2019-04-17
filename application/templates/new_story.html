@@ -64,8 +64,9 @@
                 <!--<div class="card-body">-->
                   <!--<header>-->
                     {{ wtf.form_field(form[image.filename+'comment'], **{'class': 'form-control'}) }}
+                    {{ wtf.form_field(form['feature'+image.filename], **{'class': 'form-control'}) }}
                   <!--</header>-->
-                  <a href="{{ url_for('main.delete_picture', storyline=storyline.slug, a_date=story.date_for, picture_id=image.id) }}" class="card-link"><i class="fas fa-trash-alt fa-2x"></i> Supprimer</a>
+                  <a href="{{ url_for('main.delete_picture', storyline=storyline.slug, a_date=story.date_for.strftime('%d-%m-%Y'), picture_id=image.id) }}" class="card-link"><i class="fas fa-trash-alt fa-2x"></i> Supprimer</a>
                 <!--</div>-->
               </article><!-- /.card -->
             </div>

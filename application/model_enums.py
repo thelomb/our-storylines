@@ -29,3 +29,14 @@ class StayType(Enum):
     @classmethod
     def choices(cls):
         return [(v.name, v.value) for v in cls]
+
+
+class ImageFeature(Enum):
+    NONE = 'Aucune'
+    FEATURED = 'En évidence'
+    SECOND = 'En deuxième'
+    THIRD = 'En troisième'
+
+    @classmethod
+    def choices(cls):
+        return [(v.name, v.value) for v in cls]

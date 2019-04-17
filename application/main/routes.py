@@ -19,8 +19,9 @@ from datetime import date, datetime
 from random import randint
 from application.fullstory_service import Fullstory2
 from application.location_service import map_a_story
-from wtforms import TextField
+from wtforms import TextField, SelectField
 from application.helpers import authorized_storyline
+from application.model_enums import ImageFeature
 
 stay_type_icons = {
     'CAMPING': 'fa-campground',
@@ -119,12 +120,11 @@ def view_story_date(storyline, a_date):
         return render_template('errors/404.html')
 
     story.media = story.media.order_by(Media.image_ratio)
-    if story.media.count() == 0:
-        story.media = simulate_media()
     sndmap = map_a_story(story)
     if form.validate_on_submit():
         story.add_comment(comment=form.comment.data,
                           author=current_user)
+    inline_image(story)
     return render_template('view_story_date.html',
                            story=story,
                            map2=sndmap,
@@ -143,6 +143,20 @@ def edit_story_date1(storyline, a_date):
     class FullStoryFormWithComments(FullStoryForm):
         pass
 
+        def validate(self):
+            featuredFields = {}
+            for name, value in self.data.items():
+                if (name.startswith('feature') and
+                        value != ImageFeature.NONE.name):
+                    featuredFields[value] = \
+                        featuredFields.get(value, 0) + 1
+
+            for feature, nbitem in featuredFields.items():
+                if nbitem > 1:
+                    self.post_images.errors = ["problème d'image"]
+                    return False
+            return True
+
     sl = Storyline.query.filter_by(slug=storyline).first_or_404()
 
     try:
@@ -160,10 +174,16 @@ def edit_story_date1(storyline, a_date):
         for medium in fullstory.story.media:
             setattr(FullStoryFormWithComments,
                     medium.filename + 'comment',
-                    TextField(''))
+                    TextField('', render_kw={'placeholder':
+                                              'Commentez cette photo'}))
+            setattr(FullStoryFormWithComments,
+                    'feature' + medium.filename,
+                    SelectField("Action spéciale",
+                                choices=ImageFeature.choices()))
     form = FullStoryFormWithComments()
     if form.validate_on_submit():
-        image_comments = get_image_comments(form=form,
+        print('validated!')
+        image_addons = get_image_addons(form=form,
                                             media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
@@ -176,7 +196,7 @@ def edit_story_date1(storyline, a_date):
                          stay_type=form.stay_type.data,
                          author=current_user,
                          files=request.files.getlist('post_images'),
-                         image_comments=image_comments,
+                         image_addons=image_addons,
                          stay_description=form.stay_description.data
                          )
         flash("L'entrée vient d'être mise à jour", 'info')
@@ -199,7 +219,7 @@ def edit_story_date1(storyline, a_date):
         if fullstory.story.media:
             for medium in fullstory.story.media:
                 form[medium.filename + 'comment'].data = medium.comment
-        print(fullstory.content)
+                form['feature' + medium.filename].data = medium.feature.name
     return render_template('new_story.html',
                            form=form,
                            story=fullstory.story,
@@ -276,26 +296,31 @@ def delete_picture(storyline, a_date, picture_id):
                             a_date=a_date))
 
 
-def get_image_comments(form, media):
+def get_image_addons(form, media):
+    add_ons = {}
     comments = {}
+    features = {}
     for medium in media:
         comments[medium.filename] = form[medium.filename + 'comment'].data
-    print('comments:', comments)
-    return comments
+        features[medium.filename] = form['feature' + medium.filename].data
+        print(form['feature' + medium.filename].data)
+    add_ons['comments'] = comments
+    add_ons['features'] = features
+    return add_ons
 
 
-def simulate_media():
-    picsum = 'https://picsum.photos/700/300/?gravity=east&image='
-    media = ([Media(name=picsum +
-                    str(randint(1, 90)),
-                    filename=picsum + str(randint(1, 90)),
-                    url=picsum + str(randint(1, 90)),
-                    type='Image',
-                    request_file_name=None,
-                    location=None,
-                    exif_width=1,
-                    exif_height=1) for _ in range(3)])
-    return media
+# def simulate_media():
+#     picsum = 'https://picsum.photos/700/300/?gravity=east&image='
+#     media = ([Media(name=picsum +
+#                     str(randint(1, 90)),
+#                     filename=picsum + str(randint(1, 90)),
+#                     url=picsum + str(randint(1, 90)),
+#                     type='Image',
+#                     request_file_name=None,
+#                     location=None,
+#                     exif_width=1,
+#                     exif_height=1) for _ in range(3)])
+#     return media
 
 
 def str_to_int(string):
@@ -310,3 +335,47 @@ def int_to_str(int):
     if int:
         return str(int)
     return ''
+
+
+def inline_image(story):
+    if story.html_content:
+        paragraph_end = '</p>'
+        position = 0
+        content = story.html_content
+        for i, f in enumerate(ImageFeature):
+            if not (f == ImageFeature.NONE or
+                    f == ImageFeature.FEATURED):
+                position += 1
+                if position % 2 == 0:
+                    float = 'left mr-4'
+                else:
+                    float = 'right ml-4 in-text'
+                image = story.featured_image(f)
+                if image:
+                    insert = ('</p><img src="' +
+                              image.url +
+                              '" class="float-' +
+                              float +
+                              '" width=25% alt="' +
+                              image.name +
+                              '">')
+                    content = nth_repl(content,
+                                       paragraph_end,
+                                       insert,
+                                       position)
+        story.html_content = content
+
+
+def nth_repl(s, sub, repl, nth):
+    find = s.find(sub)
+    # if find is not p1 we have found at least one match for the substring
+    i = find != -1
+    # loop util we find the nth or we find no match
+    while find != -1 and i != nth:
+        # find + 1 means we start at the last match start index + 1
+        find = s.find(sub, find + 1)
+        i += 1
+    # if i  is equal to nth we found nth matches so replace
+    if i == nth:
+        return s[:find] + repl + s[find + len(sub):]
+    return s

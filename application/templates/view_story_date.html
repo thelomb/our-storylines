@@ -34,7 +34,9 @@
     <div class="col-md-1 ml-auto">
         <div class="card-title">
           <span><i class="fas fa-stopwatch fa-2x"></i></span>
-          <p>{{story.nb_stories}}ème jour du périple</p>
+          <p>
+            {{story.nb_stories}}{% if story.nb_stories == 1%}er{% else %}ème{% endif%} jour
+          </p>
           <span><i class="fas fa-tachometer-alt fa-2x"></i></span>
           <p>{{story.cumulative_distance}}km. parcourus</p>
         </div>
@@ -49,17 +51,18 @@
       </article>
     </div>
   </div>
-  <div class="row">
+  <div class="row mb-4">
     <div class="col-md-12 ml-auto">
       <div class="card-body">
           <div class="post">
-            <p class="card-text">
+              <img src="{{ story.featured_image().url }}" class="float-left mr-4" width=25% alt="{{ story.featured_image().name }}">
+            <div class="card-text">
               {% if story.html_content %}
                   {{ story.html_content | safe}}
               {% else%}
                   {{ story.content }}
               {% endif %}
-            </p>
+            </div>
           </div>
       </div>
     </div>
@@ -131,25 +134,11 @@
   <hr />
   {% include "_commenting.html" %}
   <hr />
-  <div class ="row" style="margin-bottom:30px;">
-    <h3>Les Photos du Jour</h3>
-    <div class="row">
-    {% for image in story.media %}
-
-      <div class="col-lg-4 col-sm-6 col-xs-12" style="margin-bottom:10px">
-        <article class="card card-outline mb-4">
-          <a href="{{image.url}}">
-            <img class="card-img-top" src="{{ image.url }}" alt="" />
-          </a>
-          <quote>
-          {% if image.comment %} {{ image.comment}} {% endif %}
-          </quote>
-        </article>
-      </div>
-    {% endfor %}
-    </div>
+  {% if story.media %}
+  <div class ="row" mb-4">
+    {% include "_pictures_of_the_day.html" %}
   </div>
-
+  {% endif %}
 </div>
 {% endblock %}
 {% block scripts %}
@@ -160,3 +149,5 @@
   {{ moment.lang("fr") }}
 
 {% endblock %}
+
+

@@ -181,3 +181,7 @@ img.in-text {
 .alert-info {
   color: #fa8925;
 }
+
+.story .card-text {
+  font-size:1rem;
+}

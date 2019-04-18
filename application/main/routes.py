@@ -16,7 +16,6 @@ from application.models import (User,
                                 Storyline,
                                 StorylineMembership)
 from datetime import date, datetime
-from random import randint
 from application.fullstory_service import Fullstory2
 from application.location_service import map_a_story
 from wtforms import TextField, SelectField
@@ -175,7 +174,7 @@ def edit_story_date1(storyline, a_date):
             setattr(FullStoryFormWithComments,
                     medium.filename + 'comment',
                     TextField('', render_kw={'placeholder':
-                                              'Commentez cette photo'}))
+                                             'Commentez cette photo'}))
             setattr(FullStoryFormWithComments,
                     'feature' + medium.filename,
                     SelectField("Action spéciale",
@@ -184,7 +183,7 @@ def edit_story_date1(storyline, a_date):
     if form.validate_on_submit():
         print('validated!')
         image_addons = get_image_addons(form=form,
-                                            media=fullstory.story.media)
+                                        media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,
                          title=form.title.data,
                          content=form.post.data,

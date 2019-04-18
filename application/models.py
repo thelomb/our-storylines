@@ -206,8 +206,6 @@ class User(UserMixin, CRUDMixin, db.Model):
                           exif_height=web_image.exif_height)
             web_image.close()
             self.picture = image
-        else:
-            return
 
 
 
@@ -298,7 +296,7 @@ class Media(db.Model, CRUDMixin):
                  type,
                  request_file_name,
                  location,
-                 resized_url,
+                 resized_url=None,
                  exif_width=1,
                  exif_height=1):
         self.name = name

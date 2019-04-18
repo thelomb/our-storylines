@@ -346,35 +346,42 @@ def inline_image(story):
                     f == ImageFeature.FEATURED):
                 position += 1
                 if position % 2 == 0:
-                    float = 'left mr-4'
+                    float = 'left mr-2'
                 else:
-                    float = 'right ml-4 in-text'
+                    float = 'right ml-2 in-text'
                 image = story.featured_image(f)
                 if image:
                     insert = ('</p><img src="' +
                               image.url +
                               '" class="float-' +
                               float +
-                              '" width=25% alt="' +
+                              '" width=33% alt="' +
                               image.name +
                               '">')
                     content = nth_repl(content,
                                        paragraph_end,
                                        insert,
                                        position)
+                    print('loop', i, position)
+                    print(content)
         story.html_content = content
 
 
 def nth_repl(s, sub, repl, nth):
     find = s.find(sub)
+    print(find)
     # if find is not p1 we have found at least one match for the substring
     i = find != -1
+    print(i)
     # loop util we find the nth or we find no match
     while find != -1 and i != nth:
         # find + 1 means we start at the last match start index + 1
         find = s.find(sub, find + 1)
-        i += 1
+        if find != -1 :
+            i += 1
+        print('in while', i, find)
     # if i  is equal to nth we found nth matches so replace
     if i == nth:
+        print('in if before return', i)
         return s[:find] + repl + s[find + len(sub):]
     return s

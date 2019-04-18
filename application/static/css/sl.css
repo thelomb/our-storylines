@@ -168,6 +168,11 @@ img.in-text {
   margin-right: -1.5rem;
 }
 
+img.in-text-left {
+  margin-left: -1.5rem;
+}
+
+
 #imagesOfTheDay {
   background-color:black;
   border-radius:15px;

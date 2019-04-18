@@ -55,7 +55,7 @@
     <div class="col-lg-12">
       <div class="card-body">
           <div class="post">
-              <img src="{{ story.featured_image().url }}" class="float-left mr-4" width=256px alt="{{ story.featured_image().name }}">
+              <img src="{{ story.featured_image().url }}" class="float-left mr-2 in-text-left" width=256px alt="{{ story.featured_image().name }}">
             <div class="card-text">
               {% if story.html_content %}
                   {{ story.html_content | safe}}
@@ -80,9 +80,9 @@
                       <i class="fas {{stay_type_icons[story.stay_type]}} fa-2x"></i> {{ story.stay_type_label }}
                   </h6>
               </header>
-              <blockquote class="blockquote">
+              <blockquote class="blockquote mt-5">
                 <p class="quotation-mark">
-                  “
+
                 </p>
                 <p class="quotation-text">{{  story.stay_description }}</p>
               </blockquote>

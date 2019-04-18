@@ -1,0 +1,47 @@
+<div class="col-xs-2">
+    <div class="card-title">
+        <div class="card-calendar">
+            {% if prev_story_date %}
+              <span>
+                <a href=" {{ url_for('main.view_story_date', storyline=storyline.slug, a_date=prev_story_date.strftime('%d-%m-%Y')) }}">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </span>
+            {% endif %}
+            <span class="fa-7x fa-layers fa-fw text-center">
+              <a href="{{ url_for('main.edit_story_date1', storyline=storyline.slug, a_date=story.date_for.strftime('%d-%m-%Y')) }}">
+                <span><i class="fas fa-calendar"></i></span>
+                <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-10 down-1.5" style="font-weight:900">{{ '{d.day}'.format(d=story.date_for)  }}</span>
+
+                <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-13 down-6" style="font-weight:900">{{ story.date_for.strftime('%b') }}</span>
+              </a>
+            </span>
+            {% if next_story_date %}
+              <span>
+                <a href=" {{ url_for('main.view_story_date', storyline=storyline.slug, a_date=next_story_date.strftime('%d-%m-%Y')) }}">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<div class="col-xs-1 ml-auto">
+    <div class="card-title">
+      <span><i class="fas fa-stopwatch fa-2x"></i></span>
+      <p>
+        {{story.nb_stories}}{% if story.nb_stories == 1%}er{% else %}ème{% endif%} jour
+      </p>
+      <span><i class="fas fa-tachometer-alt fa-2x"></i></span>
+      <p>{{story.cumulative_distance}}km. parcourus</p>
+    </div>
+</div>
+<div class="col-md-9 ml-auto">
+<!--<article class="card mb-4">
+  <header class="card-header text-center">-->
+    <div class="text-center">
+      <h3 class="display-4 text-left">{{ story.title }}</h3>
+    </div>
+  <!--</header>
+</article>-->
+</div>

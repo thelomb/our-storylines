@@ -35,7 +35,6 @@ stay_type_icons = {
 def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
-        print(datetime.utcnow())
         db.session.commit()
 
 
@@ -57,13 +56,16 @@ def index(storyline=None, page=1):
             return render_template('errors/404.html')
     else:
         sl = Storyline.query.filter_by(slug=storyline).first_or_404()
-    stories = sl.stories.order_by(Story.date_for.desc()).paginate(
+    media = sl.pictures()
+    paginated_stories = sl.stories.order_by(Story.date_for.desc()).paginate(
         page, current_app.config['STORIES_PER_PAGE'], False)
+
     return render_template('index.html',
                            title='Home',
-                           posts=stories.items,
+                           posts=paginated_stories.items,
                            page=page,
-                           storyline=sl)
+                           storyline=sl,
+                           media=media)
 
 
 @bp.route('/<storyline>/new', methods=['GET', 'POST'])
@@ -104,6 +106,7 @@ def fullstory(storyline):
 @login_required
 @authorized_storyline
 def view_story_date(storyline, a_date):
+    print(request.headers)
     form = CommentForm()
     sl = Storyline.query.filter_by(slug=storyline).first_or_404()
     try:
@@ -123,6 +126,7 @@ def view_story_date(storyline, a_date):
     if form.validate_on_submit():
         story.add_comment(comment=form.comment.data,
                           author=current_user)
+        form.comment.data = None
     inline_image(story)
     return render_template('view_story_date.html',
                            story=story,
@@ -181,7 +185,6 @@ def edit_story_date1(storyline, a_date):
                                 choices=ImageFeature.choices()))
     form = FullStoryFormWithComments()
     if form.validate_on_submit():
-        print('validated!')
         image_addons = get_image_addons(form=form,
                                         media=fullstory.story.media)
         fullstory.update(date_for=form.day.data,
@@ -348,40 +351,34 @@ def inline_image(story):
                 if position % 2 == 0:
                     float = 'left mr-2'
                 else:
-                    float = 'right ml-2 in-text'
+                    float = 'right ml-2'
                 image = story.featured_image(f)
                 if image:
                     insert = ('</p><img src="' +
                               image.url +
-                              '" class="float-' +
+                              '" class="inline-img float-' +
                               float +
-                              '" width=33% alt="' +
+                              '"alt="' +
                               image.name +
                               '">')
                     content = nth_repl(content,
                                        paragraph_end,
                                        insert,
                                        position)
-                    print('loop', i, position)
-                    print(content)
         story.html_content = content
 
 
 def nth_repl(s, sub, repl, nth):
     find = s.find(sub)
-    print(find)
     # if find is not p1 we have found at least one match for the substring
     i = find != -1
-    print(i)
     # loop util we find the nth or we find no match
     while find != -1 and i != nth:
         # find + 1 means we start at the last match start index + 1
         find = s.find(sub, find + 1)
-        if find != -1 :
+        if find != -1:
             i += 1
-        print('in while', i, find)
     # if i  is equal to nth we found nth matches so replace
     if i == nth:
-        print('in if before return', i)
         return s[:find] + repl + s[find + len(sub):]
     return s

@@ -190,3 +190,35 @@ img.in-text-left {
 .story .card-text {
   font-size:1rem;
 }
+
+img.inline-img {
+  width:480px;
+  max-width:33%;
+}
+
+.carousel-caption {
+  top: 50%;
+  transform: translateY(-50%);
+  bottom: initial;
+
+}
+
+.carousel-caption {
+  color: white;
+  font-size: 4rem;
+  letter-space: 0.2rem;
+  text-transform: uppercase;
+}
+
+
+@media screen and (max-width: 768px) {
+  .carousel-caption {
+     font-size: 18px;
+  }
+}
+
+.carousel-item {
+    -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  }

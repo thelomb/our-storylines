@@ -98,6 +98,14 @@ class Storyline(db.Model):
     def on_changed_name(target, value, oldvalue, initiator):
         target.slug = slugify(value)
 
+    def pictures(self):
+        media=[]
+        for story in self.stories:
+            for medium in story.media:
+                media.append(medium)
+        return media
+
+
 
 db.event.listen(Storyline.name, 'set', Storyline.on_changed_name)
 

@@ -100,9 +100,10 @@ class Storyline(db.Model):
 
     def pictures(self):
         media=[]
-        for story in self.stories:
+        for story in self.stories.order_by(Story.date_for.asc()):
             for medium in story.media:
-                media.append(medium)
+                if medium.feature == ImageFeature.FEATURED:
+                    media.append(medium)
         return media
 
 

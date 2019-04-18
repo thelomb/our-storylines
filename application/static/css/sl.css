@@ -206,7 +206,7 @@ img.inline-img {
 .carousel-caption {
   color: white;
   font-size: 4rem;
-  letter-space: 0.2rem;
+  letter-spacing: 0.8rem;
   text-transform: uppercase;
 }
 
@@ -222,3 +222,10 @@ img.inline-img {
   -moz-transform-style: preserve-3d;
   transform-style: preserve-3d;
   }
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+  top: 50%;
+  transform: translateY(-50%);
+  bottom: initial;
+  color: white;
+}

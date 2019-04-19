@@ -3,7 +3,7 @@
     {% if story.story.comments.count()>0 %}
       <h3>
         {% if story.story.comments.count()==1 %}
-          😏 Un seul 1 commentaire. Animez la conversation!
+          😏 Un seul commentaire. Animez la conversation!
         {% else %}
           🔥 Déjà {{ story.story.comments.count() }} commentaires. Participez à la conversation!</h3>
         {% endif %}

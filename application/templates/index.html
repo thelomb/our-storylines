@@ -3,7 +3,7 @@
 {% block app_content %}
   <div class="container">
    <div class ="row mb-4">
-      <div class="col-9-xs mx-auto">
+      <div class="col-xs-12">
         <div id="imagesOfTheDay" class="carousel slide mb-4 mx-auto" data-ride="carousel">
           <ol class="carousel-indicators">
             {% for image in media %}
@@ -23,34 +23,38 @@
                 active
                 {% endif%}
                 ">
-                  <img class="d-block w-100" src="{{image.resized_url}}" alt="{{image.name}}">
-                  <div class="carousel-caption">
-                    <p>{{image.comment}}</p>
-                  </div>
+                  <a href="{{url_for('main.view_story_date', storyline=storyline.slug, a_date=image.related_story.date_for.strftime('%d-%m-%Y'))}}"><img class="d-block w-100" src="{{image.resized_url}}" alt="{{image.name}}">
+                  {% if image.comment %}
+                    <div class="carousel-caption text-center">
+                      <p>{{image.comment}}</p>
+                      <span>{{moment(image.related_story.date_for).format('D MMMM YYYY')}}</span>
+                    </div>
+                  {% endif %}
+                </a>
                 </div>
             {% endfor %}
-          <a class="carousel-control-prev" href="#imagesOfTheDay" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a class="carousel-control-next" href="#imagesOfTheDay" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
+            <a class="carousel-control-prev" href="#imagesOfTheDay" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#imagesOfTheDay" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
         </div>
 
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="grid">
-      {% for post in posts %}
-        <div class="grid-item">
-          {% include '_intro_card.html' %}
-        </div>
-      {% endfor %}
-    </div>
-  </div>
+</div>
+<div class="grid">
+  <div class="grid-sizer"></div>
+  {% for post in posts %}
+    <div class="grid-item">
+      {% include '_intro_card.html' %}
+      </div>
+  {% endfor %}
+</div>
 <!--  <div class="scroller-status">
     <div class="infinite-scroll-request loader-ellips">
       ...
@@ -58,8 +62,15 @@
     <p class="infinite-scroll-last">End of content</p>
     <p class="infinite-scroll-error">No more pages to load</p>
   </div>-->
-  <div class="infinite-pagination">
-    <a class="pagination__next" href="{{ url_for('main.index', storyline=storyline.slug, page=page + 1) }}">Next page</a>
-  </div>
+<div class="infinite-pagination">
+  <a class="pagination__next" href="{{ url_for('main.index', storyline=storyline.slug, page=page + 1) }}">Next page</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+    {{ moment.lang("fr") }}
 
 {% endblock %}
+

@@ -90,7 +90,7 @@ def fullstory(storyline):
                                  storyline=sl,
                                  stay_description=form.stay_description.data
                                  )
-        flash('Vous venez de publier une nouvelle journée!', 'info')
+        # flash('Vous venez de publier une nouvelle journée!', 'info')
         return redirect(url_for('main.view_story_date',
                                 storyline=sl.slug,
                                 a_date=form.day.data.
@@ -201,7 +201,7 @@ def edit_story_date1(storyline, a_date):
                          image_addons=image_addons,
                          stay_description=form.stay_description.data
                          )
-        flash("L'entrée vient d'être mise à jour", 'info')
+        # flash("L'entrée vient d'être mise à jour", 'info')
         return redirect(url_for('main.view_story_date',
                                 storyline=sl.slug,
                                 a_date=fullstory.date_for.
@@ -257,7 +257,7 @@ def edit_profile(username):
                                 about_me=form.about_me.data,
                                 file=file)
             current_user.save()
-            flash('Your changes have been saved')
+            # flash('Your changes have been saved')
             return redirect(url_for('main.storyline_community',
                                     storyline=current_user.
                                     current_storyline().slug))

@@ -58,6 +58,8 @@ class Storyline(db.Model):
         back_populates="storyline",
         lazy='dynamic')
     slug = db.Column(db.String(32), index=True, nullable=False)
+    start_date = db.Column(db.Date, index=True, unique=True)
+    end_date = db.Column(db.Date, index=True, unique=True)
 
     def add_member(self,
                    user,
@@ -99,13 +101,16 @@ class Storyline(db.Model):
         target.slug = slugify(value)
 
     def pictures(self):
-        media=[]
+        media = []
         for story in self.stories.order_by(Story.date_for.asc()):
             for medium in story.media:
                 if medium.feature == ImageFeature.FEATURED:
                     media.append(medium)
         return media
 
+    def nb_stories_in_trip(self):
+        return self.stories.filter(Story.date_for >= self.start_date,
+                                   Story.date_for <= self.end_date).count()
 
 
 db.event.listen(Storyline.name, 'set', Storyline.on_changed_name)
@@ -217,7 +222,6 @@ class User(UserMixin, CRUDMixin, db.Model):
             self.picture = image
 
 
-
 class Story(db.Model, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
     date_for = db.Column(db.Date, index=True, unique=True)
@@ -272,6 +276,9 @@ class Story(db.Model, CRUDMixin):
         target.html_content = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
+
+    def in_trip_story(self):
+        return self.date_for >= self.storyline.start_date
 
 
 db.event.listen(Story.content, 'set', Story.on_changed_content)

@@ -24,9 +24,11 @@
       </div>
     </div>
   </div>
-  <div class ="row mb-4">
-    {% include '_itinerary.html' %}
-  </div>
+  {% if story.story.in_trip_story() %}
+    <div class ="row mb-4">
+      {% include '_itinerary.html' %}
+    </div>
+  {% endif %}
   <hr />
   {% include "_commenting.html" %}
   <hr />

@@ -22,11 +22,11 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        flash('Vous êtes maintenant connecté et pouvez suivre les Boulombs',
-              'info')
+        # flash('Vous êtes maintenant connecté et pouvez suivre les Boulombs',
+        #      'info')
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Mot de passe invalide')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -71,6 +71,6 @@ def reset_password(token):
     if form.validate_on_submit():
         user.set_password(form.password.data)
         db.session.commit()
-        flash('Vous voilà à nouveau connecté!')
+        # flash('Vous voilà à nouveau connecté!')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)

@@ -3,7 +3,8 @@
   var $grid = $('.grid').masonry({
     // options
     itemSelector: '.grid-item',
-    columnWidth: 400
+    columnWidth: '.grid-sizer',
+    percentPosition: true
     });
 
   $grid.imagesLoaded().progress( function() {

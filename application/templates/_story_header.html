@@ -28,19 +28,21 @@
 </div>
 <div class="col-xs-1 ml-auto">
     <div class="card-title">
-      <span><i class="fas fa-stopwatch fa-2x"></i></span>
-      <p>
-        {{story.nb_stories}}{% if story.nb_stories == 1%}er{% else %}ème{% endif%} jour
-      </p>
-      <span><i class="fas fa-tachometer-alt fa-2x"></i></span>
-      <p>{{story.cumulative_distance}}km. parcourus</p>
+      {% if story.story.in_trip_story() %}
+        <span><i class="fas fa-stopwatch fa-2x"></i></span>
+        <p>
+          {{storyline.nb_stories_in_trip()}}{% if storyline.nb_stories_in_trip() == 1%}er{% else %}ème{% endif%} jour
+        </p>
+        <span><i class="fas fa-tachometer-alt fa-2x"></i></span>
+        <p>{{story.cumulative_distance}}km. parcourus</p>
+      {% endif %}
     </div>
 </div>
 <div class="col-md-9 ml-auto">
 <!--<article class="card mb-4">
   <header class="card-header text-center">-->
     <div class="text-center">
-      <h3 class="display-4 text-left">{{ story.title }}</h3>
+      <h3 class="display-4 text-left story-title">{{ story.title }}</h3>
     </div>
   <!--</header>
 </article>-->

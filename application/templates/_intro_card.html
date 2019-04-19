@@ -9,12 +9,12 @@
             </h4>
         </a>
     </header>
+    <div class="card-body">
     {% if post.media.count()>0 %}
         <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=post.date_for.strftime('%d-%m-%Y')) }}">
             <img class="card-img" src="{{ post.media[0].url }}" alt="" />
         </a>
     {% endif %}
-    <div class="card-body">
         <p class="card-text">
             {% if post.html_content %}
                 {{ post.html_content | safe}}

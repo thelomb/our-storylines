@@ -1,6 +1,14 @@
+.grid-sizer,
 .grid-item {
-    width: 400px;
+  width: 33%;
 }
+
+@media screen and (max-width: 768px) {
+  .grid-sizer, .grid-item {
+     width: 100%;
+  }
+}
+
 
 .navbar-brand {
     text-transform: none;
@@ -156,9 +164,17 @@ blockquote p.quotation-text
   margin-top:-30px;
   color: #01b4bc;
 }
+
 h3 {
   color: #01b4bc;
 }
+
+@media screen and (max-width: 768px) {
+  .story-title {
+     font-size: 24px;
+  }
+}
+
 
 .text-muted {
   color: #01b4bc!important;
@@ -203,17 +219,30 @@ img.inline-img {
 
 }
 
-.carousel-caption {
+.carousel-caption p {
   color: white;
   font-size: 4rem;
   letter-spacing: 0.8rem;
   text-transform: uppercase;
 }
 
+.carousel-caption span {
+  color: white;
+  font-size: 2rem;
+  letter-spacing: 0.2rem;
+}
+
 
 @media screen and (max-width: 768px) {
-  .carousel-caption {
-     font-size: 18px;
+  .carousel-caption p {
+     font-size: 24px;
+     margin-bottom: 0rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .carousel-caption span {
+     font-size: 12px;
   }
 }
 
@@ -229,3 +258,6 @@ img.inline-img {
   bottom: initial;
   color: white;
 }
+
+
+

@@ -35,9 +35,12 @@ class Unique(object):
 
 
 class EditProfileForm(FlaskForm):
+    message = "Je sais que vous aimez beaucoup parler de vous - Guerre et Paix attendra 🤓. Pas plus long qu'un tweet!"
     username = StringField("Nom d'Utilisateur", validators=[DataRequired()])
     about_me = TextAreaField('Décrivez-vous en 140 charactères',
-                             validators=[Length(min=0, max=140)])
+                             validators=[Length(min=0,
+                                                max=130,
+                                                message=message)])
     picture = FileField('Une image de vous',
                         validators=[FileAllowed(images,
                                     'Image Only!')],
@@ -107,7 +110,11 @@ class FullStoryForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
+    message = 'Votre commentaire est trop long - Guerre et Paix attendra 🤓'
     comment = TextAreaField('Votre commentaire',
+                            validators=[Length(min=0,
+                                               max=900,
+                                               message=message)],
                             render_kw={'placeholder':
                                        'Ajouter votre commentaire...',
                                        'class': 'btn-primary'})

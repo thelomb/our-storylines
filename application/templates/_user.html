@@ -1,10 +1,11 @@
-<article class="card card-outline mb-4 ml-4">
+<article class="card card-outline mb-4 card-img">
     <div class="card-body">
+
         <header>
             {% if membership.member == current_user %}
                 <a href="{{url_for('main.edit_profile',username=membership.member.username)}}">
             {% endif %}
-                <img class="rounded-circle user-profile" src="
+                <img class="rounded-circle user-profile card-img" src="
                     {% if membership.member.picture %}
                         {{ membership.member.picture.url }}
                     {% else %}
@@ -17,9 +18,11 @@
             <h4 class="card-title">
                 {{ membership.member.username }}
             </h4>
+            {% if current_user.roles_in_storyline().is_contributor %}
             <h6 class="card-subtitle mb-2 text-muted">
                 Etait ici {{moment(membership.member.last_seen).fromNow()}}
             </h6>
+            {% endif %}
         </header>
         <p class="card-text">
             {% if membership.member.about_me %}

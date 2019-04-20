@@ -259,5 +259,6 @@ img.inline-img {
   color: white;
 }
 
+.dropdown-toggle:after { content: none }
 
 

@@ -3,9 +3,28 @@
 {% block app_content %}
 <div class="container">
     <div class="row">
+        <h3>👨‍👩‍👧‍👦 Les Boulombs</h3>
+    </div>
+    <div class="row">
+        <div class="card-deck">
         {% for membership in memberships %}
+            {% if membership.is_contributor %}
                 {% include "_user.html" %}
+            {% endif%}
         {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+        <h3>😘 Les Amis Qui Nous Suivent </h3>
+    </div>
+    <div class="row">
+        <div class="card-deck">
+        {% for membership in memberships %}
+            {% if membership.is_visitor %}
+                {% include "_user.html" %}
+            {% endif %}
+        {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

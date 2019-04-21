@@ -1,6 +1,6 @@
 from flask import current_app
 from application import db, login, images
-from datetime import datetime
+from datetime import datetime, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
@@ -15,7 +15,7 @@ from application.model_enums import (DistanceUnit,
                                      TravelType,
                                      StayType,
                                      ImageFeature)
-from sqlalchemy import Enum
+from sqlalchemy import Enum, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from application.imagery import WebImage
 from PIL import Image
@@ -111,6 +111,12 @@ class Storyline(db.Model):
     def nb_stories_in_trip(self):
         return self.stories.filter(Story.date_for >= self.start_date,
                                    Story.date_for <= self.end_date).count()
+
+    @staticmethod
+    def last_entry():
+        return db.session.query(func.max(Story.date_for)).first()[0]
+
+
 
 
 db.event.listen(Storyline.name, 'set', Storyline.on_changed_name)

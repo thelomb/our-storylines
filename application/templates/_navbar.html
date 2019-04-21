@@ -30,8 +30,17 @@
             {% if not current_user.is_anonymous %}
             <div class="collapse navbar-collapse order-4 order-md-3" id="navbar">
               <ul class="navbar-nav ml-auto">
+                {% if current_user.roles_in_storyline().is_contributor %}
                 <li class="nav-item active">
                   <a class="nav-link" href="{{ url_for('main.fullstory', storyline=storyline.slug) }}"><i class="fa fa-pen-fancy fa-2x" title="Ajouter une nouvelle journée"></i></a>
+                </li>
+                {% endif %}
+                <li class="nav-item active">
+                  <a class="nav-link" href="{{ url_for('main.view_story_date',
+                                                        storyline=storyline.slug,
+                                                        a_date=storyline.last_entry().strftime('%d-%m-%Y')) }}">
+                    <i class="fas fa-calendar-alt fa-2x" title="Voir la dernière journée"></i>
+                  </a>
                 </li>
                 <li class="nav-item dropdown">
                   <a  class="nav-link dropdown-toggle"

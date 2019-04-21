@@ -41,7 +41,9 @@
 {% endblock %}
 {% block scripts %}
   {{ super() }}
+{% if story.story.in_trip_story() %}
   {{ map2.js }}
+{% endif %}
   {{ moment.include_moment() }}
   {{ moment.lang("fr") }}
 

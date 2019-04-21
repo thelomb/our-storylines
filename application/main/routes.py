@@ -239,7 +239,8 @@ def storyline_community(storyline):
     return render_template('community.html',
                            current_user=current_user,
                            memberships=memberships,
-                           storyline=sl
+                           storyline=sl,
+                           title='Boulomb & Friends'
                            # posts=stories.items,
                            # next_url=next_url,
                            # prev_url=prev_url

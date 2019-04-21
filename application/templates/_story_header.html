@@ -9,12 +9,16 @@
               </span>
             {% endif %}
             <span class="fa-7x fa-layers fa-fw text-center">
-              <a href="{{ url_for('main.edit_story_date1', storyline=storyline.slug, a_date=story.date_for.strftime('%d-%m-%Y')) }}">
+              {% if current_user.roles_in_storyline().is_contributor %}
+                <a href="{{ url_for('main.edit_story_date1', storyline=storyline.slug, a_date=story.date_for.strftime('%d-%m-%Y')) }}">
+              {% endif %}
                 <span><i class="fas fa-calendar"></i></span>
                 <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-10 down-1.5" style="font-weight:900">{{ '{d.day}'.format(d=story.date_for)  }}</span>
 
                 <span class="fa-layers-text fa-inverse" data-fa-transform="shrink-13 down-6" style="font-weight:900">{{ story.date_for.strftime('%b') }}</span>
-              </a>
+              {% if current_user.roles_in_storyline().is_contributor %}
+                </a>
+              {% endif %}
             </span>
             {% if next_story_date %}
               <span>

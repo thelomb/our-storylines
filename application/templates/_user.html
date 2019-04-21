@@ -27,8 +27,6 @@
         <p class="card-text">
             {% if membership.member.about_me %}
                 {{ membership.member.about_me }}
-            {% else %}
-                Pas de status
             {% endif %}
             {% if current_user.roles_in_storyline().is_admin %}
             <p>

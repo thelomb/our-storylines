@@ -251,25 +251,27 @@ def storyline_community(storyline):
 @login_required
 def edit_profile(username):
     if current_user.username == username:
+        user = User.query.filter_by(username=username).first_or_404()
         form = EditProfileForm(current_user.username)
         if form.validate_on_submit():
             file = request.files.getlist('picture')
-            current_user.update(username=form.username.data,
-                                about_me=form.about_me.data,
-                                file=file)
-            current_user.save()
-            # flash('Your changes have been saved')
+            user.update(username=form.username.data,
+                        about_me=form.about_me.data,
+                        file=file)
+            user.save()
+
             return redirect(url_for('main.storyline_community',
-                                    storyline=current_user.
+                                    storyline=user.
                                     current_storyline().slug))
         elif request.method == 'GET':
-            form.username.data = current_user.username
-            form.about_me.data = current_user.about_me
+            form.username.data = user.username
+            form.about_me.data = user.about_me
         return render_template('edit_profile.html',
                                title='Edit Profile',
                                form=form,
-                               storyline=current_user.
-                               current_storyline())
+                               storyline=user.
+                               current_storyline(),
+                               user=user)
     else:
         return render_template('errors/404.html')
 

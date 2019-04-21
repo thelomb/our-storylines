@@ -248,6 +248,7 @@ class Fullstory2(object):
                     filename = images.save(image_info)
                     path = images.path(filename)
                     url = images.url(filename)
+                    url = url.replace('http://', 'https://')
                     web_image = WebImage(Image.open(path))
                     web_image.fix_orientation()
 

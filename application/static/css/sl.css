@@ -235,7 +235,8 @@ img.inline-img {
 
 @media screen and (max-width: 768px) {
   .carousel-caption p {
-     font-size: 24px;
+     font-size: 18px;
+     letter-spacing: 0em;
      margin-bottom: 0rem;
   }
 }

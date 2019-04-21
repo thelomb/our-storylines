@@ -383,3 +383,9 @@ def nth_repl(s, sub, repl, nth):
     if i == nth:
         return s[:find] + repl + s[find + len(sub):]
     return s
+
+
+def excerpt(text, story, end_tag=None):
+    if end_tag is None:
+        end_tag = '<a href="">...</a>'
+    return text[:100] + end_tag

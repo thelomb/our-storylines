@@ -1,4 +1,4 @@
-<article class="card mb-4">
+<article class="card mb-4 index-card">
     <header class="card-header">
         <div class="card-meta">
                 {{ post.date_for.strftime('%d %b %Y') }}
@@ -16,11 +16,8 @@
         </a>
     {% endif %}
         <p class="card-text">
-            {% if post.html_content %}
-                {{ post.html_content | safe}}
-            {% else%}
-                {{ post.content }}
-            {% endif %}
+
+            {{ post.excerpt()}}... <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=post.date_for.strftime('%d-%m-%Y')) }}">Lire la suite</a>
         </p>
     </div>
 </article>

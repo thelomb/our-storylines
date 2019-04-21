@@ -262,4 +262,8 @@ img.inline-img {
 
 .dropdown-toggle:after { content: none }
 
+.index-card .card-text a {
+  text-decoration:underline;
+  color:#01b4bc;
+}
 

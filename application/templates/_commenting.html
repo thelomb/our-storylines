@@ -40,7 +40,7 @@
                   {{comment.author.username}}
                 </p>
                 <p>
-                  <span class="badge"><time class="timeago" datetime="{{comment.timestamp}}">{{comment.timestamp}}</time></span>
+                  <span class="badge">{{moment(comment.timestamp).fromNow()}}</span>
                 </p>
               </cite>
             </blockquote>

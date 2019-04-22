@@ -54,7 +54,7 @@
                   </a>
                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="{{ url_for('main.storyline_community', storyline=storyline.slug) }}">La communauté</a>
-                    <a class="dropdown-item" href="{{ url_for('main.edit_profile', username=current_user.username)}}">Mettre à jour votre profil</a>
+                    <a class="dropdown-item" href="{{ url_for('main.edit_profile', username=current_user.username)}}">Votre profil</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ url_for('auth.logout')}}">Se déconnecter</a>
                   </div>

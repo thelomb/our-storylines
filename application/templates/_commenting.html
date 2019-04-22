@@ -11,7 +11,14 @@
       {% for comment in story.story.comments %}
         <div class="media col-md-12 mb-3">
           <div class="text-center">
-            <img class="mr-3 rounded-circle" src="{{comment.author.picture.url}}" alt="{{comment.author.username}}" width="100" height="100">
+            <img class="mr-3 rounded-circle" src="
+              {% if comment.author.picture %}
+                {{comment.author.picture.url}}
+              {% else %}
+                {{comment.author.avatar(100)}}
+              {% endif %}
+              "
+              alt="{{comment.author.username}}" width="100" height="100">
 
           </div>
           <div class="media-body">

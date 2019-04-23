@@ -68,10 +68,6 @@ def reset_password(token):
     except jwt.exceptions.ExpiredSignatureError:
         return render_template('expired_token.html', title='Invalidation\
                                de votre adresse email')
-    if not user:
-        current_app.logger.warning('user tried to set new\
-                                   password with invalid or expired token')
-        return redirect(url_for('auth.login'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)

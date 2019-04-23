@@ -177,7 +177,7 @@ class User(UserMixin, CRUDMixin, db.Model):
             storyline_id=storyline_id,
             member_id=self.id).first()
 
-    def get_reset_password_token(self, expires_in=600):
+    def get_reset_password_token(self, expires_in=172800):
         token = jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'], algorithm='HS256').decode(

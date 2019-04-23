@@ -38,12 +38,6 @@ def before_request():
         db.session.commit()
 
 
-@bp.after_request
-def add_header(response):
-    response.cache_control.max_age = 300
-    return response
-
-
 @bp.route('/')
 @bp.route('/<storyline>')
 @bp.route('/<storyline>/<int:page>')

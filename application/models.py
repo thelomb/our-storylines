@@ -189,8 +189,8 @@ class User(UserMixin, CRUDMixin, db.Model):
         try:
             id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             alorithms=['HS256'])['reset_password']
-        except:
-            return
+        except jwt.exceptions.ExpiredSignatureError:
+            return jwt.exceptions.ExpiredSignatureError
         return User.query.get(id)
 
     def update(self,

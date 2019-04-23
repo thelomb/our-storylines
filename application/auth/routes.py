@@ -13,6 +13,7 @@ from application.models import User
 from werkzeug.urls import url_parse
 from application.email import send_password_reset_email
 from application.helpers import admin_only
+import jwt
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -62,7 +63,11 @@ def reset_password_request(username):
 def reset_password(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    user = User.verify_reset_password_token(token)
+    try:
+        user = User.verify_reset_password_token(token)
+    except jwt.exceptions.ExpiredSignatureError:
+        return render_template('expired_token.html', title='Invalidation\
+                               de votre adresse email')
     if not user:
         current_app.logger.warning('user tried to set new\
                                    password with invalid or expired token')

@@ -22,7 +22,9 @@
         ">
           <img class="d-block w-100" src="{{image.resized_url}}" alt="{{image.name}}">
           <div class="carousel-caption">
-              <p>{{image.comment}}</p>
+              {% if image.comment %}
+                <p>{{image.comment}}</p>
+              {% endif %}
           </div>
         </div>
     {% endfor %}

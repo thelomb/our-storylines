@@ -116,7 +116,7 @@ def view_story_date(storyline, a_date):
         return render_template('errors/404.html')
 
     story.media = story.media.order_by(Media.image_ratio)
-    sndmap = map_a_story(story)
+    sndmap = map_a_story(story, zoom=map_zoom_level())
     if form.validate_on_submit():
         story.add_comment(comment=form.comment.data,
                           author=current_user)
@@ -385,3 +385,7 @@ def excerpt(text, story, end_tag=None):
     if end_tag is None:
         end_tag = '<a href="">...</a>'
     return text[:100] + end_tag
+
+
+def map_zoom_level():
+    return 1

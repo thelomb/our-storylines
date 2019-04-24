@@ -23,7 +23,7 @@ class Geolocation():
         self.fmt_addr = geocode_result[0]['formatted_address']
 
 
-def map_a_story(story):
+def map_a_story(story, zoom=22):
     geopoints = story.get_geo_points()
     if geopoints is None:
         map = None
@@ -35,7 +35,7 @@ def map_a_story(story):
               lat=markers[0]['lat'],
               lng=markers[0]['lng'],
               fit_markers_to_bounds=bounds,  # True
-              zoom=13,
+              zoom=zoom,
               markers=markers)
     return map
 

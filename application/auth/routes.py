@@ -16,6 +16,7 @@ from application.helpers import admin_only
 import jwt
 
 
+@bp.route('/login', methods=['GET', 'POST'])
 @bp.route('/login/<username>', methods=['GET', 'POST'])
 def login(username=None):
     if current_user.is_authenticated:

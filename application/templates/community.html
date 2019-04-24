@@ -6,11 +6,10 @@
         <h3>👨‍👩‍👧‍👦 Les Boulombs</h3>
     </div>
     <div class="row">
-        <div class="card-deck">
-        {% for membership in memberships %}
-            {% if membership.is_contributor %}
+        {% for membership in memberships if membership.is_contributor %}
+            <div class="col-md-3">
                 {% include "_user.html" %}
-            {% endif%}
+            </div>
         {% endfor %}
         </div>
     </div>
@@ -18,13 +17,11 @@
         <h3>😘 Les Amis Qui Nous Suivent </h3>
     </div>
     <div class="row">
-        <div class="card-deck">
-        {% for membership in memberships %}
-            {% if membership.is_visitor %}
-                {% include "_user.html" %}
-            {% endif %}
+        {% for membership in memberships if membership.is_visitor %}
+            <div class="col-md-3">
+            {% include "_user.html" %}
+            </div>
         {% endfor %}
-        </div>
     </div>
 </div>
 {% endblock %}

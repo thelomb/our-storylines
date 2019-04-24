@@ -197,3 +197,7 @@ img.inline-img {
 .page-item .page-link {
   color: #fa5457;
 }
+
+.card-deck .card{
+    max-width: calc(25% - 30px);
+}

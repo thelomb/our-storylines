@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+<h1>Admin Email</h1>
+<div class="col-sm">
+    {{ wtf.quick_form(form) }}
+</div>
+
+{% endblock%}

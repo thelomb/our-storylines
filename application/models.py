@@ -98,9 +98,10 @@ class Storyline(db.Model):
                                    StorylineMembership.is_admin
                                    ).count() > 0
 
-    @staticmethod
-    def on_changed_name(target, value, oldvalue, initiator):
-        target.slug = slugify(value)
+    def all_users(self):
+        memberships = self.members.join(StorylineMembership.member).\
+            order_by(User.last_seen.desc()).all()
+        return memberships
 
     def pictures(self):
         media = []
@@ -115,10 +116,12 @@ class Storyline(db.Model):
                                    Story.date_for <= self.end_date).count()
 
     @staticmethod
+    def on_changed_name(target, value, oldvalue, initiator):
+        target.slug = slugify(value)
+
+    @staticmethod
     def last_entry():
         return db.session.query(func.max(Story.date_for)).first()[0]
-
-
 
 
 db.event.listen(Storyline.name, 'set', Storyline.on_changed_name)

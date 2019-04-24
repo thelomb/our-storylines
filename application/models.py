@@ -66,12 +66,14 @@ class Storyline(db.Model):
                    is_admin=False,
                    is_contributor=False,
                    is_visitor=True):
-        if not self.is_member(user):
-            user_role = StorylineMembership(member=user,
-                                            is_admin=is_admin,
-                                            is_contributor=is_contributor,
-                                            is_visitor=is_visitor)
-            self.members.append(user_role)
+        if user.id:
+            if self.is_member(user):
+                return
+        user_role = StorylineMembership(member=user,
+                                        is_admin=is_admin,
+                                        is_contributor=is_contributor,
+                                        is_visitor=is_visitor)
+        self.members.append(user_role)
 
     def remove_member(self, user):
         if self.is_member(user):

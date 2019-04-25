@@ -40,6 +40,6 @@ def send_password_reset_email(user):
 def send_general_email(subject, recipients_email, text_body, html_body):
     send_email(subject='Test',
                sender=current_app.config['ADMINS'][0],
-               recipients=[recipients_email],
+               recipients=recipients_email,
                text_body=text_body,
                html_body=html_body)

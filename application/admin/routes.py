@@ -28,9 +28,9 @@ def send_email(storyline):
         users = ['pascal.lombardet@gmail.com']
         send_general_email(subject=sl.name,
                            recipients_email=users,
-                           text_body='',
-                           html_body=form.email)
-        form.email.data=None
+                           text_body='test',
+                           html_body=form.email.data)
+        form.email.data = None
     return render_template('admin/send_email.html',
                            title='Admin - Email',
                            storyline=sl,

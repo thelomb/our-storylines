@@ -289,8 +289,10 @@ class Story(db.Model, CRUDMixin):
     def in_trip_story(self):
         return self.date_for >= self.storyline.start_date
 
-    def excerpt(self):
-        return self.content[:100]
+    def excerpt(self, length=None):
+        if length is None:
+            length = int(len(self.content) / 6)
+        return self.content[:length]
 
 
 db.event.listen(Story.content, 'set', Story.on_changed_content)

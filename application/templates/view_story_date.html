@@ -30,8 +30,6 @@
     </div>
   {% endif %}
   <hr />
-  {% include "_commenting.html" %}
-  <hr />
   {% if story.media %}
   <div class ="picture-carousel row mb-4">
     {% include "_pictures_of_the_day.html" %}
@@ -62,6 +60,8 @@
       </ul>
     </nav>
   </div>
+  <hr />
+  {% include "_commenting.html" %}
 </div>
 {% endblock %}
 {% block scripts %}

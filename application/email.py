@@ -43,3 +43,16 @@ def send_general_email(subject, recipients_email, text_body, html_body):
                recipients=recipients_email,
                text_body=text_body,
                html_body=html_body)
+
+
+def send_email_new_story(subject, recipients, storyline, story):
+    return render_template('email/new_story_email.html',
+                           storyline=storyline,
+                           story=story)
+    # send_email(subject=subject,
+    #            sender=current_app.config['ADMINS'][0],
+    #            recipients=recipients,
+    #            text_body=render_template('email/new_story.txt',
+    #                                      storyline=storyline,
+    #                                      story=story),
+    #            html_body=render_template('email/new_story.html'))

@@ -54,7 +54,7 @@
         {% if next_story_date %}
           <li class="page-item">
             <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=next_story_date.strftime('%d-%m-%Y')) }}" class="page-link" aria-label="Next">
-              <span aria-hidden="true">&raquo; {{ next_story_date.strftime('%d %b %Y') }}</span>
+              <span aria-hidden="true">{{ next_story_date.strftime('%d %b %Y') }} &raquo;</span>
               <span class="sr-only">Next</span>
             </a>
           </li>

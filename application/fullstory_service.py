@@ -120,7 +120,7 @@ class Fullstory2(object):
         storyline = Storyline.query.filter_by(slug=storyline_slug).first()
         if storyline is None:
             return None
-        stories = storyline.stories
+        stories = storyline.stories.order_by(Story.date_for.desc())
         filtered_stories = cls._current_prev_next_stories(stories=stories,
                                                           date_for=date_for)
         fullstory = cls(filtered_stories.get('current', None))

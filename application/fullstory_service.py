@@ -120,7 +120,7 @@ class Fullstory2(object):
         storyline = Storyline.query.filter_by(slug=storyline_slug).first()
         if storyline is None:
             return None
-        stories = storyline.stories.order_by(Story.date_for.desc())
+        stories = storyline.stories.order_by(Story.date_for.asc())
         filtered_stories = cls._current_prev_next_stories(stories=stories,
                                                           date_for=date_for)
         fullstory = cls(filtered_stories.get('current', None))
@@ -165,6 +165,7 @@ class Fullstory2(object):
 
         filtered_stories['nb_stories'] = i + 1
         filtered_stories['cumulative_distance'] = cumulative_distance
+        print(filtered_stories)
         return filtered_stories
 
     @classmethod

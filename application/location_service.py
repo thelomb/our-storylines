@@ -44,7 +44,7 @@ def set_geo_markers(geopoints):
     markers = []
     start_list = min(len(geopoints) - 1, 1)
     for geopoint in geopoints[start_list:]:
-        infobox = "<b>Hello World</b>"
+        infobox = "<b>" + str(geopoint['place']) + "</b>"
         if geopoint['category'] is None:
             geopoint['category'] = 'HOTEL'
         comment = geopoint.get('comment', '')

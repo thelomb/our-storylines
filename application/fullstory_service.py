@@ -264,8 +264,6 @@ class Fullstory2(object):
                                                 resized_filename)
                     resized_url = url.replace(filename,
                                               resized_filename)
-                    resized_url = url.replace('http://',
-                                              'https://')
                     resized.save(resized_path, 'PNG')
                     resized.close()
                     # except IOError:

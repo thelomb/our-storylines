@@ -135,14 +135,14 @@ img.inline-img {
   max-width:33%;
 }
 
-.carousel-caption {
+.mainshow.carousel-caption {
   top: 50%;
   transform: translateY(-50%);
   bottom: initial;
 
 }
 
-.carousel-caption p {
+.mainshow.carousel-caption p {
   color: white;
   font-size: 4rem;
   letter-spacing: 0.8rem;
@@ -153,6 +153,18 @@ img.inline-img {
   color: white;
   font-size: 2rem;
   letter-spacing: 0.2rem;
+}
+
+.image-of-the-day.carousel-caption {
+  top: 100%;
+  transform: translateY(-100%);
+  bottom: initial;
+
+}
+
+.image-of-the-day.carousel-caption p {
+  color: white;
+  font-size: 1rem;
 }
 
 
@@ -167,6 +179,15 @@ img.inline-img {
 @media screen and (max-width: 768px) {
   .carousel-caption span {
      font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .image-of-the-day.carousel-caption p {
+     font-size: 12px;
+     top: 100%;
+     transform: translateY(-100%);
+     bottom: initial;
   }
 }
 

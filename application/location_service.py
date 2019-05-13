@@ -23,13 +23,13 @@ class Geolocation():
         self.fmt_addr = geocode_result[0]['formatted_address']
 
 
-def map_a_story(story, zoom=22):
+def map_a_story(story, zoom=13):
     geopoints = story.get_geo_points()
     if geopoints is None:
         map = None
         return map
     markers = set_geo_markers(geopoints)
-    bounds = not len(markers) == 1
+    bounds = True
     map = Map(identifier="sndmap",
               style="width:100%;height:100%;margin:0;",
               lat=markers[0]['lat'],

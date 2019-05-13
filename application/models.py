@@ -115,6 +115,17 @@ class Storyline(db.Model):
         return self.stories.filter(Story.date_for >= self.start_date,
                                    Story.date_for <= self.end_date).count()
 
+    def accumulated_km(self):
+        stories = self.stories.filter(Story.date_for >= self.start_date,
+                                      Story.date_for <= self.end_date)
+        miles = 0
+        for story_iterator in stories:
+            if story_iterator.itinerary:
+                miles += story_iterator.itinerary.odometer_at
+        return int(miles * 1.6)
+
+
+
     @staticmethod
     def on_changed_name(target, value, oldvalue, initiator):
         target.slug = slugify(value)
@@ -280,8 +291,12 @@ class Story(db.Model, CRUDMixin):
     def on_changed_content(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p', 'img']
+                        'h1', 'h2', 'h3', 'p', 'img', 'span']
         bleach.sanitizer.ALLOWED_ATTRIBUTES['img'] = ['alt', 'src', 'class']
+        bleach.sanitizer.ALLOWED_ATTRIBUTES['span'] = ['class',
+                                                       'data-fa-transform',
+                                                       'style']
+        bleach.sanitizer.ALLOWED_ATTRIBUTES['i'] = ['class']
         target.html_content = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
@@ -291,8 +306,8 @@ class Story(db.Model, CRUDMixin):
 
     def excerpt(self, length=None):
         if length is None:
-            length = int(len(self.content) / 6)
-        return self.content[:length]
+            length = int(len(self.html_content) / 6)
+        return self.html_content[:length]
 
 
 db.event.listen(Story.content, 'set', Story.on_changed_content)

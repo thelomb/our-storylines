@@ -17,7 +17,7 @@
     {% endif %}
         <p class="card-text">
 
-            {{ post.excerpt()}}... <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=post.date_for.strftime('%d-%m-%Y')) }}">Lire la suite</a>
+            {{ post.excerpt() | safe }}... <a href="{{ url_for('main.view_story_date', storyline=storyline.slug, a_date=post.date_for.strftime('%d-%m-%Y')) }}">Lire la suite</a>
         </p>
     </div>
 </article>

@@ -35,10 +35,10 @@
       {% if story.story.in_trip_story() %}
         <span><i class="fas fa-stopwatch fa-2x"></i></span>
         <p>
-          {{storyline.nb_stories_in_trip()}}{% if storyline.nb_stories_in_trip() == 1%}er{% else %}ème{% endif%} jour
+          {{storyline.nb_stories_in_trip(story.date_for)}}{% if storyline.nb_stories_in_trip(story.date_for) == 1%}er{% else %}ème{% endif%} jour
         </p>
         <span><i class="fas fa-tachometer-alt fa-2x"></i></span>
-        <p>{{story.cumulative_distance}}km. parcourus</p>
+        <p>{{storyline.accumulated_km(story.date_for)}}km. parcourus</p>
       {% endif %}
     </div>
 </div>

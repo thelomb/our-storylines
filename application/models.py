@@ -111,13 +111,13 @@ class Storyline(db.Model):
                     media.append(medium)
         return media
 
-    def nb_stories_in_trip(self):
+    def nb_stories_in_trip(self, until):
         return self.stories.filter(Story.date_for >= self.start_date,
-                                   Story.date_for <= self.end_date).count()
+                                   Story.date_for <= until).count()
 
-    def accumulated_km(self):
+    def accumulated_km(self, until):
         stories = self.stories.filter(Story.date_for >= self.start_date,
-                                      Story.date_for <= self.end_date)
+                                      Story.date_for <= until)
         miles = 0
         for story_iterator in stories:
             if story_iterator.itinerary:

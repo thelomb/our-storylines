@@ -20,7 +20,9 @@
           <header>
             {% if story.travel_type=='CAR' %}
               <i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-xs"></i><i class="fas fa-circle fa-sm"></i><i class="fas fa-car-side fa-2x"></i>
-              {{ story.distance }} <small>mi.</small>
+              {% if story.odometer_at %}
+              {{ story.odometer_at }}
+              {% endif %} <small>mi.</small>
             {% endif %}
             {% if story.travel_type=='FLIGHT' %}
               <i class="fas fa-plane fa-2x"></i>

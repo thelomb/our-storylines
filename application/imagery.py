@@ -1,5 +1,5 @@
 from PIL import Image, ExifTags, ImageOps
-
+from flask import current_app
 
 class WebImage(object):
     def __init__(self, image):
@@ -23,10 +23,13 @@ class WebImage(object):
 
     def _get_exif(self):
         try:
+            current_app.logger.error('exif present in get exif method')
             self.exif = self._image._getexif()
             self._GPS_on_exif()
+            current_app.logger.error('exif present in get exif method',
+                                     self.exif)
         except (AttributeError, KeyError, IndexError):
-            print('failed to get exif')
+            current_app.logger.error('failed to get exif')
 
     def fix_orientation(self):
         if self.exif:
@@ -46,6 +49,7 @@ class WebImage(object):
     def _GPS_on_exif(self):
         self.gps = {}
         if self.exif:
+
             for tag, value in self.exif.items():
                 if ExifTags.TAGS.get(tag, tag) == 'GPSInfo':
                     for k, v in value.items():

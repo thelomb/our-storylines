@@ -26,8 +26,8 @@ class WebImage(object):
             current_app.logger.error('exif present in get exif method')
             self.exif = self._image._getexif()
             self._GPS_on_exif()
-            current_app.logger.error('exif present in get exif method',
-                                     self.exif)
+            current_app.logger.error('exif gps content',
+                                     self.gps)
         except (AttributeError, KeyError, IndexError):
             current_app.logger.error('failed to get exif')
 
@@ -54,6 +54,8 @@ class WebImage(object):
                 if ExifTags.TAGS.get(tag, tag) == 'GPSInfo':
                     for k, v in value.items():
                         self.gps[ExifTags.GPSTAGS.get(k, k)] = v
+                        current_app.logger.error('exif tag: ', k)
+                        current_app.logger.error('exif value: ', v)
 
     def _to_latitude(self):
         if self.gps:

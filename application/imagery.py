@@ -51,11 +51,11 @@ class WebImage(object):
         if self.exif:
 
             for tag, value in self.exif.items():
+                current_app.logger.error('exif tag: ', tag)
+                current_app.logger.error('exif value: ', value)
                 if ExifTags.TAGS.get(tag, tag) == 'GPSInfo':
                     for k, v in value.items():
                         self.gps[ExifTags.GPSTAGS.get(k, k)] = v
-                        current_app.logger.error('exif tag: ', k)
-                        current_app.logger.error('exif value: ', v)
 
     def _to_latitude(self):
         if self.gps:

@@ -25,8 +25,6 @@ class WebImage(object):
         # try:
         current_app.logger.error('exif present in get exif method')
         self.exif = self._image._getexif()
-        if self.exif is None:
-            current_app.logger.error('_getexif', self.exif)
         self._GPS_on_exif()
         current_app.logger.error('exif gps content',
                                  self.gps)
@@ -52,8 +50,9 @@ class WebImage(object):
         current_app.logger.error('in gps on exif')
         self.gps = {}
         if self.exif:
-
+            current_app.logger.error('in gps on exif, exif is not none')
             for tag, value in self.exif.items():
+                current_app.logger.error('in gps on exif, in loop')
                 current_app.logger.error('exif tag: ', tag)
                 current_app.logger.error('exif value: ', value)
                 if ExifTags.TAGS.get(tag, tag) == 'GPSInfo':

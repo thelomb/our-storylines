@@ -25,7 +25,8 @@ class WebImage(object):
         # try:
         current_app.logger.error('exif present in get exif method')
         self.exif = self._image._getexif()
-        current_app.logger.error('_getexif', self.exif)
+        if self.exif is None:
+            current_app.logger.error('_getexif', self.exif)
         self._GPS_on_exif()
         current_app.logger.error('exif gps content',
                                  self.gps)
@@ -48,6 +49,7 @@ class WebImage(object):
                             self.exif_height, self.exif_width
 
     def _GPS_on_exif(self):
+        current_app.logger.error('in gps on exif')
         self.gps = {}
         if self.exif:
 

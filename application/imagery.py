@@ -52,9 +52,7 @@ class WebImage(object):
         if self.exif:
             current_app.logger.error('in gps on exif, exif is not none')
             for tag, value in self.exif.items():
-                current_app.logger.error('in gps on exif, in loop')
-                current_app.logger.error('exif tag: ', tag)
-                current_app.logger.error('exif value: ', value)
+                current_app.logger.error('in gps on exif, in loop: %s', tag)
                 if ExifTags.TAGS.get(tag, tag) == 'GPSInfo':
                     for k, v in value.items():
                         self.gps[ExifTags.GPSTAGS.get(k, k)] = v

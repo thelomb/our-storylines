@@ -22,15 +22,15 @@ class WebImage(object):
         self._image.close()
 
     def _get_exif(self):
-        try:
-            current_app.logger.error('exif present in get exif method')
-            current_app.logger.error('_getexif', self._image._getexif())
-            self.exif = self._image._getexif()
-            self._GPS_on_exif()
-            current_app.logger.error('exif gps content',
-                                     self.gps)
-        except (AttributeError, KeyError, IndexError):
-            current_app.logger.error('failed to get exif')
+        # try:
+        current_app.logger.error('exif present in get exif method')
+        self.exif = self._image._getexif()
+        current_app.logger.error('_getexif', self.exif)
+        self._GPS_on_exif()
+        current_app.logger.error('exif gps content',
+                                 self.gps)
+        # except (AttributeError, KeyError, IndexError):
+        #     current_app.logger.error('failed to get exif')
 
     def fix_orientation(self):
         if self.exif:

@@ -27,7 +27,7 @@
                   {% if image.comment %}
                     <div class="carousel-caption mainshow text-center">
                       <p>{{image.comment}}</p>
-                      <span>{{moment(image.related_story.date_for).format('D MMMM YYYY')}}</span>
+                      <span>{{moment(image.related_story.date_for, local=True).format('D MMMM YYYY')}}</span>
                     </div>
                   {% endif %}
                 </a>

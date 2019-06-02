@@ -44,17 +44,17 @@ class WebImage(object):
                             self.exif_height, self.exif_width
 
     def _GPS_on_exif(self):
-        current_app.logger.error('in gps on exif')
+        # current_app.logger.error('in gps on exif')
         self.gps = {}
         if self.exif:
             for tag, value in self.exif.items():
                 if ExifTags.TAGS.get(tag, tag) == 'GPSInfo':
                     for k, v in value.items():
                         self.gps[ExifTags.GPSTAGS.get(k, k)] = v
-                        current_app.logger.error('in gps on exif, in loop: %s',
-                                                 str(k) + '|' +
-                                                 str(ExifTags.TAGS.get(k, k)) +
-                                                 '|' + str(v))
+                        # current_app.logger.error('in gps on exif, in loop: %s',
+                        #                          str(k) + '|' +
+                        #                          str(ExifTags.TAGS.get(k, k)) +
+                        #                          '|' + str(v))
 
     def _to_latitude(self):
         if self.gps:

@@ -189,6 +189,12 @@ img.inline-img {
      transform: translateY(-100%);
      bottom: initial;
   }
+  .mainshow.carousel-caption p {
+     font-size: 12px;
+     top: 100%;
+     transform: translateY(-100%);
+     bottom: initial;
+  }
 }
 
 .carousel-item {
